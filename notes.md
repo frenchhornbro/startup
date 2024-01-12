@@ -1,16 +1,23 @@
-#Markdown notes
+# Markdown notes
 Hashtags are headings (1-6). GitHub makes a table of contents for multiple headings.
+
 **Bold**, __Also Bold__, *Italic*, _Also Italic_, **_Bold + italic_**
 ~~Strikethrough~~, <sub>Subscript</sub>, <sup>Superscript</sup>
+
 > quote
+
 `git status`    <-- call out code, can be used to call out colors such as `FFE021`
+
 ```code in it's own block```
+
 [link](learn.cs260.click)
+
 ![image](https://upload.wikimedia.org/wikipedia/en/4/49/Creeper_%28Minecraft%29.png)
-<!--comments, won't appear in Markdown--> <-- this comment doesn't appear in markdown, use <!-- and -->
+
+<!--comments, won't appear in Markdown--> <-- this comment doesn't appear in markdown, use \<!-- and \-->
 \*ignore\_markdown\_formating\*
 
-##Lists
+## Lists
 +List element 1
 +List element 2
 -List element 3
@@ -25,10 +32,11 @@ Hashtags are headings (1-6). GitHub makes a table of contents for multiple headi
 - [ ] task list
 - [x] completed item
 - [ ] incomplete item
+
 Here's a footnote[^1]
 [^1]: Reference
 
-##Special blockquotes:
+## Special blockquotes:
 > [!NOTE]
 > This is a note
 
