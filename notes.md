@@ -1,5 +1,9 @@
+# Solving Merge Conflicts
+Merge conflicts: Person A pulls, Person B pulls, Person A changes line 1, commits, pushes. Person B changes line 1, commits, pushes. This will cause an error.
+**Solution:** Person B must pull and resolve the lines that are overlapping (which will be clearly highlighted), then commit and push.
+
 # Markdown notes
-Hashtags are headings (1-6). GitHub makes a table of contents for multiple headings.
+Hashtags are headings (1-6). GitHub makes a table of contents for multiple headings. The following are examples of possible formatting in Markdown:
 
 **Bold**, __Also Bold__, *Italic*, _Also Italic_, **_Bold + italic_**
 ~~Strikethrough~~, <sub>Subscript</sub>, <sup>Superscript</sup>
