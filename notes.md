@@ -6,7 +6,7 @@ Hashtags are headings (1-6). GitHub makes a table of contents for multiple headi
 
 > quote
 
-`git status`    <-- call out code, can be used to call out colors such as `FFE021`
+`git status`    <-- call out code, can be used to call out colors such as `#FFE021`
 
 ```code in it's own block```
 
@@ -14,21 +14,21 @@ Hashtags are headings (1-6). GitHub makes a table of contents for multiple headi
 
 ![image](https://upload.wikimedia.org/wikipedia/en/4/49/Creeper_%28Minecraft%29.png)
 
-<!--comments, won't appear in Markdown--> <-- this comment doesn't appear in markdown, use \<!-- and \-->
+<!--comments, won't appear in Markdown--> <-- this comment doesn't appear in markdown (see in Code to view)
 \*ignore\_markdown\_formating\*
 
 ## Lists
-+List element 1
-+List element 2
--List element 3
--List element 4
-*List element 5
-*List element 6
--This
- -Is
-  -A
-   -Nested
-    -List
++ List element 1
++ List element 2
+- List element 3
+- List element 4
+* List element 5
+* List element 6
+- This
+  - Is
+    - A
+      - Nested
+        - List
 - [ ] task list
 - [x] completed item
 - [ ] incomplete item
