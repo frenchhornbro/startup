@@ -1,4 +1,4 @@
-This is the text of this file.
-Some of it will probably be changed.
-But that is okay.
-Change is a part of life.
+This is the text of this file. At least last I checked.
+Most of it is going to be changed.
+But, in theory, that is probably okay.
+Change is an important part of life.
