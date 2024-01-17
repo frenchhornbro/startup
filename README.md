@@ -1,13 +1,13 @@
 # (notes.md)[/notes.md]
 Startup specification: an elevator pitch, key features, a description of how you will use each technology, and design images.
 
-## Elevator pitch (something that would sound cool to your friends) - 1 paragraph
+## Elevator pitch:
+When you're out on your own at college, you're going to want to make a budget. Budgie, the budgeting application, is a simple tool for helping you keep track of your income and expenses in an organized manner. Budgie allows you to set a plan of your projected income and expenses as well as functionality to track how you're actually doing at it. Have kids that want to learn to manage their money? You can see their plan and how well they're keeping up at it. No more making spreadsheets -- get that peace of mind of a budget that is simple to create and accessible from anywhere.
+
+## (Sketch what the application looks like)
 
 
-## Sketch what the application looks like
-
-
-## Include how you'll use technology
+## (Include how you'll use technology)
 
 Technology: HTML, CSS, JavaScript, calling web services, providing web services, authentication, persistent data storage, and WebSocket
 
