@@ -1,3 +1,33 @@
+myfinancialbudgie.click
+# Starting a Server:
+## Creating an AWS server instance:
+- AWS console > log in
+- Navigate to EC2
+- Change location (top right) to N Virginia
+- ```Launch instance```
+- Name the instance
+- Use a provided image (AMI for this class: ```ami-0b009f6c56cdd83ed```)
+- Select t2.micro (free) or something else with more computing power
+- Create new key pair (or use pre-existing one) -- this functions as a password to be able to ssh into your server
+- ```auto-assign public IP```
+- ```Create security group```, allow SSH, HTTP, and HTTPS (or can select existing one)
+- Unlimited credit specification allows server to be up even with higher traffic (includes small fine)
+- ```Launch instance```
+
+## Command to ssh into the server:
+```ssh -i "C:\Users\htdur\.ssh\cs-260-aws\Startup - BYU CS260.pem" ubuntu@18.207.28.91```
+
+## Creating an Elastic IP address:
+This allows you to stop your server without the IP address changing (charges per hour it's not running)
+- AWS console > log in
+- Navigate to EC2
+- Left Menu > ```Network & Security | Elastic IPs```
+- ```Allocate Elastic IP address```
+- ```Allocate```
+- Select new address > ```Actions``` > ```Associate Elastic IP address```
+- Select server in ```Instance```
+- ```Associate```
+
 # Technologies
 HTML - Basic structural and organizational elements
 CSS - Styling and animating
