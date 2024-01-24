@@ -1,4 +1,14 @@
 myfinancialbudgie.click
+# HTTPS
+Setting up Caddy will allow you to get a certificate from Let's Encrypt, which will allow a secure (https) connection
+- ssh into your server
+- ```vi Caddyfile```
+- Replace ```:80``` with ```myDomainName.com```
+- Modify Caddy rules that route traffic to the different associated sites
+- Press ```esc``` to move into command mode
+- ```:wq``` - _write-quit_ -- save and exit
+- ```sudo service caddy restart``` to make changes take effect
+
 # Route 53
 ## Getting a domain name:
 - AWS console > log in
