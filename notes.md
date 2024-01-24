@@ -1,4 +1,31 @@
 myfinancialbudgie.click
+# Route 53
+## Getting a domain name:
+- AWS console > log in
+- Navigate to Route 53
+- ```Domains > Registered domains```
+- Input the name you want
+- Make the purchase (select whether or not you want to auto-renew)
+- Respond to the email if one is sent
+Afterwards you can use the ```whois``` command to see your information (unless you turned on privacy protection)
+
+## Tie domain name to your IP address:
+- AWS console > login
+- Navigate to Route 53
+- ```Hosted zones``` (should see your domain there, unless it's still pending)
+- Click on your domain
+- ```Create record```
+- Keep subdomain blank
+- Record Type A
+- Put public IP address in Value box
+- ```Create records```
+To map subdomains, go from this point and continue with the following:
+- ```Create record```
+- \* for Record name
+- Record type A
+- Put public IP address in Value box
+- ```Create records```
+
 # Starting a Server:
 ## Creating an AWS server instance:
 - AWS console > log in
