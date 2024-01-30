@@ -1,7 +1,7 @@
 *_myfinancialbudgie.click_*
 
 # HTML notes:
-## Structure:
+## HTML Structure:
 ```Body```: has children ```header```, ```main```, and ```footer```
 - ```Header```: contains a ```p```aragraph with a ```span```, and a ```navigation``` containing multiple ```div```isions of subcontent
 - ```Main```: contains multiple ```section```s that contain an unordered list ```ul``` or a ```table```, and an ```aside``` for content that doesn't fit in with the sections
@@ -61,7 +61,7 @@ Link text goes _in between_ the tags
 - images: ```<img alt=creeper src="https://upload.wikimedia.org/wikipedia/en/4/49/Creeper_%28Minecraft%29.png" width=250 />```
 - newlines: ```<div />```
 
-## Input:
+## HTML Input:
 - ```form```: Input container and submission ```<form action="form.html" method="post">```
 - ```fieldset```: Labeled input grouping ```<fieldset> ... </fieldset>```
 - ```input```: Multiple types of user input ```<input type="" />```
@@ -74,28 +74,28 @@ Link text goes _in between_ the tags
 - ```meter```: Display value with a known range ```<meter min="0" max="100" value="50"></meter>```
 
 There's several different input elements, most are intuitively named:
-- Text
-- Password
-- Email
-- Tel
-- URL
-- Number
-- Checkbox: Exclusive selection
-- Radio: Inclusive selection
-- Range: Range limited number
-- Date: Year, month, day
-- Datetime-local: date and time
-- Month: year, month
-- Week
-- Color
-- File
-- Submit: Submit button
+- ```Text```
+- ```Password```
+- ```Email```
+- ```Tel```
+- ```URL```
+- ```Number```
+- ```Checkbox```: Exclusive selection
+- ```Radio```: Inclusive selection
+- ```Range```: Range limited number
+- ```Date```: Year, month, day
+- ```Datetime-local```: date and time
+- ```Month```: year, month
+- ```Week```
+- ```Color```
+- ```File```
+- ```Submit```: Submit button
 
 Common attributes of input elements:
-- name: name of the input
-- disabled: stops the user from being able to interact with input
-- value: initial value of input
-- required: determines if a value is required to be valid
+- ```name```: name of the input
+- ```disabled```: stops the user from being able to interact with input
+- ```value```: initial value of input
+- ```required```: determines if a value is required to be valid
 
 * The pattern element will work on some elements, which allows use of regex to determine inputted passwords
 
@@ -243,6 +243,19 @@ Example:
   </form>
 </body>
 ```
+
+## HTML Audio
+- ```img```: Use the format ```<img alt="mountain landscape" src="https://images.pexels.com/photos/164170/pexels-photo-164170.jpeg" />```
+- ```audio```: can use ```controls``` or ```autoplay```. Use the format ```<audio controls src="testAudio.mp3"></audio>```
+- ```video```: will need to include ```crossorigin="anonymous``` if the file is not from the same domain as your server. Use the following format
+```
+<video controls width="300" crossorigin="anonymous">
+  <source src="https://URL.mp4" />
+</video>
+```
+Creating images within HTML:
+* ```svg```: Renders graphics within HTML - [Read More](https://developer.mozilla.org/en-US/docs/Web/SVG)
+* ```canvas```: Allows for 2D drawing and animation - requires JavaScript to draw on it
 
 # HTTPS
 Setting up Caddy will allow you to get a certificate from Let's Encrypt, which will allow a secure (https) connection
