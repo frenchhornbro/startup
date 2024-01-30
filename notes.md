@@ -1,4 +1,11 @@
-*_myfinancialbudgie.click_*
+> [!NOTE]
+> *_myfinancialbudgie.click_*
+
+> [!NOTE]
+> ```./deployFiles.sh -k <yourpemkey> -h <yourdomain> -s simon```
+> 
+> Example:
+> ```./deployFiles.sh -k ~/keys/production.pem -h yourdomain.click -s simon```
 
 # HTML notes:
 ## HTML Structure:
@@ -244,7 +251,7 @@ Example:
 </body>
 ```
 
-## HTML Audio
+## HTML Media
 - ```img```: Use the format ```<img alt="mountain landscape" src="https://images.pexels.com/photos/164170/pexels-photo-164170.jpeg" />```
 - ```audio```: can use ```controls``` or ```autoplay```. Use the format ```<audio controls src="testAudio.mp3"></audio>```
 - ```video```: will need to include ```crossorigin="anonymous``` if the file is not from the same domain as your server. Use the following format
