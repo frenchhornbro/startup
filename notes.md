@@ -54,7 +54,7 @@ With an animation, you'll want to have keyframes to determine what happens at wh
 > ```./deployFiles.sh -k <yourpemkey> -h <yourdomain> -s simon```
 > 
 > Example:
-> ```./deployFiles.sh -k ~/keys/production.pem -h yourdomain.click -s simon```
+> ```./deployFiles.sh -k "C:\Users\htdur\.ssh\cs-260-aws\Startup - BYU CS260.pem" -h myfinancialbudgie.click -s simon```
 
 # HTML notes:
 ## HTML Structure:
