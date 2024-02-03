@@ -1,6 +1,55 @@
 > [!NOTE]
 > *_myfinancialbudgie.click_*
 
+# CSS notes:
+Remember to put ```<link rel="stylesheet" href="styles.css" />``` in your html to include your CSS (doesn't apply to CodePen)
+
+Here's an example of the syntax:
+```
+elementname {
+  font-family: sans-serif;
+  padding: 10px;
+  margin: 5px;
+  background-color: white;
+  color: green;
+  font-style: italic;
+}
+```
+^^^ You can replace elementname with .classname
+
+For animations, either of the following is acceptable:
+```
+elementname {
+  animation-name: my-animation;
+  animation-duration: 10s;
+  animation-timing-function: ease-out;
+}
+```
+or
+```
+elementname {
+  animation: my-animation 10s ease-out;
+}
+```
+
+With an animation, you'll want to have keyframes to determine what happens at what point in the animation:
+```
+@keyframes my-animation {
+  from {
+    transform: translateX(-200%);
+  }
+  30% {
+    transform: translateX(-50%);
+  }
+  75% {
+    transform: translateX(40%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+```
+
 > [!NOTE]
 > ```./deployFiles.sh -k <yourpemkey> -h <yourdomain> -s simon```
 > 
