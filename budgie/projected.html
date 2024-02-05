@@ -6,17 +6,18 @@
     </head>
     <body>
         <header>
-            <h1>Budgie<img alt="Budige logo" src="budgie-images/budgie-logo.png" width="100px"/></h1>
+            <h1>Budgie<img alt="Budgie logo" src="budgie-images/budgie-logo.png" width="100px"/></h1>
             <div>HTML tabs:</div>
             <nav>
                 <li><a href="index.html">Login</a></li>
                 <li><a href="projected.html">Budget</a></li>
-                <li><a href="family.html">Family</a></li>
+                <li><a href="group.html">Group</a></li>
                 <li><a href="about.html">About</a></li>
             </nav>
         </header>
         <main>
             <hr />
+            <h3>TODO: Consider whether or not initial savings should be a textbox</h3>
             <h2>2024 Budget</h2>
             <table>
                 <tr>
@@ -30,16 +31,19 @@
             </table>
             <table>
                 <tr>
+                    <th>Messages</th>
+                </tr>
+                <tr>
                     <th>My Budget</th>
-                    <td><button type="button">See Family</button></td>
+                    <td><button type="button"><a href="group.html">See Group</a></button></td>
                 </tr>
                 <tr>
                     <th>Projected</th>
                     <td><button type="button"><a href="actual.html">Actual</a></button></td>
                 </tr>
                 <tr>
-                    <td><label for="initial-savings">Initial Savings:</label></td>
-                    <td><input type="number" id="initial-savings" /></td>
+                    <td><label for="initial-savings">Initial Savings: $</label></td>
+                    <td><input type="number" id="initial-savings" placeholder="0.00" /></td>
                 </tr>
             </table>
             <h2>Income</h2>
@@ -176,7 +180,62 @@
                     <td>$13,514.20</td>
                 </tr>
             </table>
-            <h3>//TODO: add in net gain and total saving by end of month</h3>
+            <table>
+                <tr>
+                    <th></th>
+                    <th>Jan</th>
+                    <th>Feb</th>
+                    <th>Mar</th>
+                    <th>Apr</th>
+                    <th>May</th>
+                    <th>Jun</th>
+                    <th>Jul</th>
+                    <th>Aug</th>
+                    <th>Sep</th>
+                    <th>Oct</th>
+                    <th>Nov</th>
+                    <th>Dec</th>
+                </tr>
+                <tr>
+                    <th>Month’s Net Gain</th>
+                    <td>-$9.86</td>
+                    <td>-$152.90</td>
+                    <td>$0.00</td>
+                    <td>$0.00</td>
+                    <td>$0.00</td>
+                    <td>$0.00</td>
+                    <td>$0.00</td>
+                    <td>$0.00</td>
+                    <td>$0.00</td>
+                    <td>$0.00</td>
+                    <td>$0.00</td>
+                    <td>$0.00</td>              
+                </tr>
+                <tr>
+                    <td>Total Savings by End of Month</td>
+                    <td>$2,330.73</td>
+                    <td>$2,177.83</td>
+                    <td>$2,177.83</td>
+                    <td>$2,177.83</td>
+                    <td>$2,177.83</td>
+                    <td>$2,177.83</td>
+                    <td>$2,177.83</td>
+                    <td>$2,177.83</td>
+                    <td>$2,177.83</td>
+                    <td>$2,177.83</td>
+                    <td>$2,177.83</td>
+                    <td>$2,177.83</td>                    
+                </tr>
+            </table>
+            <br />
+            <div>
+                <div>By End of Year:</div>
+                <span>Net Gain:</span>
+                <span>-$1,564.20</span>
+                <br />
+                <span>Total Savings:</span>
+                <span>$776.39</span>
+            </div>
         </main>
         <footer>
             <hr />

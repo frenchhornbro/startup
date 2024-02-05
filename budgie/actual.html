@@ -6,17 +6,18 @@
     </head>
     <body>
         <header>
-            <h1>Budgie<img alt="Budige logo" src="budgie-images/budgie-logo.png" width="100px"/></h1>
+            <h1>Budgie<img alt="Budgie logo" src="budgie-images/budgie-logo.png" width="100px"/></h1>
             <div>HTML tabs:</div>
             <nav>
                 <li><a href="index.html">Login</a></li>
                 <li><a href="projected.html">Budget</a></li>
-                <li><a href="family.html">Family</a></li>
+                <li><a href="group.html">Group</a></li>
                 <li><a href="about.html">About</a></li>
             </nav>
         </header>
         <main>
             <hr />
+            <h3>TODO: Consider whether each category should be a textbox or just a label</h3>
             <h2>2024 Budget</h2>
             <table>
                 <tr>
@@ -30,16 +31,19 @@
             </table>
             <table>
                 <tr>
+                    <th>Messages</th>
+                </tr>
+                <tr>
                     <th>My Budget</th>
-                    <td><button type="button">See Family</button></td>
+                    <td><button type="button"><a href="group.html">See Group</a></button></td>
                 </tr>
                 <tr>
                     <td><button type="button"><a href="projected.html">Projected</a></button></td>
                     <th>Actual</th>
                 </tr>
                 <tr>
-                    <td><label for="initial-savings">Initial Savings:</label></td>
-                    <td><input type="number" id="initial-savings" /></td>
+                    <td><label for="initial-savings">Initial Savings: $</label></td>
+                    <td><input type="number" id="initial-savings" placeholder="0.00" /></td>
                 </tr>
             </table>
             <h2>Income</h2>
@@ -62,35 +66,35 @@
                 </tr>
                 <tr>
                     <th>Job</th>
-                    <td>$1,000.00</td>
-                    <td>$1,000.00</td>
-                    <td>$1,000.00</td>
-                    <td>$1,000.00</td>
-                    <td>$1,000.00</td>
-                    <td>$800.00</td>
-                    <td>$700.00</td>
-                    <td>$1,000.00</td>
-                    <td>$1,000.00</td>
-                    <td>$1,000.00</td>
-                    <td>$1,200.00</td>
-                    <td>$1,250.00</td>
-                    <td>$11,950.00</td>
+                    <td>$1,120.34</td>
+                    <td>$989.45</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>$2,109.79</td>
                 </tr>
                 <tr>
                     <th>Month's income</th>
-                    <td>$1,000.00</td>
-                    <td>$1,000.00</td>
-                    <td>$1,000.00</td>
-                    <td>$1,000.00</td>
-                    <td>$1,000.00</td>
-                    <td>$800.00</td>
-                    <td>$700.00</td>
-                    <td>$1,000.00</td>
-                    <td>$1,000.00</td>
-                    <td>$1,000.00</td>
-                    <td>$1,200.00</td>
-                    <td>$1,250.00</td>
-                    <td>$11,950.00</td>
+                    <td>$1,120.34</td>
+                    <td>$989.45</td>
+                    <td>$0.00</td>
+                    <td>$0.00</td>
+                    <td>$0.00</td>
+                    <td>$0.00</td>
+                    <td>$0.00</td>
+                    <td>$0.00</td>
+                    <td>$0.00</td>
+                    <td>$0.00</td>
+                    <td>$0.00</td>
+                    <td>$0.00</td>
+                    <td>$2,109.79</td>
                 </tr>
             </table>
             <h2>Expense</h2>
@@ -113,69 +117,77 @@
                 </tr>
                 <tr>
                     <th>Tithing</th>
-                    <td>$100.00</td>
-                    <td>$100.00</td>
-                    <td>$100.00</td>
-                    <td>$100.00</td>
-                    <td>$100.00</td>
-                    <td>$80.00</td>
-                    <td>$70.00</td>
-                    <td>$100.00</td>
-                    <td>$100.00</td>
-                    <td>$100.00</td>
-                    <td>$120.00</td>
-                    <td>$125.00</td>
-                    <td>$1,195.00</td>
+                    <td>$112.03</td>
+                    <td>$98.95</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>$210.98</td>
                 </tr>
                 <tr>
                     <th>Rent</th>
                     <td>$934.10</td>
                     <td>$934.10</td>
-                    <td>$934.10</td>
-                    <td>$934.10</td>
-                    <td>$934.10</td>
-                    <td>$934.10</td>
-                    <td>$934.10</td>
-                    <td>$934.10</td>
-                    <td>$934.10</td>
-                    <td>$934.10</td>
-                    <td>$934.10</td>
-                    <td>$934.10</td>
-                    <td>$11,209.20</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>$1,868.20</td>
                 </tr>
                 <tr>
                     <th>Groceries</th>
-                    <td>$80.00</td>
-                    <td>$80.00</td>
-                    <td>$80.00</td>
-                    <td>$80.00</td>
-                    <td>$120.00</td>
-                    <td>$130.00</td>
-                    <td>$130.00</td>
-                    <td>$130.00</td>
-                    <td>$80.00</td>
-                    <td>$80.00</td>
-                    <td>$50.00</td>
-                    <td>$70.00</td>
-                    <td>$1,110.00</td>
+                    <td>$84.07</td>
+                    <td>$109.30</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>---</td>
+                    <td>$193.37</td>
                 </tr>
                 <tr>
                     <th>Month’s Expenses</th>
-                    <td>$1,114.10</td>
-                    <td>$1,114.10</td>
-                    <td>$1,114.10</td>
-                    <td>$1,114.10</td>
-                    <td>$1,154.10</td>
-                    <td>$1,144.10</td>
-                    <td>$1,134.10</td>
-                    <td>$1,164.10</td>
-                    <td>$1,114.10</td>
-                    <td>$1,114.10</td>
-                    <td>$1,104.10</td>
-                    <td>$1,129.10</td>
-                    <td>$13,514.20</td>
+                    <td>$1,130.20</td>
+                    <td>$1,142.35</td>
+                    <td>$0.00</td>
+                    <td>$0.00</td>
+                    <td>$0.00</td>
+                    <td>$0.00</td>
+                    <td>$0.00</td>
+                    <td>$0.00</td>
+                    <td>$0.00</td>
+                    <td>$0.00</td>
+                    <td>$0.00</td>
+                    <td>$0.00</td>
+                    <td>$2,272.55</td>                    
                 </tr>
             </table>
+            <div>
+                <div>To Date:</div>
+                <span>Net Gain:</span>
+                <span>-$162.76</span>
+                <br />
+                <span>Total Savings:</span>
+                <span>$2,177.83</span>
+            </div>
         </main>
         <footer>
             <hr />

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Group</title>
+        <!--Messaging functionality will come in the form of a popup, which hopefully will be able to be displayed from
+        the budget or family page-->
+
+        <!--Request to message someone else based on their username-->
+    </head>
+    <body>
+        <header>
+            <h1>Budgie<img alt="Budgie logo" src="budgie-images/budgie-logo.png" width="100px"/></h1>
+            <div>HTML tabs:</div>
+            <nav>
+                <li><a href="index.html">Login</a></li>
+                <li><a href="projected.html">Budget</a></li>
+                <li><a href="group.html">Group</a></li>
+                <li><a href="about.html">About</a></li>
+            </nav>
+        </header>
+        <main>
+            <hr />
+            <input type="text" id="new-request" placeholder="username" required/>
+            <button type="submit">Add Group Member</button>
+            <h3>Our Budgets</h3>
+            <div>
+                <span>Mine</span>
+                <span><button type="button">View</button></span>
+                <span><button type="button">Message</button></span>
+            </div>
+            <div>
+                <span>Sean</span>
+                <span><button type="button">View</button></span>
+                <span><button type="button">Message</button></span>
+            </div>
+            <div>
+                <span>Kristina</span>
+                <span><button type="button">View</button></span>
+                <span><button type="button">Message</button></span>
+            </div>
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <div class="message-pop-up">
+                <div>Messaging Sterling</div>
+                <div class="other-request">
+                    <span>
+                        Sterling requested access to your account
+                        <button type="button">Accept</button>
+                        <button type="button">Reject</button>
+                        <!--<button type="button">Reject and Block</button>--   implement if I have time-->
+                    </span>
+                </div>
+                <div class="message">
+                    <span>Sterling:</span>
+                    <span>Could you mark down $450.99 as March's expense for HR's budget?</span>
+                </div>
+                <div class="message">
+                    <span>You:</span>
+                    <span>Will do</span>
+                </div>
+                <div class="message">
+                    <span>You:</span>
+                    <span>can you accept my request?</span>
+                </div>
+                <div class="your-request">You requested access to Sterling's account</div>
+                <input type="text" id="response" placeholder="Send a message" required />
+                <button type="submit">Send</button>
+            </div>
+        </main>
+        <footer>
+            <hr />
+            <span>Created by Hyrum Durfee</span>
+            <br />
+            <a href="https://github.com/frenchhornbro/startup">GitHub</a>
+        </footer>
+    </body>
+</html>
