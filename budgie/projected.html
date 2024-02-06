@@ -17,7 +17,6 @@
         </header>
         <main>
             <hr />
-            <h3>TODO: Consider whether or not initial savings should be a textbox</h3>
             <h2>2024 Budget</h2>
             <table>
                 <tr>
@@ -41,11 +40,36 @@
                     <th>Projected</th>
                     <td><button type="button"><a href="actual.html">Actual</a></button></td>
                 </tr>
-                <tr>
-                    <td><label for="initial-savings">Initial Savings: $</label></td>
-                    <td><input type="number" id="initial-savings" placeholder="0.00" /></td>
-                </tr>
             </table>
+            <div>
+                <select>
+                    <option>Add to</option>
+                    <option>Replace</option>
+                </select>
+                <select>
+                    <option>Initial</option>
+                    <optgroup label="Income">
+                        <option>Job</option>
+                    </optgroup>
+                    <optgroup label="Expense":>
+                        <option>Tithing</option>
+                        <option>Rent</option>
+                        <option>Groceries</option>
+                    </optgroup>
+                </select>
+                <div>
+                    <label for="edit-cell">Input Amount: $</label>
+                    <input type="number" id="edit-cell" placeholder="0.00" />
+                </div>
+                <div>
+                    <button type="submit">Make change</button>
+                </div>
+            </div>
+            <br />
+            <div>
+                <span>Initial Savings:</span>
+                <span>$2,340.59</span>
+            </div>
             <h2>Income</h2>
             <table>
                 <tr>

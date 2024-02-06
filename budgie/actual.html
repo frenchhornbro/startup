@@ -3,6 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <title>Actual</title>
+        <!--Eventually make it so you can click on each individual expense / income and see when it was inputted and how it's broken down-->
     </head>
     <body>
         <header>
@@ -17,7 +18,6 @@
         </header>
         <main>
             <hr />
-            <h3>TODO: Consider whether each category should be a textbox or just a label</h3>
             <h2>2024 Budget</h2>
             <table>
                 <tr>
@@ -41,11 +41,37 @@
                     <td><button type="button"><a href="projected.html">Projected</a></button></td>
                     <th>Actual</th>
                 </tr>
-                <tr>
-                    <td><label for="initial-savings">Initial Savings: $</label></td>
-                    <td><input type="number" id="initial-savings" placeholder="0.00" /></td>
-                </tr>
             </table>
+            <br />
+            <div>
+                <select>
+                    <option>Add to</option>
+                    <option>Replace</option>
+                </select>
+                <select>
+                    <option>Initial</option>
+                    <optgroup label="Income">
+                        <option>Job</option>
+                    </optgroup>
+                    <optgroup label="Expense":>
+                        <option>Tithing</option>
+                        <option>Rent</option>
+                        <option>Groceries</option>
+                    </optgroup>
+                </select>
+                <div>
+                    <label for="edit-cell">Input Amount: $</label>
+                    <input type="number" id="edit-cell" placeholder="0.00" />
+                </div>
+                <div>
+                    <button type="submit">Make change</button>
+                </div>
+            </div>
+            <br />
+            <div>
+                <span>Initial Savings:</span>
+                <span>$2,340.59</span>
+            </div>
             <h2>Income</h2>
             <table>
                 <tr>
@@ -180,6 +206,54 @@
                     <td>$2,272.55</td>                    
                 </tr>
             </table>
+            <table>
+                <tr>
+                    <th></th>
+                    <th>Jan</th>
+                    <th>Feb</th>
+                    <th>Mar</th>
+                    <th>Apr</th>
+                    <th>May</th>
+                    <th>Jun</th>
+                    <th>Jul</th>
+                    <th>Aug</th>
+                    <th>Sep</th>
+                    <th>Oct</th>
+                    <th>Nov</th>
+                    <th>Dec</th>
+                </tr>
+                <tr>
+                    <th>Month’s Net Gain</th>
+                    <td>-$9.86</td>
+                    <td>-$152.90</td>
+                    <td>$0.00</td>
+                    <td>$0.00</td>
+                    <td>$0.00</td>
+                    <td>$0.00</td>
+                    <td>$0.00</td>
+                    <td>$0.00</td>
+                    <td>$0.00</td>
+                    <td>$0.00</td>
+                    <td>$0.00</td>
+                    <td>$0.00</td>              
+                </tr>
+                <tr>
+                    <td>Total Savings by End of Month</td>
+                    <td>$2,330.73</td>
+                    <td>$2,177.83</td>
+                    <td>$2,177.83</td>
+                    <td>$2,177.83</td>
+                    <td>$2,177.83</td>
+                    <td>$2,177.83</td>
+                    <td>$2,177.83</td>
+                    <td>$2,177.83</td>
+                    <td>$2,177.83</td>
+                    <td>$2,177.83</td>
+                    <td>$2,177.83</td>
+                    <td>$2,177.83</td>                    
+                </tr>
+            </table>
+            <br />
             <div>
                 <div>To Date:</div>
                 <span>Net Gain:</span>
