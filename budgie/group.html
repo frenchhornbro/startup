@@ -20,24 +20,63 @@
         <main>
             <hr />
             <h2>Group</h2>
-            <input type="text" id="new-request" placeholder="username" required/>
-            <button type="submit">Add Group Member</button>
-            <h3>Our Budgets</h3>
+            <button type="button">Log Out</button>
             <div>
-                <span>Mine</span>
-                <span><button type="button">View</button></span>
-                <span><button type="button">Message</button></span>
+                <input type="text" id="new-request" placeholder="username" required/>
+                <button type="submit">Add Friend</button>
             </div>
-            <div>
-                <span>Sean</span>
-                <span><button type="button">View</button></span>
-                <span><button type="button">Message</button></span>
-            </div>
-            <div>
-                <span>Kristina</span>
-                <span><button type="button">View</button></span>
-                <span><button type="button">Message</button></span>
-            </div>
+            <h3>My Budgets</h3>
+            <table>
+                <tr>
+                    <th>2024 Budget (Personal)</th>
+                    <td>
+                        <select>
+                            <option>Private</option>
+                            <option>Public</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th>2024 HR Budget</th>
+                    <td>
+                        <select>
+                            <option>Private</option>
+                            <option selected="1">Public</option><!--Default should be private, this is for demonstration, change later-->
+                        </select>
+                    </td>
+                    <td><button type="button">View</button></td>
+                </tr>
+            </table>
+            <h3>My Friends' Budgets</h3>
+            <table>
+                <tr>
+                    <th>Sterling</th>
+                    <td><button type="button">Message</button></td>
+                </tr>
+                <tr>
+                    <th>2023 HR Budget</th>
+                    <td><button type="button">View</button></td>
+                </tr>
+                <tr>
+                    <th>2024 HR Budget</th>
+                    <td>requested</td>
+                </tr>
+            </table>
+            <br />
+            <table>
+                <tr>
+                    <th>Kristina</th>
+                    <td><button type="button">Message</button></td>
+                </tr>
+                <tr>
+                    <th>2024 - tech</th>
+                    <td><button type="button">View</button></td>
+                </tr>
+                <tr>
+                    <th>2025 - tech</th>
+                    <td><button type="button">Request Access</button></td>
+                </tr>
+            </table>
             <br />
             <br />
             <br />
@@ -47,7 +86,7 @@
                 <div>Messaging Sterling</div>
                 <div class="other-request">
                     <span>
-                        Sterling requested access to your account
+                        Sterling requested access to your budget: 2024 HR Budget
                         <button type="button">Accept</button>
                         <button type="button">Reject</button>
                         <!--<button type="button">Reject and Block</button>--   implement if I have time-->
@@ -65,7 +104,7 @@
                     <span>You:</span>
                     <span>can you accept my request?</span>
                 </div>
-                <div class="your-request">You requested access to Sterling's account</div>
+                <div class="your-request">You requested access to Sterling's budget: 2024 Tech Budget</div>
                 <input type="text" id="response" placeholder="Send a message" required />
                 <button type="submit">Send</button>
             </div>
