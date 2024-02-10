@@ -1,6 +1,12 @@
 > [!NOTE]
 > *_myfinancialbudgie.click_*
 
+# Bootstrap:
+
+Code for including bootstrap in your application using NPM (Node Package Manager)
+
+```npm install bootstrap@5.2.3```
+
 # CSS notes:
 Remember to put ```<link rel="stylesheet" href="styles.css" />``` in your html to include your CSS (doesn't apply to CodePen)
 
@@ -46,6 +52,41 @@ With an animation, you'll want to have keyframes to determine what happens at wh
   }
   to {
     transform: translateX(100%);
+  }
+}
+```
+
+## CSS Flex
+If you want your body to fill the entire screen, you'll want to use ```vh``` -- this is viewport height.
+100vh means the entire screen is filled.
+
+```flex: 0 100px;```       <-- 0 means it won't grow, 100px means it has a starting height of 100 pixels
+
+```flex: 1;```             <-- 1 means it will get one fractional unit of growth
+
+Making main a flexbox container for the controls and content:
+```
+display: flex;
+flex-direction: row;
+```
+
+To switch an element from being viewed as columns in flex to being viewed as rows when the screen is too skinny:
+```
+@media (orientation: portrait) {
+  main {
+    flex-direction: column;
+  }
+}
+```
+
+To hide the headers and footers when the screen is too short:
+```
+@media (max-height: 700px) {
+  header {
+    display: none;
+  }
+  footer {
+    display: none;
   }
 }
 ```
@@ -366,7 +407,8 @@ To map subdomains, go from this point and continue with the following:
 - ```Launch instance```
 
 ## Command to ssh into the server:
-```ssh -i "C:\Users\htdur\.ssh\cs-260-aws\Startup - BYU CS260.pem" ubuntu@18.207.28.91```
+> [!NOTE]
+> ```ssh -i "C:\Users\htdur\.ssh\cs-260-aws\Startup - BYU CS260.pem" ubuntu@18.207.28.91```
 
 ## Creating an Elastic IP address:
 This allows you to stop your server without the IP address changing (charges per hour it's not running)
