@@ -1,0 +1,112 @@
+/* Add in media (disappearing header and footers) */
+/* Get the view height to look better on a phone */
+
+body {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    align-items: center;
+    background-color: #939aa1;
+}
+
+#logo {
+    width: 10vh;
+}
+
+#brand-name {
+    font-size: 8vh;
+    padding: .5vh;
+}
+
+.nav-link {
+    font-family: Honk;
+    font-size: 4vh;
+}
+
+.navbar {
+    font-family: Honk, 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+#sign-in-title {
+    flex: 2;
+    font-weight: 500;
+    font-size: 6vh;
+}
+
+#login {
+    margin: 1vh;
+    flex:3;
+}
+
+#new-user {
+    padding: 1vh;
+    border-radius: 5%;
+    flex:2;
+}
+
+.textbox-label {
+    flex: 1;
+}
+
+.form-control {
+    flex: 2;
+}
+
+.textbox-container {
+    padding: 1vh;
+    display: flex;
+}
+
+#form-buttons {
+    display: flex;
+}
+
+#form-container {
+    display: flex;
+    flex-direction: column;
+}
+
+#sign-in-box {
+    padding: 3vh;
+    width: 33vw;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(141, 188, 149);
+    border: rgb(38, 38, 42) solid;
+    flex: 8;
+}
+
+.img-frame {
+    background-color: rgb(38, 38, 42);
+    border-radius: 5%;
+    flex:5;
+}
+
+#bird-img {
+    padding:1vh;
+    width: 33vw;
+    border-radius:5%
+}
+
+.space {
+    padding: 1vh;
+    flex: 1;
+}
+
+footer {
+    color: white;
+    background-color: rgb(38, 38, 42);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
