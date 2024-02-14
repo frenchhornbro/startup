@@ -18,8 +18,8 @@
         <header>
             <nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
                 <div class="container-fluid">
-                  <img alt="Budgie logo" src="budgie-images/budgie-logo.png" id="logo">
-                  <a class="navbar-brand" href="projected.html" id="brand-name">Budgie</a>
+                  <img alt="Budgie logo" src="budgie-images/budgie-logo.png" class="logo">
+                  <a class="navbar-brand brand-name" href="projected.html">Budgie</a>
                   <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                   </button>
@@ -43,9 +43,11 @@
             </nav>
         </header>
         <main>
-          <h2 id="sign-in-title">Sign In</h2>
-          <div id="sign-in-box">
-                <form method="get" action="projected.html" id="form-container">
+          <div class="main-filler"></div>
+          <div class="main-container">
+            <h2 class="sign-in-title">Sign In</h2>
+            <div class="sign-in-box">
+              <form method="get" action="projected.html" class="form-container">
                     <div class="textbox-container">
                       <label for="username" class="textbox-label">Username:</label>
                       <input type="text" class="form-control" id="username" placeholder="Username" required/>
@@ -54,18 +56,20 @@
                       <label for="password" class="textbox-label">Password:</label>
                       <input type="password" class="form-control" id="password" placeholder="Password" required/>
                     </div>
-                    <div id="form-buttons">
-                      <button type="submit" class="btn btn-light" id="login">Login</button>
+                    <div class="form-buttons">
+                      <button type="submit" class="btn btn-light login">Login</button>
                       <div></div>
-                      <div id="new-user"><a href="new-user.html">New user?</a></div>
+                      <div class="new-user"><a href="new-user.html">New user?</a></div>
                     </div>
                   </form>
-            </div>
-            <div class="space"></div>
-            <div class="img-frame">
-              <img alt="Blue Budgie" src="budgie-images/login-budgie.jpg" id="bird-img" />
-            </div>
-            <div class="space"></div>
+                </div>
+                <div class="space"></div>
+                <div class="img-frame">
+                  <img alt="Blue Budgie" src="budgie-images/login-budgie.jpg" class="bird-img" />
+                </div>
+                <div class="space"></div>
+              </div>
+              <div class="main-filler"></div>
         </main>
         <footer>
             <span>Created by Hyrum Durfee</span>
