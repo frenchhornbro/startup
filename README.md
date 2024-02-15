@@ -53,3 +53,18 @@ Here's how the technology will be used:
 - **Login** - Login button, input boxes for username and password on Login and New User pages.
 - **Database** - Actual and Projected pages contain placeholder information that would be stored and pulled from a database.
 - **WebSocket** - Placeholder conversation in Group page for messaging and requesting access to each other's budgets.
+
+## CSS Deliverable
+- **Header, footer, and main content body** - Implemented
+- **Navigation elements** - Nav bar is now styled, all links are also stylized
+- **Responsive to window resizing** - Use of flex on every page instead of absolute so content can be viewed on devices with different screen sizes
+- **Application elements** - All buttons and dropdowns are styled with Bootstrap. Elements are appropriate centered on the screen.
+- **Application text content** - Use of two different fonts (one for navbar and one for all other text), some text bolded
+- **Application images** - All images put in a frame with corners rounded
+
+- Header, footer, and main content body
+- Navigation elements - I dropped the underlines and changed the color for anchor elements.
+- Responsive to window resizing - My app looks great on all window sizes and devices
+- Application elements - Used good contrast and whitespace
+- Application text content - Consistent fonts
+- Application images - Still don't have images and so no styling here. 😔
