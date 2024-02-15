@@ -1,0 +1,131 @@
+/* Take a look at Boostrap dashboard */
+
+main {
+    /* Override the effects of index.css for main so it doesn't look dumb */
+    display: block;
+    color: white;
+}
+
+.edit-budget-container {
+    border: black solid thin;
+    background-color: rgb(141, 188, 149);
+    border-radius: 1%;
+    padding: 1vh;
+    margin: 1vh;
+    flex: .5;
+}
+
+.button-spacer {
+    flex: .9;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.stretch-button {
+    margin: .25vh;
+    flex: 2 5px;
+    display: flex;
+    justify-content: center;
+}
+
+.small-space {
+    flex: .1;
+}
+
+.data-format {
+    display: flex;
+    justify-content: center;
+}
+
+.initial-savings {
+    flex: 1;
+}
+
+.button-container {
+    display: flex;
+    padding: .25vh;
+    align-items: center;
+}
+
+.controls-container {
+    border: black solid thin;
+    background-color: rgb(141, 188, 149);
+    border-radius: 1%;
+    padding: 1vh;
+    margin: 1vh;
+    flex: .5;
+    
+}
+
+.all-buttons-container {
+    display: flex;
+    flex-direction: row;
+}
+
+.budget-data-table {
+    display:flex;
+    flex-direction: column;
+}
+
+.budget-data-row {
+    display: flex;
+    flex-direction: row;
+}
+
+.budget-data {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* JS - set this if budgetdata > 0 */
+.pos {
+    background-color: rgb(141, 188, 149);
+    border: black solid thin;
+}
+
+.neut {
+    background-color: rgb(212, 213, 99);
+    border: black solid thin;
+}
+
+.neg {
+    background-color: rgb(198, 98, 98);
+    border: black solid thin;
+}
+
+.income {
+    color:green;
+}
+
+.expense {
+    color: red;
+}
+
+.budget-data-header {
+    font-weight: bold;
+    font-size:1.1em;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.budget-data-container {
+    margin: 1vh;
+    padding: 1vh;
+    border-radius: 1%;
+    background-color: #444444;
+}
+
+.cumulative-stats-container {
+    margin: 1vh;
+    padding: 1vh;
+    border-radius: 1%;
+    background-color: #444444;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}

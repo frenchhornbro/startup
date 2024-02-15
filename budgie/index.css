@@ -74,6 +74,7 @@ main {
 .textbox-container {
     padding: 1vh;
     display: flex;
+    align-items: center;
 }
 
 .form-buttons {
