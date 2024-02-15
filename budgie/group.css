@@ -1,0 +1,67 @@
+/* Allign buttons in group-container on the right if time */
+
+.group-main-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex: 1;
+    color: white;
+}
+
+.group-container {
+    flex: 2;
+    margin: 3vh;
+    padding: 1vh;
+    border-radius: 1%;
+    background-color: #444444;
+    height: 95%;
+}
+
+.add-friend-container {
+    margin: 1vh;
+    display: flex;
+    height: 2.5em;
+}
+
+.add-friend-textbox {
+    flex: 3;
+    margin: .25vh;
+}
+
+.add-friend-button {
+    flex: 1;
+    margin: .25vh;
+}
+
+.message-container {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    margin: 3vh;
+    padding: 1vh;
+    border-radius: 1%;
+    background-color: #444444;
+    height: 95%;
+}
+
+.messages {
+    flex: 90;
+}
+
+.response {
+    flex: 1;
+    /* position: absolute;
+    bottom: 0%; */
+    display: flex;
+    flex-direction: row;
+}
+
+.response-textbox {
+    flex: 9;
+    margin: .25vh;
+}
+
+.response-button {
+    flex: 1;
+    margin: .25vh;
+}
