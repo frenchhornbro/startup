@@ -1,0 +1,27 @@
+.about-main-container {
+    margin: 10vh;
+    font-size: large;
+}
+
+.title-container {
+    display: flex;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.log-out {
+    display: flex;
+    justify-content: right;
+}
+
+.img-frame-container {
+    display: flex;
+    justify-content: center;
+}
+
+.about-img-frame {
+    background-color: rgb(38, 38, 42);
+    display: flex;
+    justify-content: center;
+    border-radius: 1%;
+}

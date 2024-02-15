@@ -4,49 +4,80 @@
         <meta charset="UTF-8" />
         <title>About</title>
         <link rel="icon" href="budgie-images/budgie.ico" />
+        <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+        crossorigin="anonymous"
+        />
+        <link>
+        <link href="index.css" rel="stylesheet" />
+        <link href="about.css" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Honk&display=swap" rel="stylesheet">
     </head>
     <body>
         <header>
-            <h1>Budgie<img alt="Budgie logo" src="budgie-images/budgie-logo.png" width="100px"/></h1>
-            <div>HTML tabs:</div>
-            <nav>
-                <li><a href="index.html">Login</a></li>
-                <li><a href="projected.html">Budget</a></li>
-                <li><a href="group.html">Group</a></li>
-                <li><a href="about.html">About</a></li>
+            <nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
+                <div class="container-fluid">
+                  <img alt="Budgie logo" src="budgie-images/budgie-logo.png" class="logo">
+                  <a class="navbar-brand brand-name" href="projected.html">Budgie</a>
+                  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                  </button>
+                  <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">
+                      <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="index.html">Login</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" href="projected.html">Budget</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" href="group.html">Group</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" href="about.html">About</a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
             </nav>
         </header>
         <main>
-            <hr />
-            <h2>About</h2>
-            <button type="button">Log Out</button>
-            <p>
-                Budgie is a free and simple financial application to help you plan out your budget according to
-                your expected income and expenses.
-            </p>
-            <p>
-                <div>How it works:</div>
-                <div>
-                    Create a theoretical, or "Projected", budget based on roughly what you expect your income and expenses will be.
-                    You can change this later! This will help you see how much you're making per month, as well as overall, based
-                    on that plan. This will help you to see if you need to pinch pennies for the next while, or if you don't need
-                    to be so tight on spending. When you receive a paycheck or pay a bill, put that in your "Actual". This will
-                    help you know how well you're following your projected budget. If you'd like, you can afterwards edit your
-                    projected budget to more accurately reflect your expectations for the year, or you can keep it as a goal to work
-                    towards and spend accordingly in the months to come.
+            <div class="about-main-container">
+                <div class="log-out">
+                    <button type="button" class="btn btn-light">Log Out</button>
                 </div>
-            </p>
-            <p>
-                <div>Want to work together?</div>
-                <div>You can add friends, request to view and edit their budgets, and send messages in the Group tab.</div>
-            </p>
-            <br />
-            <img alt="Two Budgies" src="budgie-images\about-budgie.jpg" width="500px" />
+                <h2 class="title-container">About</h2>
+                <p>
+                    Budgie is a free and simple financial application to help you plan out your budget according to
+                    your expected income and expenses.
+                </p>
+                <p>
+                    <div style="font-weight: bold;">How it works:</div>
+                    <div>
+                        Create a theoretical, or "Projected", budget based on roughly what you expect your income and expenses will be.
+                        You can change this later! This will help you see how much you're making per month, as well as overall, based
+                        on that plan. This will help you to see if you need to pinch pennies for the next while, or if you don't need
+                        to be so tight on spending. When you receive a paycheck or pay a bill, put that in your "Actual". This will
+                        help you know how well you're following your projected budget. If you'd like, you can afterwards edit your
+                        projected budget to more accurately reflect your expectations for the year, or you can keep it as a goal to work
+                        towards and spend accordingly in the months to come.
+                    </div>
+                </p>
+                <p>
+                    <div style="font-weight: bold;">Want to work together?</div>
+                    <div>You can add friends, request to view and edit their budgets, and send messages in the Group tab.</div>
+                </p>
+                <div class="img-frame-container">
+                    <div class="about-img-frame">
+                        <img alt="Two Budgies" src="budgie-images\about-budgie.jpg" class="bird-img" />
+                    </div>
+                </div>
+            </div>
         </main>
         <footer>
-            <hr />
             <span>Created by Hyrum Durfee</span>
-            <br />
             <a href="https://github.com/frenchhornbro/startup">GitHub</a>
         </footer>
     </body>
