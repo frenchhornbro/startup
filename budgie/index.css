@@ -16,6 +16,11 @@ main {
     background-color: #939aa1;
 }
 
+#password-container {
+    display: flex;
+    justify-content: center;
+}
+
 .main-filler {
     flex: 1
 }
