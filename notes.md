@@ -1,13 +1,55 @@
 > [!NOTE]
 > *_myfinancialbudgie.click_*
 
-# Bootstrap:
+# JavaScript notes
+## Document Object Model (DOM)
+### Accessing the DOM
+- `document` is a global variable used to access the DOM
+- `querySelectorAll` allows you to select elements from the DOM
+- `textContent` contains all the element's text
+- `innerHTML` allows you to access an element's HTML content
 
+### Modifying the DOM
+
+Adding an element:
+```
+const newChild = document.createElement('div');
+newChild.textContent = "Text inside div";
+const parentElement = document.querySelector('#thisID');
+parentElement.appendChild(newChild);
+```
+Removing an Element:
+```
+const element = document.querySelector('#thisID div');
+element.parentElement.removeChild(element);
+```
+Injecting HTML
+```
+const element = document.querySelector('div');
+element.innerHTML = '<div class="injected">Greetings</div>';
+```
+> [!WARNING]
+> Make sure the HTML being injected can't be manipulated by the user, otherwise they can hack info
+
+### Event Listeners
+
+```
+document.querySelector('#thisID').addEventListener('click', () => {console.log("Clicked the element with id #thisID")});
+```
+Events:
+- clipboard
+- focus
+- keyboard
+- mouse
+- text selection
+
+
+# CSS notes:
+## Bootstrap:
 Code for including bootstrap in your application using NPM (Node Package Manager)
 
 ```npm install bootstrap@5.2.3```
 
-# CSS notes:
 Remember to put ```<link rel="stylesheet" href="styles.css" />``` in your html to include your CSS (doesn't apply to CodePen)
 
 Here's an example of the syntax:
@@ -94,8 +136,8 @@ To hide the headers and footers when the screen is too short:
 > [!NOTE]
 > ```./deployFiles.sh -k <yourpemkey> -h <yourdomain> -s simon```
 > 
-> Example:
 > ```./deployFiles.sh -k "C:\Users\htdur\.ssh\cs-260-aws\Startup - BYU CS260.pem" -h myfinancialbudgie.click -s simon```
+> ```./deployFiles.sh -k "C:\Users\htdur\.ssh\cs-260-aws\Startup - BYU CS260.pem" -h myfinancialbudgie.click -s startup```
 
 # HTML notes:
 ## HTML Structure:
