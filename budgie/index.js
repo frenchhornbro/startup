@@ -1,25 +1,52 @@
 let pwdWarningShowing = false;
+let confWarningShowing = false;
+let warning = "";
 
-function login () {
+function login (newUser=false) {
     const user = document.querySelector("#username");
     const pwd = document.querySelector("#password");
+    const confirm = document.querySelector("#confirm");
     if (user.value != "" && pwd.value != "") {
         if (pwd.value.length >= 7) {
-            window.location.href = "projected.html";
-            return false;
+            if (pwdWarningShowing) {
+                removeElement = document.querySelector("#pwdWarning")
+                removeElement.parentElement.removeChild(removeElement);
+                pwdWarningShowing = false;
+            }
+            if (newUser) {
+                if (pwd.value == confirm.value) {
+                    window.location.href = "projected.html";
+                }
+                else if (!confWarningShowing) {
+                    displayWarning("confWarning", "Inputted passwords must be the same");
+                }
+            }
+            else {
+                window.location.href = "projected.html";
+            }
         }
-        else if (!pwdWarningShowing) {
-            console.log("Password must be at least 7 characters long");
-            const pwdWarning = document.createElement('div');
-            pwdWarning.textContent = "Password must be at least 7 characters long";
-            pwdWarning.style.color = "red";
-            pwdWarning.style.fontSize = ".75em";
-            pwdWarning.style.fontStyle = "italic";
-            insertBox = document.querySelector("#password-container");
-            insertBox.appendChild(pwdWarning);
-            pwdWarningShowing = true;
+        else {
+            if (confWarningShowing) {
+                removeElement = document.querySelector("#confWarning");
+                removeElement.parentElement.removeChild(removeElement);
+                confWarningShowing = false;
+            }
+            if (!pwdWarningShowing) {
+                displayWarning("pwdWarning", "Password must be at least 7 characters long");
+            }
         }
-        console.log("Logged in");
         return true;
+    }
+
+    function displayWarning(id, warningText) {
+        warning = document.createElement('div');
+        warning.id = id;
+        warning.textContent = warningText;
+        warning.style.color = "red";
+        warning.style.fontSize = ".75em";
+        warning.style.fontStyle = "italic";
+        insertBox = document.querySelector("#password-container");
+        insertBox.appendChild(warning);
+        (id === "pwdWarning") ? pwdWarningShowing = true : confWarningShowing = true;
     }
 }

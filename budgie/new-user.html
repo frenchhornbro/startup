@@ -56,12 +56,15 @@
                             <label for="password" class="textbox-label">Password:</label>
                             <input type="password" class="form-control" id="password" placeholder="Password" required/>
                         </div>
-                        <div class="textbox-container">
+                        <div>
+                          <div class="textbox-container">
                             <label for="confirm" class="textbox-label">Confirm:</label>
                             <input type="password" class="form-control" id="confirm" placeholder="Confirm Password" required/>
+                          </div>
+                          <div id="password-container"></div>
                         </div>
                         <div class="form-buttons">
-                            <button type="submit" class="btn btn-light login">Create Account</button>
+                            <button type="button" class="btn btn-light login" onclick="login(true)">Create Account</button>
                             <div></div>
                             <div class="new-user"><a href="index.html">Already a user?</a></div>
                         </div>
@@ -79,5 +82,6 @@
             <span>Created by Hyrum Durfee</span>
             <a href="https://github.com/frenchhornbro/startup">GitHub</a>
         </footer>
+        <script src="index.js"></script>
     </body>
 </html>
