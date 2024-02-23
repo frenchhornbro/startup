@@ -2,6 +2,48 @@
 > *_myfinancialbudgie.click_*
 
 # JavaScript notes
+## Promises
+<u>standard promise syntax:</u>
+```
+const myPromise = new Promise((resolveFunction, rejectFunction) => {
+  if () resolveFunction();
+  else rejectFunction();
+});
+```
+In this example, if `resolveFunction` is called then the promise is successful, and if `rejectFunction` is called then the promise fails
+
+- The state is fulfilled when the code completes correctly
+- The state is pending when the code is still running
+- The state is rejected when an error occurs
+
+`console.log(myPromise)` will output the state of the promise
+
+<u>then/catch syntax:</u>
+```
+newPromise
+  .then((result) => console.log("Result = ${result}"));
+  .catch((error) => console.log("Error = ${error}"));
+  .finally(() => console.log("completed"));
+```
+
+<u>async try/catch syntax:</u>
+```
+try {
+	const result = await myPromise();
+	console.log(“Result: ${result}”);
+} catch (error) {
+	console.error(“Error: ${error}”);
+} finally {
+	console.log(“Finished”);
+}
+```
+`async` declares that a function will return a promise
+
+You cannot call await unless it is called at the top level of your JS, or in an async function
+
+`await` will wrap a cal to the async function, block execution until the promise has resolved, and then returns the result of the promise
+
+
 ## Document Object Model (DOM)
 ### Accessing the DOM
 - `document` is a global variable used to access the DOM
@@ -29,7 +71,7 @@ const element = document.querySelector('div');
 element.innerHTML = '<div class="injected">Greetings</div>';
 ```
 > [!WARNING]
-> Make sure the HTML being injected can't be manipulated by the user, otherwise they can hack info
+> Make sure the HTML being injected can't be manipulated by the user -- this can be a vulnerability they can exploit
 
 ### Event Listeners
 
