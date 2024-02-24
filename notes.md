@@ -21,8 +21,8 @@ In this example, if `resolveFunction` is called then the promise is successful, 
 <u>then/catch syntax:</u>
 ```
 newPromise
-  .then((result) => console.log("Result = ${result}"));
-  .catch((error) => console.log("Error = ${error}"));
+  .then((result) => console.log("Result = ${result}"))
+  .catch((error) => console.log("Error = ${error}"))
   .finally(() => console.log("completed"));
 ```
 
@@ -84,6 +84,26 @@ Events:
 - keyboard
 - mouse
 - text selection
+
+### Local Storage
+Local storage provides a way to store key value pairs in a web browser. Don't store sensitive information here.
+
+Get:
+```
+localStorage.getItem("variableName");
+```
+Set:
+```
+localStorage.setItem("variableName", "value");
+```
+Delete:
+```
+localStorage.removeItem("variableName");
+```
+Clear:
+```
+localStorage.clear();
+```
 
 
 # CSS notes:

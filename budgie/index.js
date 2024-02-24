@@ -1,39 +1,28 @@
-let pwdWarningShowing = false;
-let confWarningShowing = false;
+let incorrectPwdWarningShowing = false;
+let noUserWarningShowing = false;
 let warning = "";
 
-function login (newUser=false) {
+function login () {
     const user = document.querySelector("#username");
     const pwd = document.querySelector("#password");
-    const confirm = document.querySelector("#confirm");
     if (user.value != "" && pwd.value != "") {
-        if (pwd.value.length >= 7) {
-            if (pwdWarningShowing) {
-                removeElement = document.querySelector("#pwdWarning")
-                removeElement.parentElement.removeChild(removeElement);
-                pwdWarningShowing = false;
-            }
-            if (newUser) {
-                if (pwd.value == confirm.value) {
-                    window.location.href = "projected.html";
-                }
-                else if (!confWarningShowing) {
-                    displayWarning("confWarning", "Inputted passwords must be the same");
-                }
-            }
-            else {
-                window.location.href = "projected.html";
-            }
+        if (verified(user.value, pwd.value)) {
+            if (incorrectPwdWarningShowing) hideWarning("#incorrectPassword");
+            if (noUserWarningShowing) hideWarning("#noUser");
+            window.location.href = "projected.html";
         }
-        else {
-            if (confWarningShowing) {
-                removeElement = document.querySelector("#confWarning");
-                removeElement.parentElement.removeChild(removeElement);
-                confWarningShowing = false;
-            }
-            if (!pwdWarningShowing) {
-                displayWarning("pwdWarning", "Password must be at least 7 characters long");
-            }
+    }
+    
+    function verified(user, pwd) {
+        if (!localStorage.getItem(user)) {
+            if (!noUserWarningShowing) displayWarning("noUser", "User does not exist");
+            if (incorrectPwdWarningShowing) hideWarning("#incorrectPassword");
+            return false;
+        }
+        else if (localStorage.getItem(user) != pwd) {
+            if (!incorrectPwdWarningShowing) displayWarning("incorrectPassword", "The password is incorrect");
+            if (noUserWarningShowing) hideWarning("#noUser");
+            return false;
         }
         return true;
     }
@@ -47,6 +36,17 @@ function login (newUser=false) {
         warning.style.fontStyle = "italic";
         insertBox = document.querySelector("#password-container");
         insertBox.appendChild(warning);
-        (id === "pwdWarning") ? pwdWarningShowing = true : confWarningShowing = true;
+        (id === "noUser") ? noUserWarningShowing = true : incorrectPwdWarningShowing = true;
     }
+
+    function hideWarning(id) {
+        removeElement = document.querySelector(id);
+        removeElement.parentElement.removeChild(removeElement);
+        (id === "#noUser") ? noUserWarningShowing = false : incorrectPwdWarningShowing = false;
+    }
+}
+
+function clearStorage() {
+    localStorage.clear();
+    console.log("Cleared");
 }

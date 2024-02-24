@@ -197,4 +197,5 @@ setInterval(() => {
   newChatContainer.appendChild(newChatScore);
   const chatText = document.querySelector('#player-messages');
   chatText.appendChild(newChatContainer);
-}, 8000);
+  // console.log(newChatContainer.parentElement);
+}, Math.floor(Math.random() * 10000));
