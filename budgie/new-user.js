@@ -1,4 +1,5 @@
 // TODO: Feature: Don't allow the creation of a user with the same name (bc I think that could also wipe out all their data)
+// TODO: Feature: Also don't allow the creation of a user with the name incomeHeaderList or expenseHeaderList
 
 let pwdWarningShowing = false;
 let confWarningShowing = false;
@@ -46,8 +47,8 @@ function createNewUser() {
     }
 
     function storeData(user, pwd) {
+        localStorage.setItem("incomeHeaderList", "");
+        localStorage.setItem("expenseHeaderList", "");
         localStorage.setItem(user, pwd);
-        localStorage.setItem("income", "i");
-        localStorage.setItem("expense", "e");
     }
 }
