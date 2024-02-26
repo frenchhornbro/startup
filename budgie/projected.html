@@ -13,6 +13,7 @@
         <link href="index.css" rel="stylesheet" />
         <link href="https://fonts.googleapis.com/css2?family=Honk&display=swap" rel="stylesheet">
         <link href="budget.css" rel="stylesheet" />
+        <script src="kick.js"></script>
         <!-- Budget data headers are not centered when they're wrapped -->
     </head>
     <body>
@@ -47,9 +48,9 @@
             <div class="all-buttons-container">
                 <div class="edit-budget-container">
                     <div class="button-container">
-                        <button type="button" class="btn btn-light stretch-button income">+ Add Income</button>
-                        <div class="button-spacer"></div>
-                        <button type="button" class="btn btn-light stretch-button expense">- Add Expense</button>
+                        <button type="button" class="btn btn-light stretch-button income" onclick="addIncome()">+ Add Income</button>
+                        <div class="small-space"></div>
+                        <button type="button" class="btn btn-light stretch-button expense" onclick="addExpense()">- Add Expense</button>
                     </div>
                     <div class="button-container">
                         <select class="form-select stretch-button">
@@ -68,12 +69,27 @@
                                 <option>Groceries</option>
                             </optgroup>
                         </select>
+                        <div class="small-space"></div>
+                        <select class="form-select stretch-button month">
+                            <option>Jan</option>
+                            <option>Feb</option>
+                            <option>Mar</option>
+                            <option>Apr</option>
+                            <option>May</option>
+                            <option>Jun</option>
+                            <option>Jul</option>
+                            <option>Aug</option>
+                            <option>Sep</option>
+                            <option>Oct</option>
+                            <option>Nov</option>
+                            <option>Dec</option>
+                        </select>
                     </div>
                     <div class="textbox-container">
                         <label for="edit-cell" class="stretch-button">Input Amount: $</label>
                         <input type="number" class="form-control stretch-button" id="edit-cell" placeholder="0.00" />
                         <div class="small-space"></div>
-                        <button type="submit" class="btn btn-light stretch-button">Make change</button>
+                        <button type="submit" class="btn btn-light stretch-button" onclick="makeChange()">Make change</button>
                     </div>
                 </div>
                 <div class="button-spacer">
@@ -81,7 +97,7 @@
                     <div class="budget-data-container data-format">
                         <div class="initial-savings"></div>
                         <div class="initial-savings">Initial Savings:</div>
-                        <div class="budget-data pos">$2,340.59</div>
+                        <div class="budget-data neut" id="initial">$1.50</div>
                         <div class="initial-savings"></div>
                     </div>
                     <div class="cumulative-stats-container">
@@ -89,12 +105,12 @@
                         <div class="data-format">
                             <div>Net Gain:</div>
                             <div class="small-space"></div>
-                            <div class="budget-data neg">-$1,564.20</div>
+                            <div class="budget-data neut" id="net-gain">-$1,564.20</div>
                         </div>
                         <div class="data-format">
                             <div>Total Savings:</div>
                             <div class="small-space"></div>
-                            <div class="budget-data pos">$776.39</div>
+                            <div class="budget-data neut" id="total">$776.39</div>
                         </div>
                     </div>
                 </div>
@@ -111,6 +127,8 @@
                     <div class="button-container">
                         <button type="button" class="btn stretch-button" disabled style="background-color: green;">Projected</button>
                         <button type="button" class="btn btn-light stretch-button"><a href="actual.html">Actual</a></button>
+                        <button type="button" class="btn btn-light stretch-button" onclick="load()">TEMP Load</button>
+                        <button type="button" class="btn btn-light login" onclick="clearStorage()">TEMP Clear</button>
                     </div>
                 </div>
             </div>
@@ -133,122 +151,59 @@
                         <div class="budget-data-header">Dec</div>
                         <div class="budget-data-header">Yearly Total By Category</div>
                     </div>
-                    <div class="budget-data-row">
-                        <div class="budget-data-header">Job</div>
-                        <div class="budget-data pos">$1,000.00</div>
-                        <div class="budget-data pos">$1,000.00</div>
-                        <div class="budget-data pos">$1,000.00</div>
-                        <div class="budget-data pos">$1,000.00</div>
-                        <div class="budget-data pos">$1,000.00</div>
-                        <div class="budget-data pos">$800.00</div>
-                        <div class="budget-data pos">$700.00</div>
-                        <div class="budget-data pos">$1,000.00</div>
-                        <div class="budget-data pos">$1,000.00</div>
-                        <div class="budget-data pos">$1,000.00</div>
-                        <div class="budget-data pos">$1,200.00</div>
-                        <div class="budget-data pos">$1,250.00</div>
-                        <div class="budget-data pos">$11,950.00</div>
-                    </div>
-                    <div class="budget-data-row">
+                    <div class="income-container"></div>
+                    <div class="budget-data-row" id="month-income">
                         <div class="budget-data-header">Month's income</div>
-                        <div class="budget-data pos">$1,000.00</div>
-                        <div class="budget-data pos">$1,000.00</div>
-                        <div class="budget-data pos">$1,000.00</div>
-                        <div class="budget-data pos">$1,000.00</div>
-                        <div class="budget-data pos">$1,000.00</div>
-                        <div class="budget-data pos">$800.00</div>
-                        <div class="budget-data pos">$700.00</div>
-                        <div class="budget-data pos">$1,000.00</div>
-                        <div class="budget-data pos">$1,000.00</div>
-                        <div class="budget-data pos">$1,000.00</div>
-                        <div class="budget-data pos">$1,200.00</div>
-                        <div class="budget-data pos">$1,250.00</div>
-                        <div class="budget-data pos">$11,950.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
                     </div>
                 </div>
-            </div>
-            <div class="budget-data-container">
-                <h2 class="expense">Expenses</h2>
-                <div class="budget-data-table">
-                    <div class="budget-data-row">
-                        <div class="budget-data-header"></div>
-                        <div class="budget-data-header">Jan</div>
-                        <div class="budget-data-header">Feb</div>
-                        <div class="budget-data-header">Mar</div>
-                        <div class="budget-data-header">Apr</div>
-                        <div class="budget-data-header">May</div>
-                        <div class="budget-data-header">Jun</div>
-                        <div class="budget-data-header">Jul</div>
-                        <div class="budget-data-header">Aug</div>
-                        <div class="budget-data-header">Sep</div>
-                        <div class="budget-data-header">Oct</div>
-                        <div class="budget-data-header">Nov</div>
-                        <div class="budget-data-header">Dec</div>
+                <div class="budget-data-container">
+                    <h2 class="expense">Expenses</h2>
+                    <div class="budget-data-table">
+                        <div class="budget-data-row">
+                            <div class="budget-data-header"></div>
+                            <div class="budget-data-header">Jan</div>
+                            <div class="budget-data-header">Feb</div>
+                            <div class="budget-data-header">Mar</div>
+                            <div class="budget-data-header">Apr</div>
+                            <div class="budget-data-header">May</div>
+                            <div class="budget-data-header">Jun</div>
+                            <div class="budget-data-header">Jul</div>
+                            <div class="budget-data-header">Aug</div>
+                            <div class="budget-data-header">Sep</div>
+                            <div class="budget-data-header">Oct</div>
+                            <div class="budget-data-header">Nov</div>
+                            <div class="budget-data-header">Dec</div>
                         <div class="budget-data-header">Yearly Total By Category</div>
                     </div>
-                    <div class="budget-data-row">
-                        <div class="budget-data-header">Tithing</div>
-                        <div class="budget-data neg">$100.00</div>
-                        <div class="budget-data neg">$100.00</div>
-                        <div class="budget-data neg">$100.00</div>
-                        <div class="budget-data neg">$100.00</div>
-                        <div class="budget-data neg">$100.00</div>
-                        <div class="budget-data neg">$80.00</div>
-                        <div class="budget-data neg">$70.00</div>
-                        <div class="budget-data neg">$100.00</div>
-                        <div class="budget-data neg">$100.00</div>
-                        <div class="budget-data neg">$100.00</div>
-                        <div class="budget-data neg">$120.00</div>
-                        <div class="budget-data neg">$125.00</div>
-                        <div class="budget-data neg">$1,195.00</div>
-                    </div>
-                    <div class="budget-data-row">
-                        <div class="budget-data-header">Rent</div>
-                        <div class="budget-data neg">$934.10</div>
-                        <div class="budget-data neg">$934.10</div>
-                        <div class="budget-data neg">$934.10</div>
-                        <div class="budget-data neg">$934.10</div>
-                        <div class="budget-data neg">$934.10</div>
-                        <div class="budget-data neg">$934.10</div>
-                        <div class="budget-data neg">$934.10</div>
-                        <div class="budget-data neg">$934.10</div>
-                        <div class="budget-data neg">$934.10</div>
-                        <div class="budget-data neg">$934.10</div>
-                        <div class="budget-data neg">$934.10</div>
-                        <div class="budget-data neg">$934.10</div>
-                        <div class="budget-data neg">$11,209.20</div>
-                    </div>
-                    <div class="budget-data-row">
-                        <div class="budget-data-header">Groceries</div>
-                        <div class="budget-data neg">$80.00</div>
-                        <div class="budget-data neg">$80.00</div>
-                        <div class="budget-data neg">$80.00</div>
-                        <div class="budget-data neg">$80.00</div>
-                        <div class="budget-data neg">$120.00</div>
-                        <div class="budget-data neg">$130.00</div>
-                        <div class="budget-data neg">$130.00</div>
-                        <div class="budget-data neg">$130.00</div>
-                        <div class="budget-data neg">$80.00</div>
-                        <div class="budget-data neg">$80.00</div>
-                        <div class="budget-data neg">$50.00</div>
-                        <div class="budget-data neg">$70.00</div>
-                        <div class="budget-data neg">$1,110.00</div>
-                    </div>
-                    <div class="budget-data-row">
+                    <div class="expenses-container"></div>
+                    <div class="budget-data-row" id="month-expenses">
                         <div class="budget-data-header">Month’s Expenses</div>
-                        <div class="budget-data neg">$1,114.10</div>
-                        <div class="budget-data neg">$1,114.10</div>
-                        <div class="budget-data neg">$1,114.10</div>
-                        <div class="budget-data neg">$1,114.10</div>
-                        <div class="budget-data neg">$1,154.10</div>
-                        <div class="budget-data neg">$1,144.10</div>
-                        <div class="budget-data neg">$1,134.10</div>
-                        <div class="budget-data neg">$1,164.10</div>
-                        <div class="budget-data neg">$1,114.10</div>
-                        <div class="budget-data neg">$1,114.10</div>
-                        <div class="budget-data neg">$1,104.10</div>
-                        <div class="budget-data neg">$1,129.10</div>
-                        <div class="budget-data neg">$13,514.20</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
                     </div>
                 </div>
             </div>
@@ -269,35 +224,35 @@
                         <div class="budget-data-header">Nov</div>
                         <div class="budget-data-header">Dec</div>
                     </div>
-                    <div class="budget-data-row">
+                    <div class="budget-data-row" id="month-net">
                         <div class="budget-data-header">Month’s Net Gain</div>
-                        <div class="budget-data neg">-$114.10</div>
-                        <div class="budget-data neg">-$114.10</div>
-                        <div class="budget-data neg">-$114.10</div>
-                        <div class="budget-data neg">-$114.10</div>
-                        <div class="budget-data neg">-$154.10</div>
-                        <div class="budget-data neg">-$344.10</div>
-                        <div class="budget-data neg">-$434.10</div>
-                        <div class="budget-data neg">-$164.10</div>
-                        <div class="budget-data neg">-$114.10</div>
-                        <div class="budget-data neg">-$114.10</div>
-                        <div class="budget-data pos">$95.90</div>
-                        <div class="budget-data pos">$120.90</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
                     </div>
-                    <div class="budget-data-row">
+                    <div class="budget-data-row" id="month-total">
                         <div class="budget-data-header">Total Savings by End of Month</div>
-                        <div class="budget-data pos">$2,226.49</div>
-                        <div class="budget-data pos">$2,112.39</div>
-                        <div class="budget-data pos">$1,998.29</div>
-                        <div class="budget-data pos">$1,884.19</div>
-                        <div class="budget-data pos">$1,730.09</div>
-                        <div class="budget-data pos">$1,385.99</div>
-                        <div class="budget-data pos">$951.89</div>
-                        <div class="budget-data pos">$787.79</div>
-                        <div class="budget-data pos">$673.69</div>
-                        <div class="budget-data pos">$559.59</div>
-                        <div class="budget-data pos">$655.49</div>
-                        <div class="budget-data pos">$776.39</div>                    
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>
+                        <div class="budget-data neut">$0.00</div>                    
                     </div>
                 </div>
             </div>
@@ -306,5 +261,6 @@
             <span>Created by Hyrum Durfee</span>
             <a href="https://github.com/frenchhornbro/startup">GitHub</a>
         </footer>
+        <script src="budget.js"></script>
     </body>
 </html>

@@ -1,6 +1,7 @@
 //Feature: Be able to see components of the sum for each cell
 //Feature: Don't allow income/expense header to be the same name as username (otherwise it wipes out that data,
 //although this won't be necessary once we have a SQL database probably) -- also don't allow other keywords
+//Feature: Insert commas after every third integer
 
 // TODO: Add a delete button
 // TODO: Add a way to edit field names
@@ -14,8 +15,16 @@ load();
 //TODO: Make load async
 //TODO: Either have a parameter for load() or a different page for acutal, otherwise they'll both load the same data
 function load() {
-    loadData(true);
-    loadData(false);
+    initialClass()
+    loadData(true); // Load Income
+    loadData(false); // Load Expenses
+}
+
+
+function initialClass() {
+    let initial = document.querySelector("#initial");
+    sliceNum = initial.textContent.includes("-") ? 2 : 1;
+    initial.className = dataClass(initial.textContent.slice(sliceNum), true);
 }
 
 
@@ -109,7 +118,7 @@ function loadRow(header, data, isIncome) {
     let total = 0
     for (const num in data) {
         let rowData = document.createElement("div");
-        rowData.className = dataClass(parseFloat(data[num]));
+        rowData.className = dataClass(parseFloat(data[num]), isIncome);
         rowData.textContent = "$" + data[num];
         row.appendChild(rowData);
 
@@ -117,26 +126,27 @@ function loadRow(header, data, isIncome) {
     }
 
     let rowTotal = document.createElement("div");
-    rowTotal.className = dataClass(total.toFixed(2));
+    rowTotal.className = dataClass(total.toFixed(2), isIncome);
     rowTotal.textContent = "$" + total.toFixed(2);
     row.appendChild(rowTotal);
     if (isIncome) document.querySelector(".income-container").appendChild(row);
     else document.querySelector(".expenses-container").appendChild(row);
     
     calculateMonth(isIncome);
+}
 
 
-    function dataClass(num) {
-        if (isIncome) {
-            if (num > 0) return "budget-data pos";
-            else if (num < 0) return "budget-data neg";
-            else return "budget-data neut";
-        }
-        else {
-            if (num > 0) return "budget-data neg";
-            else if (num < 0) return "budget-data pos";
-            else return "budget-data neut";
-        }
+function dataClass(num, isIncome) {
+    console.log("isIncome = " + isIncome)
+    if (isIncome) {
+        if (num > 0) return "budget-data pos";
+        else if (num < 0) return "budget-data neg";
+        else return "budget-data neut";
+    }
+    else {
+        if (num > 0) return "budget-data neg";
+        else if (num < 0) return "budget-data pos";
+        else return "budget-data neut";
     }
 }
 
@@ -185,13 +195,88 @@ function calculateMonth(isIncome) {
     //This calculates the first of every header of that type, and so forth
     let listType = "expenseHeaderList";
     if (isIncome) listType = "incomeHeaderList";
-    let sum = 0;
+    
     let headers = parseHeaders(listType);
+    let sum = [0,0,0,0,0,0,0,0,0,0,0,0,0]; //Hard-coded 12
+    //For each header, add up the sum of each data point
     for (let i = 0; i < headers.length; i++) {
         let data = parseData(headers[i]);
-        sum += parseFloat(data[6]);
+        for (let j = 0; j < data.length; j++) {
+            sum[j] += parseFloat(data[j]);
+            loadMonthData(j+1, sum[j]);
+        }
     }
-    console.log("Sum = " + sum);
+    
+    //Calculate Total
+    let total = 0;
+    for (let i = 0; i < sum.length; i++) total += sum[i];
+    loadMonthData(13,total); //Hard-coded 12
+
+    let netGainSum = 0;
+    calculateMonthNet();
+    calculateTotal();
+
+
+    function loadMonthData(counter, currSum) {
+        //Change the month's data to reflect the new data
+        let id = "#month-expenses";
+        if (isIncome) id = "#month-income";
+        let monthData = document.querySelector(id).children[counter]
+        monthData.textContent = "$" + currSum.toFixed(2);
+        monthData.className = dataClass(parseFloat(currSum), isIncome);
+    }
+
+
+    function calculateMonthNet() {
+        let net = document.querySelector("#month-net");
+        for (let i = 1; i < document.querySelector("#month-income").children.length - 1; i++) {
+            let income = parseFloat(document.querySelector("#month-income").children[i].textContent.slice(1));
+            let expense = parseFloat(document.querySelector("#month-expenses").children[i].textContent.slice(1));
+            let monthSum = (income - expense).toFixed(2);
+            if (income - expense < 0) {
+                //TODO: Change the - to be before the $
+                net.children[i].textContent = "$" + monthSum;
+            }
+            else {
+                net.children[i].textContent = "$" + monthSum;
+            }
+            net.children[i].className = dataClass(monthSum, true);
+            netGainSum += parseFloat(monthSum);
+        }
+    }
+
+    
+    function calculateTotal() {
+        let initial = document.querySelector("#initial");
+        let net = document.querySelector("#month-net");
+        let total = document.querySelector("#month-total");
+        for (let i = 1; i < net.children.length; i++) {
+            let initSlice = initial.className.includes("neg") ? 2 : 1;
+            let netSlice = net.children[i].className.includes("neg") ? 2 : 1;
+            let totalSlice = total.children[i].className.includes("neg") ? 2 : 1;
+            let neg = net.children[i].className.includes("neg") ? -1 : 1;
+            if (i === 1){
+                let currValue = (parseFloat(initial.textContent.slice(initSlice))
+                + neg*parseFloat(net.children[i].textContent.slice(netSlice))).toFixed(2)
+                total.children[i].textContent = "$" + currValue;
+                total.children[i].className = dataClass(currValue, true);
+            }
+            else {
+                let currValue = (parseFloat(total.children[i-1].textContent.slice(totalSlice))
+                + neg*parseFloat(net.children[i].textContent.slice(netSlice))).toFixed(2)
+                total.children[i].textContent = "$" + currValue;
+                total.children[i].className = dataClass(currValue, true)
+                if (i === net.children.length-1) {
+                    //Calculate Total Savings
+                    document.querySelector("#total").textContent = "$" + currValue;
+                    document.querySelector("#total").className = dataClass(currValue, true);
+                    //Calculate Total Net Gain
+                    document.querySelector("#net-gain").textContent = "$" + netGainSum.toFixed(2);
+                    document.querySelector("#net-gain").className = dataClass(netGainSum, true);
+                }
+            }
+        }
+    }
 }
 
 

@@ -45,8 +45,3 @@ function login () {
         (id === "#noUser") ? noUserWarningShowing = false : incorrectPwdWarningShowing = false;
     }
 }
-
-function clearStorage() {
-    localStorage.clear();
-    console.log("Cleared");
-}

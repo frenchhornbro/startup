@@ -2,6 +2,9 @@
 > *_myfinancialbudgie.click_*
 
 # JavaScript notes
+## JSON
+
+
 ## Promises
 <u>standard promise syntax:</u>
 ```
@@ -114,6 +117,7 @@ Code for including bootstrap in your application using NPM (Node Package Manager
 
 Remember to put ```<link rel="stylesheet" href="styles.css" />``` in your html to include your CSS (doesn't apply to CodePen)
 
+## CSS Syntax:
 Here's an example of the syntax:
 ```
 elementname {
@@ -127,6 +131,9 @@ elementname {
 ```
 ^^^ You can replace elementname with .classname
 
+Order for CSS: margin, border, padding, content
+
+## Animations:
 For animations, either of the following is acceptable:
 ```
 elementname {
