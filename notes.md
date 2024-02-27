@@ -2,9 +2,6 @@
 > *_myfinancialbudgie.click_*
 
 # JavaScript notes
-## JSON
-
-
 ## Promises
 <u>standard promise syntax:</u>
 ```
@@ -46,6 +43,9 @@ You cannot call await unless it is called at the top level of your JS, or in an 
 
 `await` will wrap a cal to the async function, block execution until the promise has resolved, and then returns the result of the promise
 
+## Loops
+`for in` iterates over an object's property names (gives the index number for arrays, the key for maps)
+`for of` iterates over an iterable's property values (gives the value for arrays and maps)
 
 ## Document Object Model (DOM)
 ### Accessing the DOM
@@ -88,7 +88,7 @@ Events:
 - mouse
 - text selection
 
-### Local Storage
+## Local Storage
 Local storage provides a way to store key value pairs in a web browser. Don't store sensitive information here.
 
 Get:
@@ -108,6 +108,85 @@ Clear:
 localStorage.clear();
 ```
 
+### JSON
+You can use JSON.stringify() and JSON.parse() to store objects in localStorage
+```
+localStorage.setItem('array', JSON.stringify(myArray));
+console.log(JSON.parse(localStorage.getItem('array')));
+```
+
+### Objects
+Syntax of an object:
+```
+let myObject = {
+  name: 'Bob',
+  info: {
+    favoriteClass: 'CS 260',
+    likesCS: true,
+  },
+};
+
+const obj = {
+  x: 'object',
+  make: function () {
+    return () => console.log(this.x);
+  },
+};
+```
+
+## Equality
+```
+(0 ==  '0') // true
+('' ==  0 ) // true, the string will implicitly be converted to an integer
+(null == undefined) //true
+('' == false) //true
+
+(0 === '0') // false
+('' === 0 ) // false, no implicit cast is being made
+(null === undefined) // false
+('' === false) // false
+```
+
+## Dates
+`new Date('1995-12-17)`
+
+## String methods
+`toUpperCase()` - capitalize
+
+`toLowerCase()` - lowercase
+
+`split()` - creates an array with the specified delimiter
+
+`endsWith()` - boolean
+
+`replace()` - replace text in a string
+
+`slice()` - select a portion of the string
+
+## Array methods
+`array.push(element)` - adds element to array
+
+`array.pop()` - returns array's last element and removes it from the array
+
+`array.slice(1,3)` - returns an array containing the second and third elements of original array
+
+`array.length` - returns the length of array (this is a property, not a function)
+
+`array.map((n) => n * 100)` - alters every number in array
+
+`array.reduce((p,c) => p+c)` - sets each number in array based on previous and current
+
+`array.forEach()` - applies a function to each value
+
+`array.filter()` - creates a new array containing elements that match the value
+
+`array.some()` - returns true if any of the elements match the conditional expression given, otherwise returns false
+
+## Closure:
+A function and its surrounding state.
+
+## RegEx:
+//TODO:
 
 # CSS notes:
 ## Bootstrap:
@@ -464,6 +543,66 @@ Example:
 Creating images within HTML:
 * ```svg```: Renders graphics within HTML - [Read More](https://developer.mozilla.org/en-US/docs/Web/SVG)
 * ```canvas```: Allows for 2D drawing and animation - requires JavaScript to draw on it
+
+# The Console
+`echo` - Output the parameters of the command
+
+`cd` - Change directory
+
+`mkdir` - Make directory
+
+`rmdir` - Remove directory
+
+`rm` - Remove file(s)
+
+`mv` - Move file(s)
+
+`cp` - Copy files
+
+`ls` - List files
+
+`curl` - Command line client URL browser
+
+`grep` - Regular expression search
+
+`find` - Find files
+
+`top` - View running processes with CPU and memory usage
+
+`df` - View disk statistics
+
+`cat` - Output the contents of a file
+
+`less` - Interactively output the contents of a file
+
+`wc` - Count the words in a file
+
+`ps` - View the currently running processes
+
+`kill` - Kill a currently running process
+
+`sudo` - Execute a command as a super user (admin)
+
+`ssh` - Create a secure shell on a remote computer
+
+`scp` - Securely copy files to a remote computer
+
+`history` - Show the history of commands
+
+`ping` - Check if a website is up
+
+`tracert` - Trace the connections to a website
+
+`dig` - Show the DNS information for a domain
+
+`man` - Look up a command in the manual
+
+
+`|` - Take the output from the command on the left and pipe, or pass, it to the command on the right
+
+`>` - Redirect output to a file. Overwrites the file if it exists
+
+`>>` - Redirect output to a file. Appends if the file exists
 
 # HTTPS
 Setting up Caddy will allow you to get a certificate from Let's Encrypt, which will allow a secure (https) connection
