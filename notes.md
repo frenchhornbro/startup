@@ -116,7 +116,35 @@ console.log(JSON.parse(localStorage.getItem('array')));
 ```
 
 ### Objects
-Syntax of an object:
+Objects can be created with `new`. Any function that returns an object is considered a constructor and can be invoked with `new`.
+
+Inheritance is implemented using `extends`.
+
+Example:
+```
+class Person {
+  constructor(name) {
+    this.name = name;
+  }
+
+  print() {
+    return 'My name is ' + this.name;
+  }
+}
+
+class Employee extends Person {
+  constructor(name, position) {
+    super(name);
+    this.position = position;
+  }
+
+  print() {
+    return super.print() + '. I am a ' + this.position;
+  }
+}
+```
+
+Another example of the syntax of an object:
 ```
 let myObject = {
   name: 'Bob',
@@ -185,8 +213,17 @@ const obj = {
 ## Closure:
 A function and its surrounding state.
 
-## RegEx:
-//TODO:
+## Regex:
+asdfa
+```
+const objRegex = new RegExp('ab*', 'i');
+const literalRegex = /ab*/i;
+const text = "abtaco is not a word i think";
+
+text.match(literalRegex);         //returns [abtaco, i]
+text.replace(literalRegex, idk);  //returns "idk is not a word idk think"
+literalRegex.test(text);          //returns true
+```
 
 # CSS notes:
 ## Bootstrap:
