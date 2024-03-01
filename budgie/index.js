@@ -1,25 +1,37 @@
 let incorrectPwdWarningShowing = false;
 let noUserWarningShowing = false;
 let warning = "";
+localStorage.removeItem("currentUser");
+let users = JSON.parse(localStorage.getItem("users"))
 
 function login () {
-    const user = document.querySelector("#username");
-    const pwd = document.querySelector("#password");
-    if (user.value != "" && pwd.value != "") {
-        if (verified(user.value, pwd.value)) {
-            if (incorrectPwdWarningShowing) hideWarning("#incorrectPassword");
-            if (noUserWarningShowing) hideWarning("#noUser");
-            window.location.href = "projected.html";
+    const inputtedUser = document.querySelector("#username").value;
+    const inputtedPwd = document.querySelector("#password").value;
+
+    let userExists = false;
+    let correctPwd = null;
+    for (array of users) {
+        if(array.username == inputtedUser) {
+            userExists = true;
+            correctPwd = array.password;
+            break;
         }
     }
+
+    if (verified()) {
+        if (incorrectPwdWarningShowing) hideWarning("#incorrectPassword");
+        if (noUserWarningShowing) hideWarning("#noUser");
+        localStorage.setItem("currentUser", inputtedUser);
+        window.location.href = "projected.html";
+    }
     
-    function verified(user, pwd) {
-        if (!localStorage.getItem(user)) {
+    function verified() {
+        if (!userExists) {
             if (!noUserWarningShowing) displayWarning("noUser", "User does not exist");
             if (incorrectPwdWarningShowing) hideWarning("#incorrectPassword");
             return false;
         }
-        else if (localStorage.getItem(user) != pwd) {
+        else if (correctPwd !== inputtedPwd) {
             if (!incorrectPwdWarningShowing) displayWarning("incorrectPassword", "The password is incorrect");
             if (noUserWarningShowing) hideWarning("#noUser");
             return false;

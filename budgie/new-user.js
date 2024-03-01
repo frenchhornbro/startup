@@ -4,12 +4,13 @@
 let pwdWarningShowing = false;
 let confWarningShowing = false;
 let warning = "";
+localStorage.removeItem("currentUser");
 
 function createNewUser() {
     const user = document.querySelector("#username");
     const pwd = document.querySelector("#password");
     const confirm = document.querySelector("#confirm");
-    if (user.value != "" && pwd.value != "" && confirm.value != "") {
+    if (user.value !== "" && pwd.value !== "" && confirm.value !== "") {
         if (pwd.value.length >= 7) {
             if (pwd.value == confirm.value) {
                 if (pwdWarningShowing) hideWarning("#pwdWarning");
@@ -47,8 +48,20 @@ function createNewUser() {
     }
 
     function storeData(user, pwd) {
-        localStorage.setItem("incomeHeaderList", "");
-        localStorage.setItem("expenseHeaderList", "");
-        localStorage.setItem(user, pwd);
+        let userList = JSON.parse(localStorage.getItem("users"));
+        if (userList === null) userList = [];
+        let newUser = new User(user, pwd);
+        userList.push(newUser);
+        localStorage.setItem("users", JSON.stringify(userList));
+        localStorage.setItem("currentUser", inputtedUser);
+    }
+}
+
+class User {
+    constructor(user, pwd) {
+        this.username = user;
+        this.password = pwd;
+        this.income = [];
+        this.expenses = [];
     }
 }

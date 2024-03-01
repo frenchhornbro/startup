@@ -1,1 +1,1 @@
-if (localStorage.getItem("incomeHeaderList") === null) window.location.href = "index.html";
+if (localStorage.getItem("currentUser") === null) window.location.href = "index.html";
