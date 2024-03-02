@@ -54,12 +54,12 @@
                         <button type="button" class="btn btn-light stretch-button expense" onclick="addExpense()">- Add Expense</button>
                     </div>
                     <div class="button-container">
-                        <select class="form-select stretch-button">
+                        <select class="form-select stretch-button" id="add-selector">
                             <option>Add to</option>
                             <option>Replace</option>
                         </select>
                         <div class="small-space"></div>
-                        <select class="form-select stretch-button">
+                        <select class="form-select stretch-button" id="header-selector">
                             <option>Initial</option>
                             <optgroup label="Income">
                                 <option>Job</option>
@@ -71,7 +71,7 @@
                             </optgroup>
                         </select>
                         <div class="small-space"></div>
-                        <select class="form-select stretch-button month">
+                        <select class="form-select stretch-button" id="month-selector">
                             <option>Jan</option>
                             <option>Feb</option>
                             <option>Mar</option>

@@ -53,24 +53,18 @@
                         <button type="button" class="btn btn-light stretch-button expense" onclick="addExpense()">- Add Expense</button>
                     </div>
                     <div class="button-container">
-                        <select class="form-select stretch-button">
+                        <select class="form-select stretch-button" id="add-selector">
                             <option>Add to</option>
                             <option>Replace</option>
                         </select>
                         <div class="small-space"></div>
-                        <select class="form-select stretch-button">
+                        <select class="form-select stretch-button" id="header-selector">
                             <option>Initial</option>
-                            <optgroup label="Income">
-                                <option>Job</option>
-                            </optgroup>
-                            <optgroup label="Expense":>
-                                <option>Tithing</option>
-                                <option>Rent</option>
-                                <option>Groceries</option>
-                            </optgroup>
+                            <optgroup label="Income" id="header-income"></optgroup>
+                            <optgroup label="Expense" id="header-expenses"></optgroup>
                         </select>
                         <div class="small-space"></div>
-                        <select class="form-select stretch-button month">
+                        <select class="form-select stretch-button" id="month-selector">
                             <option>Jan</option>
                             <option>Feb</option>
                             <option>Mar</option>
@@ -97,7 +91,7 @@
                     <div class="budget-data-container data-format">
                         <div class="initial-savings"></div>
                         <div class="initial-savings">Initial Savings:</div>
-                        <div class="budget-data neut" id="initial">$1.50</div>
+                        <div class="budget-data neut" id="initial">$0.00</div>
                         <div class="initial-savings"></div>
                     </div>
                     <div class="cumulative-stats-container">
@@ -105,12 +99,12 @@
                         <div class="data-format">
                             <div>Net Gain:</div>
                             <div class="small-space"></div>
-                            <div class="budget-data neut" id="net-gain">-$1,564.20</div>
+                            <div class="budget-data neut" id="net-gain">$0.00</div>
                         </div>
                         <div class="data-format">
                             <div>Total Savings:</div>
                             <div class="small-space"></div>
-                            <div class="budget-data neut" id="total">$776.39</div>
+                            <div class="budget-data neut" id="total">$0.00</div>
                         </div>
                     </div>
                 </div>

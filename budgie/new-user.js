@@ -18,14 +18,14 @@ function createNewUser() {
                 storeData(user.value, pwd.value);
                 window.location.href = "projected.html";
             }
-            if (!confWarningShowing) displayWarning("confWarning", "Inputted passwords must be the same");
-            if (pwdWarningShowing) {
-                hideWarning("#pwdWarning");
+            else {
+                if (pwdWarningShowing) hideWarning("#pwdWarning");
+                if (!confWarningShowing) displayWarning("confWarning", "Inputted passwords must be the same");
             }
         }
         else {
-            if (!pwdWarningShowing) displayWarning("pwdWarning", "Password must be at least 7 characters long");
             if (confWarningShowing) hideWarning("#confWarning");
+            if (!pwdWarningShowing) displayWarning("pwdWarning", "Password must be at least 7 characters long");
         }
     }
 
@@ -53,7 +53,7 @@ function createNewUser() {
         let newUser = new User(user, pwd);
         userList.push(newUser);
         localStorage.setItem("users", JSON.stringify(userList));
-        localStorage.setItem("currentUser", inputtedUser);
+        localStorage.setItem("currentUser", user);
     }
 }
 
@@ -61,6 +61,7 @@ class User {
     constructor(user, pwd) {
         this.username = user;
         this.password = pwd;
+        this.initial = 0;
         this.income = [];
         this.expenses = [];
     }
