@@ -2,7 +2,8 @@ let incorrectPwdWarningShowing = false;
 let noUserWarningShowing = false;
 let warning = "";
 localStorage.removeItem("currentUser");
-let users = JSON.parse(localStorage.getItem("users"))
+let users = null;
+if (localStorage.getItem("users") !== null) users = JSON.parse(localStorage.getItem("users"))
 
 function login () {
     const inputtedUser = document.querySelector("#username").value;
@@ -10,11 +11,13 @@ function login () {
 
     let userExists = false;
     let correctPwd = null;
-    for (array of users) {
-        if(array.username == inputtedUser) {
-            userExists = true;
-            correctPwd = array.password;
-            break;
+    if (users !== null) {
+        for (array of users) {
+            if(array.username == inputtedUser) {
+                userExists = true;
+                correctPwd = array.password;
+                break;
+            }
         }
     }
 

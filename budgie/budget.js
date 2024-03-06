@@ -1,6 +1,4 @@
 //Feature: Be able to see components of the sum for each cell
-//Feature: Don't allow income/expense header to be the same name as username (otherwise it wipes out that data,
-//although this won't be necessary once we have a SQL database probably) -- also don't allow other keywords
 //Feature: Insert commas after every third integer
 //Feature: Switch the $ and - on negative numbers
 
@@ -11,6 +9,12 @@
 // TODO: Update projected and actual sheet's rows based on each other's calls (maybe store stuff in localStorage?)
 // ^^^ Implement this with a load() function
 
+let addSelection = document.querySelector("#add-selector").options[0];
+let headerSelection = document.querySelector("#header-selector").options[0];
+let monthSelection = document.querySelector("#month-selector").options[0];
+
+let incomeRestarted = false;
+let expenseRestarted = false;
 let viewNum = 12;
 let user = localStorage.getItem("currentUser");
 let users = JSON.parse(localStorage.getItem("users"));
@@ -22,26 +26,38 @@ load();
 
 
 //TODO: Make load async
-//TODO: Either have a parameter for load() or a different page for acutal, otherwise they'll both load the same data
+//TODO: Either have a parameter for load() or a different page for actual, otherwise they'll both load the same data
 function load() {
+    unload();
     initialClass()
     loadData(true); // Load Income
     loadData(false); // Load Expenses
+    loadCurrSelections();
+}
+
+
+function unload() {
+    incomeRestarted = true;
+    expenseRestarted = true;
+    while (document.querySelector(".inputted-data-row") !== null) {
+        document.querySelector(".inputted-data-row").remove();
+    }
+    while (document.querySelector("#inputted-option") !== null) {
+        document.querySelector("#inputted-option").remove();
+    }
 }
 
 
 function initialClass() {
     let initial = document.querySelector("#initial");
-    //TODO: See if this works without the commented out code
-    // sliceNum = initial.textContent.includes("-") ? 2 : 1;
-    // initial.className = dataClass(initial.textContent.slice(sliceNum), true);
+    initial.textContent = "$" + userData.initial.toFixed(2);
+    initial.className = dataClass(initial.textContent.slice(1), true);
     initial.className = dataClass(userData.initial, true);
 }
 
 
 function loadData(isIncome) {
-    let list = userData.expenses;
-    if (isIncome) list = userData.income;
+    let list = (isIncome) ? userData.income : userData.expenses;
 
     //Generate header and data for each row and pass that into loadRow()
     for (let i = 0; i < list.length; i++) {
@@ -53,9 +69,16 @@ function loadData(isIncome) {
 }
 
 
+function loadCurrSelections() {
+    document.querySelector("#add-selector").value = addSelection.value;
+    document.querySelector("#header-selector").value = headerSelection.value;
+    document.querySelector("#month-selector").value = monthSelection.value;
+}
+
+
 function loadRow(header, data, isIncome) {
     let row = document.createElement("div");
-    row.className = "budget-data-row";
+    row.className = "budget-data-row inputted-data-row";
 
     let rowHeader = document.createElement("div");
     rowHeader.className = "budget-data-header";
@@ -65,6 +88,8 @@ function loadRow(header, data, isIncome) {
     //Add header name to header-selector
     let headerOption = document.createElement("option");
     headerOption.textContent = header;
+    headerOption.className = (isIncome) ? "option-income" : "option-expenses";
+    headerOption.id = "inputted-option";
     let headerID = (isIncome) ? "#header-income" : "#header-expenses";
     document.querySelector(headerID).appendChild(headerOption)
     
@@ -81,7 +106,7 @@ function loadRow(header, data, isIncome) {
     }
 
     let rowTotal = document.createElement("div");
-    rowTotal.textContent = "$" + total.toFixed(2);
+    rowTotal.textContent = "$" + Number(total).toFixed(2);
     rowTotal.className = dataClass(total, isIncome);
     row.appendChild(rowTotal);
     if (isIncome) document.querySelector(".income-container").appendChild(row);
@@ -128,7 +153,7 @@ function addData(isIncome) {
     //Initialize data
     let data = [headerName];
     for (let i = 0; i < viewNum; i++) {
-        data.push(0.01*i);
+        data.push(0);
     }
     
     //Store the header and data
@@ -152,23 +177,25 @@ function addData(isIncome) {
 
 
 function calculateMonth(data, isIncome) {
-    //This calculates the first of every header of that type, and so forth
-    let list = userData.expenses;
-    if (isIncome) list = userData.income;
-    
-    sum = []
-    for (let i = 0; i < viewNum; i++) sum.push(0);
-    //For each header, add up the sum of each data point
-    for (let i = 0; i < list.length; i++) {
-        for (let j = 1; j < data.length; j++) {
-            sum[j-1] += data[j];
-            loadMonthData(j, sum[j-1]);
-        }
+    sums = []
+    let monthTag = (isIncome) ? "#month-income" : "#month-expenses";
+    if ((!incomeRestarted && monthTag === "#month-income") || (!expenseRestarted && monthTag === "#month-expenses")) {
+        for (let i = 1; i <= viewNum; i++) sums.push(Number(document.querySelector(monthTag).children[i].textContent.slice(1)));
+    }
+    else {
+        for (let i = 1; i <= viewNum; i++) sums.push(0);
+    }
+    if (monthTag === "#month-income") incomeRestarted = false;
+    else expenseRestarted = false;
+
+    for (let i = 1; i < data.length; i++) {
+        sums[i-1] += Number(data[i]);
+        loadMonthData(i, sums[i-1])
     }
     
     //Calculate the total for the inputted row
     let total = 0;
-    for (let i = 0; i < sum.length; i++) total += sum[i];
+    for (let i = 0; i < sums.length; i++) total += Number(sums[i]);
     loadMonthData(viewNum+1,total);
 
     //Update the net and total values
@@ -182,7 +209,7 @@ function calculateMonth(data, isIncome) {
         let id = "#month-expenses";
         if (isIncome) id = "#month-income";
         let monthData = document.querySelector(id).children[counter]
-        monthData.textContent = "$" + currSum.toFixed(2);
+        monthData.textContent = "$" + Number(currSum).toFixed(2);
         monthData.className = dataClass(parseFloat(currSum), isIncome);
     }
 
@@ -205,26 +232,22 @@ function calculateMonth(data, isIncome) {
         let net = document.querySelector("#month-net");
         let total = document.querySelector("#month-total");
         for (let i = 1; i < net.children.length; i++) {
-            let initSlice = initial.className.includes("neg") ? 2 : 1;
-            let netSlice = net.children[i].className.includes("neg") ? 2 : 1;
-            let totalSlice = total.children[i].className.includes("neg") ? 2 : 1;
-            let neg = net.children[i].className.includes("neg") ? -1 : 1;
             if (i === 1){
-                let currValue = (parseFloat(initial.textContent.slice(initSlice))
-                + neg*parseFloat(net.children[i].textContent.slice(netSlice))).toFixed(2)
+                let currValue = (parseFloat(initial.textContent.slice(1))
+                + parseFloat(net.children[i].textContent.slice(1))).toFixed(2)
                 total.children[i].textContent = "$" + currValue;
                 total.children[i].className = dataClass(currValue, true);
             }
             else {
-                let currValue = (parseFloat(total.children[i-1].textContent.slice(totalSlice))
-                + neg*parseFloat(net.children[i].textContent.slice(netSlice))).toFixed(2)
+                let currValue = (parseFloat(total.children[i-1].textContent.slice(1))
+                + parseFloat(net.children[i].textContent.slice(1))).toFixed(2)
                 total.children[i].textContent = "$" + currValue;
                 total.children[i].className = dataClass(currValue, true)
                 if (i === net.children.length-1) {
-                    //Calculate Total Savings
+                    //Set Total Savings
                     document.querySelector("#total").textContent = "$" + currValue;
                     document.querySelector("#total").className = dataClass(currValue, true);
-                    //Calculate Total Net Gain
+                    //Set Total Net Gain
                     document.querySelector("#net-gain").textContent = "$" + netGainSum.toFixed(2);
                     document.querySelector("#net-gain").className = dataClass(netGainSum, true);
                 }
@@ -237,19 +260,81 @@ function calculateMonth(data, isIncome) {
 
 
 function makeChange() {
-    //TODO: Have this edit the data in localStorage, then call load
     let input = parseFloat((parseFloat((document.querySelector("#edit-cell").value))).toFixed(2));
-    if (!input) input = (0).toFixed(2);
-    console.log("Input: " + String(input));
+    if (!input) input = Number((0).toFixed(2));
 
-    let add = document.querySelector("#add-selector").value;
-    console.log(add);
+    let addOrReplace = document.querySelector("#add-selector").value;
 
-    let header = document.querySelector("#header-selector").value;
-    console.log(header);
+    let headerSelector = document.querySelector("#header-selector");
+    let currSelection = headerSelector.options[headerSelector.selectedIndex];
 
     let monthNum = monthToNum(document.querySelector("#month-selector").value);
-    console.log("Month " + monthNum);
+    
+    let childNum = null;
+
+    if (currSelection.className !== "option-initial") {
+        let containerClass = (currSelection.className === "option-income") ? ".income-container" : ".expenses-container";
+        let container = document.querySelector(containerClass);
+        
+        //Select row based on the first one with that given header name
+        let rowToChange = null;
+        for (let i = 0; i < container.children.length; i++) {
+            if (container.children[i].children[0].textContent === currSelection.value) {
+                rowToChange = container.children[i];
+                childNum = i;
+                break;
+            }
+        }
+        
+        let cellToChange = rowToChange.children[monthNum+1];
+        if (addOrReplace === "Replace") {
+            let storageType = (currSelection.className === "option-income") ? "income" : "expenses";
+            storeData(input, storageType);
+        }
+        else {
+            let value = Number(cellToChange.textContent.slice(1)) + Number(input);
+            let storageType = (currSelection.className === "option-income") ? "income" : "expenses";
+            storeData(value, storageType);
+        }
+    }
+    else {
+        initial();
+    }
+    load();
+
+    function initial() {
+        let initial = document.querySelector("#initial");
+        if (addOrReplace === "Replace") {
+            initial.textContent = "$" + input.toFixed(2);
+            initial.className = dataClass(input, true);
+            storeData(input, "initial");
+        }
+        else {
+            let initNum = Number(initial.textContent.slice(1)) + input;
+            initial.textContent = "$" + (initNum).toFixed(2);
+            initial.className = dataClass(initNum, true);
+            storeData(initNum, "initial");
+        }
+    }
+        
+    function storeData(numToStore, storageType) {
+        for (let i = 0; i < users.length; i++) {
+            if (users[i].username == user) {
+                if (storageType === "income") {
+                    userData.income[childNum][monthNum+1] = numToStore;
+                }
+                else if (storageType === "expenses") {
+                    userData.expenses[childNum][monthNum+1] = numToStore;
+                }
+                else {
+                    userData.initial = numToStore;
+                }
+                users[i] = userData;
+                localStorage.setItem("users", JSON.stringify(users));
+                break;
+            }
+        }
+    }
 }
 
 
@@ -269,6 +354,28 @@ function monthToNum(month) {
         case "Dec": return 11;
         default: return 0;
     }
+}
+
+
+function changeAddSelection() {
+    let optionNum = 0;
+    let selection = document.querySelector("#add-selector");
+    while (selection.options[optionNum].value !== selection.value) optionNum++;
+    addSelection = selection.options[optionNum];
+}
+
+function changeHeaderSelection() {
+    let optionNum = 0;
+    let selection = document.querySelector("#header-selector");
+    while (selection.options[optionNum].value !== selection.value) optionNum++;
+    headerSelection = selection.options[optionNum];
+}
+
+function changeMonthSelection() {
+    let optionNum = 0;
+    let selection = document.querySelector("#month-selector");
+    while (selection.options[optionNum].value !== selection.value) optionNum++;
+    monthSelection = selection.options[optionNum];
 }
 
 
