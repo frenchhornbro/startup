@@ -2,6 +2,39 @@
 > *_myfinancialbudgie.click_*
 
 # JavaScript notes
+## Express
+Install NVM: https://github.com/coreybutler/nvm-windows#installation--upgrades > Latest Installer > Assets > nvm-setup.exe
+
+Install the long term support (LTS) of Node:
+
+`nvm install lts`
+
+`nvm use lts`
+
+Check that node is installed:
+
+`node -v`
+
+Install express:
+
+`npm install express`
+
+```
+app.get('/store/:storeName', (req, res, next) => {
+  res.send({name: req.params.storeName});
+});
+```
+Running `curl localhost:8080/store/orem` will return the response `{"name":"orem"}`
+
+### Middleware
+A middleware function looks similar to a routing function (probably because a routing function is an example of middleware).
+However, routing functions are only called if the pattern matches.
+Middleware functions are called for each HTTP request unless a preceding middleware function does not call `next`
+
+Middleware can perform routing, authentication, CORS, sessions, serving static web files, cookies, and logging.
+
+Use middleware with `app.use((req, res, next) => {});`
+
 ## Fetch
 Fetch creates a promise, which can be decoded from json.
 
