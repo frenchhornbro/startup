@@ -62,7 +62,9 @@ class User {
         this.username = user;
         this.password = pwd;
         this.initial = 0;
-        this.income = [];
-        this.expenses = [];
+        this.pIncome = [];
+        this.pExpenses = [];
+        this.aIncome = [];
+        this.aExpenses = [];
     }
 }

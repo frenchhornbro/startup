@@ -7,31 +7,30 @@
 // TODO: Prevent generating duplicate headers -- maybe do this in the load function
 
 // TODO: Update projected and actual sheet's rows based on each other's calls (maybe store stuff in localStorage?)
-// ^^^ Implement this with a load() function
 
-let addSelection = document.querySelector("#add-selector").options[0];
-let headerSelection = document.querySelector("#header-selector").options[0];
-let monthSelection = document.querySelector("#month-selector").options[0];
+let addSelection = null;
+let headerSelection = null;
+let monthSelection = null;
 
 let incomeRestarted = false;
 let expenseRestarted = false;
 let viewNum = 12;
 let user = localStorage.getItem("currentUser");
 let users = JSON.parse(localStorage.getItem("users"));
-let userData = null
+let userData = null;
 for (data of users) {
     if (data.username === user) userData = data;
 }
-load();
-
 
 //TODO: Make load async
-//TODO: Either have a parameter for load() or a different page for actual, otherwise they'll both load the same data
-function load() {
+function load(isProjected) {
+    addSelection = document.querySelector("#add-selector").options[0];
+    headerSelection = document.querySelector("#header-selector").options[0];
+    monthSelection = document.querySelector("#month-selector").options[0];
     unload();
-    initialClass()
-    loadData(true); // Load Income
-    loadData(false); // Load Expenses
+    initialClass();
+    loadData(true, isProjected); // Load Income
+    loadData(false, isProjected); // Load Expenses
     loadCurrSelections();
 }
 
@@ -56,8 +55,8 @@ function initialClass() {
 }
 
 
-function loadData(isIncome) {
-    let list = (isIncome) ? userData.income : userData.expenses;
+function loadData(isIncome, isProjected) {
+    let list = (isIncome) ? ((isProjected) ? userData.pIncome : userData.aIncome) : ((isProjected) ? userData.pExpenses : userData.aExpenses);
 
     //Generate header and data for each row and pass that into loadRow()
     for (let i = 0; i < list.length; i++) {
@@ -91,7 +90,7 @@ function loadRow(header, data, isIncome) {
     headerOption.className = (isIncome) ? "option-income" : "option-expenses";
     headerOption.id = "inputted-option";
     let headerID = (isIncome) ? "#header-income" : "#header-expenses";
-    document.querySelector(headerID).appendChild(headerOption)
+    document.querySelector(headerID).appendChild(headerOption);
     
     let total = 0
     for (const i in data) {
@@ -132,17 +131,17 @@ function dataClass(num, isIncome) {
 }
 
 
-function addIncome() {
-    addData(true);
+function addIncome(isProjected) {
+    addData(true, isProjected);
 }
 
 
-function addExpense() {
-    addData(false);
+function addExpense(isProjected) {
+    addData(false, isProjected);
 }
 
 
-function addData(isIncome) {
+function addData(isIncome, isProjected) {
     //Initialize header
     let headerName = "";
     if (isIncome) headerName = prompt("Enter name for income field");
@@ -160,8 +159,14 @@ function addData(isIncome) {
     //For each user, if the user
     for (let i = 0; i < users.length; i++) {
         if (users[i].username == user) {
-            if (isIncome) userData.income.push(data);
-            else userData.expenses.push(data);
+            if (isIncome) {
+                if (isProjected) userData.pIncome.push(data);
+                else userData.aIncome.push(data);
+            }
+            else {
+                if (isProjected) userData.pExpenses.push(data);
+                else userData.aExpenses.push(data);
+            }
             users[i] = userData;
             localStorage.setItem("users", JSON.stringify(users));
             break;
@@ -171,7 +176,6 @@ function addData(isIncome) {
     //Load header and data
     loadRow(headerName, data, isIncome);
 
-    //TODO: Make sure a header name with quotation marks won't mess with JSON
     //TODO: Make this display according to view
 }
 
@@ -190,7 +194,7 @@ function calculateMonth(data, isIncome) {
 
     for (let i = 1; i < data.length; i++) {
         sums[i-1] += Number(data[i]);
-        loadMonthData(i, sums[i-1])
+        loadMonthData(i, sums[i-1]);
     }
     
     //Calculate the total for the inputted row
@@ -208,7 +212,7 @@ function calculateMonth(data, isIncome) {
         //Change the month's data to reflect the new data
         let id = "#month-expenses";
         if (isIncome) id = "#month-income";
-        let monthData = document.querySelector(id).children[counter]
+        let monthData = document.querySelector(id).children[counter];
         monthData.textContent = "$" + Number(currSum).toFixed(2);
         monthData.className = dataClass(parseFloat(currSum), isIncome);
     }
@@ -217,9 +221,9 @@ function calculateMonth(data, isIncome) {
     function calculateMonthNet() {
         let net = document.querySelector("#month-net");
         for (let i = 1; i < document.querySelector("#month-income").children.length - 1; i++) {
-            let income = parseFloat(document.querySelector("#month-income").children[i].textContent.slice(1));
-            let expense = parseFloat(document.querySelector("#month-expenses").children[i].textContent.slice(1));
-            let monthSum = (income - expense);
+            let monthIncome = parseFloat(document.querySelector("#month-income").children[i].textContent.slice(1));
+            let monthExpenses = parseFloat(document.querySelector("#month-expenses").children[i].textContent.slice(1));
+            let monthSum = (monthIncome - monthExpenses);
             net.children[i].textContent = "$" + monthSum.toFixed(2);
             net.children[i].className = dataClass(monthSum, true);
             netGainSum += parseFloat((monthSum).toFixed(2));
@@ -234,7 +238,7 @@ function calculateMonth(data, isIncome) {
         for (let i = 1; i < net.children.length; i++) {
             if (i === 1){
                 let currValue = (parseFloat(initial.textContent.slice(1))
-                + parseFloat(net.children[i].textContent.slice(1))).toFixed(2)
+                + parseFloat(net.children[i].textContent.slice(1))).toFixed(2);
                 total.children[i].textContent = "$" + currValue;
                 total.children[i].className = dataClass(currValue, true);
             }
@@ -242,7 +246,7 @@ function calculateMonth(data, isIncome) {
                 let currValue = (parseFloat(total.children[i-1].textContent.slice(1))
                 + parseFloat(net.children[i].textContent.slice(1))).toFixed(2)
                 total.children[i].textContent = "$" + currValue;
-                total.children[i].className = dataClass(currValue, true)
+                total.children[i].className = dataClass(currValue, true);
                 if (i === net.children.length-1) {
                     //Set Total Savings
                     document.querySelector("#total").textContent = "$" + currValue;
@@ -259,7 +263,7 @@ function calculateMonth(data, isIncome) {
 
 
 
-function makeChange() {
+function makeChange(isProjected) {
     let input = parseFloat((parseFloat((document.querySelector("#edit-cell").value))).toFixed(2));
     if (!input) input = Number((0).toFixed(2));
 
@@ -298,11 +302,11 @@ function makeChange() {
         }
     }
     else {
-        initial();
+        initial(isProjected);
     }
-    load();
-
-    function initial() {
+    load(isProjected);
+    
+    function initial(isProjected) {
         let initial = document.querySelector("#initial");
         if (addOrReplace === "Replace") {
             initial.textContent = "$" + input.toFixed(2);
@@ -321,10 +325,12 @@ function makeChange() {
         for (let i = 0; i < users.length; i++) {
             if (users[i].username == user) {
                 if (storageType === "income") {
-                    userData.income[childNum][monthNum+1] = numToStore;
+                    if (isProjected) userData.pIncome[childNum][monthNum+1] = numToStore;
+                    else userData.aIncome[childNum][monthNum+1] = numToStore;
                 }
                 else if (storageType === "expenses") {
-                    userData.expenses[childNum][monthNum+1] = numToStore;
+                    if (isProjected) userData.pExpenses[childNum][monthNum+1] = numToStore;
+                    else userData.aExpenses[childNum][monthNum+1] = numToStore;
                 }
                 else {
                     userData.initial = numToStore;

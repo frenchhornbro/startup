@@ -16,7 +16,7 @@
         <script src="kick.js"></script>
         <!-- Budget data headers are not centered when they're wrapped -->
     </head>
-    <body>
+    <body onload="load(true)">
         <header>
             <nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
                 <div class="container-fluid">
@@ -48,9 +48,9 @@
             <div class="all-buttons-container">
                 <div class="edit-budget-container">
                     <div class="button-container">
-                        <button type="button" class="btn btn-light stretch-button income" onclick="addIncome()">+ Add Income</button>
+                        <button type="button" class="btn btn-light stretch-button income" onclick="addIncome(true)">+ Add Income</button>
                         <div class="small-space"></div>
-                        <button type="button" class="btn btn-light stretch-button expense" onclick="addExpense()">- Add Expense</button>
+                        <button type="button" class="btn btn-light stretch-button expense" onclick="addExpense(true)">- Add Expense</button>
                     </div>
                     <div class="button-container">
                         <select class="form-select stretch-button" id="add-selector" onchange="changeAddSelection()">
@@ -83,7 +83,7 @@
                         <label for="edit-cell" class="stretch-button">Input Amount: $</label>
                         <input type="number" class="form-control stretch-button" id="edit-cell" placeholder="0.00" />
                         <div class="small-space"></div>
-                        <button type="submit" class="btn btn-light stretch-button" onclick="makeChange()">Make change</button>
+                        <button type="submit" class="btn btn-light stretch-button" onclick="makeChange(true)">Make change</button>
                     </div>
                 </div>
                 <div class="button-spacer">
@@ -121,7 +121,6 @@
                     <div class="button-container">
                         <button type="button" class="btn stretch-button" disabled style="background-color: green;">Projected</button>
                         <button type="button" class="btn btn-light stretch-button"><a href="actual.html">Actual</a></button>
-                        <button type="button" class="btn btn-light stretch-button" onclick="load()">TEMP Load</button>
                         <button type="button" class="btn btn-light login" onclick="clearStorage()">TEMP Clear</button>
                     </div>
                 </div>
