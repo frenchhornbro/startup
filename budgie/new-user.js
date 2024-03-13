@@ -50,21 +50,28 @@ function createNewUser() {
     function storeData(user, pwd) {
         let userList = JSON.parse(localStorage.getItem("users"));
         if (userList === null) userList = [];
-        let newUser = new User(user, pwd);
+        let budgetName = user + "'s budget";
+        let newUser = new User(user, pwd, budgetName);
         userList.push(newUser);
         localStorage.setItem("users", JSON.stringify(userList));
         localStorage.setItem("currentUser", user);
+        localStorage.setItem("currentBudget", budgetName);
     }
 }
 
 class User {
-    constructor(user, pwd) {
+    constructor(user, pwd, budgetName) {
         this.username = user;
         this.password = pwd;
-        this.initial = 0;
-        this.pIncome = [];
-        this.pExpenses = [];
-        this.aIncome = [];
-        this.aExpenses = [];
+        let budget = {
+            budgetName: budgetName,
+            privacy: "private",
+            initial: 0,
+            pIncome: [],
+            pExpenses: [],
+            aIncome: [],
+            aExpenses: []
+        }
+        this.budgets = [budget];
     }
 }

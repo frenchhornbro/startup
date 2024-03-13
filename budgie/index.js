@@ -2,6 +2,7 @@ let incorrectPwdWarningShowing = false;
 let noUserWarningShowing = false;
 let warning = "";
 localStorage.removeItem("currentUser");
+localStorage.removeItem("currentBudget");
 let users = null;
 if (localStorage.getItem("users") !== null) users = JSON.parse(localStorage.getItem("users"))
 
@@ -25,6 +26,13 @@ function login () {
         if (incorrectPwdWarningShowing) hideWarning("#incorrectPassword");
         if (noUserWarningShowing) hideWarning("#noUser");
         localStorage.setItem("currentUser", inputtedUser);
+        
+        for (let i = 0; i < users.length; i++) {
+            if (users[i].username) {
+                localStorage.setItem("currentBudget", users[i].budgets[0].budgetName);
+                break;
+            }
+        }
         window.location.href = "projected.html";
     }
     

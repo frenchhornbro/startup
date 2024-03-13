@@ -5,8 +5,8 @@
 // TODO: Add a delete button for fields
 // TODO: Add a way to edit field names
 // TODO: Prevent generating duplicate headers -- maybe do this in the load function
+// TODO: Display name based on the budget's listed name
 
-// TODO: Update projected and actual sheet's rows based on each other's calls (maybe store stuff in localStorage?)
 
 let addSelection = null;
 let headerSelection = null;
@@ -16,10 +16,22 @@ let incomeRestarted = false;
 let expenseRestarted = false;
 let viewNum = 12;
 let user = localStorage.getItem("currentUser");
+let budget = localStorage.getItem("currentBudget");
 let users = JSON.parse(localStorage.getItem("users"));
+let thisUser = null;
+for (checkUser of users) {
+    if (checkUser.username === user) {
+        thisUser = checkUser;
+        break;
+    }
+}
+
 let userData = null;
-for (data of users) {
-    if (data.username === user) userData = data;
+for (thisBudget of thisUser.budgets) {
+    if (thisBudget.budgetName === budget) {
+        userData = thisBudget;
+        break;
+    }
 }
 
 //TODO: Make load async

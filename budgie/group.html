@@ -48,68 +48,107 @@
         <main>
             <div class="group-main-container">
                 <div class="group-container">
-                    <h2>Group</h2>
+                    <h2 class="budget-info-title">Group</h2>
                     <button type="button" class="btn btn-light"><a href="index.html">Log Out</a></button>
                     <div class="add-friend-container">
                         <input type="text" class="form-control add-friend-textbox" id="new-request" placeholder="username" required/>
                         <button type="submit" class="btn btn-light add-friend-button">Add Friend</button>
                     </div>
-                    <h3>My Budgets</h3>
-                    <table>
-                        <tr>
-                            <th>2024 Budget (Personal)</th>
-                            <td>
-                                <select class="form-select">
+                    <div class="budget-info-title" style="display:flex">
+                        <h3>My Budgets</h3>
+                        <div class="info-filler"></div>
+                        <div class="budget-info-buttons-container">
+                            <button type="button" class="btn btn-light">New Budget</button>
+                        </div>
+                    </div>
+                    <div class="budget-info-container">
+                        <div>2024 Budget (Personal)</div>
+                        <div class="info-filler"></div>
+                        <div class="budget-info-buttons-container">
+                            <div>
+                                <select class="form-select" onchange="savePrivacy()">
                                     <option>Private</option>
                                     <option>Public</option>
                                 </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>2024 HR Budget</th>
-                            <td>
-                                <select class="form-select">
+                            </div>
+                            <div class="tiny-filler"></div>
+                            <div>
+                                <button type="button" class="btn btn-light disabled view-selector" onchange="saveCurrSelectedBudget()">View</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="budget-info-container">
+                        <div>2024 HR Budget</div>
+                        <div class="info-filler"></div>
+                        <div class="budget-info-buttons-container">
+                            <div>
+                                <select class="form-select" onchange="savePrivacy()">
                                     <option>Private</option>
-                                    <option selected="1">Public</option><!--Default should be private, this is for demonstration, change later-->
+                                    <option>Public</option>
                                 </select>
-                            </td>
-                            <td><button type="button" class="btn btn-light">View</button></td>
-                        </tr>
-                    </table>
-                    <h3>My Friends' Budgets</h3>
-                    <table>
-                        <tr>
-                            <th>Sterling</th>
-                            <td><button type="button" class="btn btn-light">Message</button></td>
-                        </tr>
-                        <tr>
-                            <th>2023 HR Budget</th>
-                            <td><button type="button" class="btn btn-light">View</button></td>
-                        </tr>
-                        <tr>
-                            <th>2024 HR Budget</th>
-                            <td>requested</td>
-                        </tr>
-                    </table>
-                    <table>
-                        <tr>
-                            <th>Kristina</th>
-                            <td><button type="button" class="btn btn-light">Message</button></td>
-                        </tr>
-                        <tr>
-                            <th>2024 - tech</th>
-                            <td><button type="button" class="btn btn-light">View</button></td>
-                        </tr>
-                        <tr>
-                            <th>2025 - tech</th>
-                            <td><button type="button" class="btn btn-light">Request Access</button></td>
-                        </tr>
-                    </table>
+                            </div>
+                            <div class="tiny-filler"></div>
+                            <div>
+                                <button type="button" class="btn btn-light view-selector" onchange="saveCurrSelectedBudget()">View</button>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="budget-info-title">My Friends' Budgets</h3>
+                    <div class="friend">
+                        <div class="budget-info-container">
+                            <div>Sterling</div>
+                            <div class="info-filler"></div>
+                            <div class="budget-info-buttons-container">
+                                <td><button type="button" class="btn btn-light">Message</button></td>
+                            </div>
+                        </div>
+                        <div class="budget-info-container">
+                            <div class="info-filler"></div>
+                            <div>2023 HR Budget</div>
+                            <div class="info-filler"></div>
+                            <div class="budget-info-buttons-container">
+                                <div><button type="button" class="btn btn-light">View</button></div>
+                            </div>
+                        </div>
+                        <div class="budget-info-container">
+                            <div class="info-filler"></div>
+                            <div>2024 HR Budget</div>
+                            <div class="info-filler"></div>
+                            <div class="budget-info-buttons-container">
+                                <div>requested</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="friend">
+                        <div class="budget-info-container">
+                            <div>Kristina</div>
+                            <div class="info-filler"></div>
+                            <div class="budget-info-buttons-container">
+                                <button type="button" class="btn btn-light">Message</button>
+                            </div>
+                        </div>
+                        <div class="budget-info-container">
+                            <div class="info-filler"></div>
+                            <div>2024 - tech</div>
+                            <div class="info-filler"></div>
+                            <div class="budget-info-buttons-container">
+                                <div><button type="button" class="btn btn-light">View</button></div>
+                            </div>
+                        </div>
+                        <div class="budget-info-container">
+                            <div class="info-filler"></div>
+                            <div>2025 - tech</div>
+                            <div class="info-filler"></div>
+                            <div class="budget-info-buttons-container">
+                                <div><button type="button" class="btn btn-light">Request Access</button></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="main-filler"></div>
                 <div class="message-container">
                     <div class="messages">
-                        <div>Messaging Sterling</div>
+                        <h2 class="budget-info-title">Messaging Sterling</h2>
                         <div class="other-request">
                             <span>
                                 Sterling requested access to your budget: 2024 HR Budget
@@ -143,5 +182,6 @@
             <span>Created by Hyrum Durfee</span>
             <a href="https://github.com/frenchhornbro/startup">GitHub</a>
         </footer>
+        <script src="group.js"></script>
     </body>
 </html>
