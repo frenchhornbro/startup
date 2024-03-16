@@ -17,7 +17,7 @@
         <script src="kick.js"></script>
         <!--Messaging functionality will come in the form of a popup, which will be able to be displayed from the budget page-->
     </head>
-    <body>
+    <body onload="loadBudgets()">
         <header>
             <nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
                 <div class="container-fluid">
@@ -58,61 +58,30 @@
                         <h3>My Budgets</h3>
                         <div class="info-filler"></div>
                         <div class="budget-info-buttons-container">
-                            <button type="button" class="btn btn-light">New Budget</button>
+                            <button type="button" class="btn btn-light" onclick="newBudget()">New Budget</button>
                         </div>
                     </div>
-                    <div class="budget-info-container">
-                        <div>2024 Budget (Personal)</div>
-                        <div class="info-filler"></div>
-                        <div class="budget-info-buttons-container">
-                            <div>
-                                <select class="form-select" onchange="savePrivacy()">
-                                    <option>Private</option>
-                                    <option>Public</option>
-                                </select>
-                            </div>
-                            <div class="tiny-filler"></div>
-                            <div>
-                                <button type="button" class="btn btn-light disabled view-selector" onchange="saveCurrSelectedBudget()">View</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="budget-info-container">
-                        <div>2024 HR Budget</div>
-                        <div class="info-filler"></div>
-                        <div class="budget-info-buttons-container">
-                            <div>
-                                <select class="form-select" onchange="savePrivacy()">
-                                    <option>Private</option>
-                                    <option>Public</option>
-                                </select>
-                            </div>
-                            <div class="tiny-filler"></div>
-                            <div>
-                                <button type="button" class="btn btn-light view-selector" onchange="saveCurrSelectedBudget()">View</button>
-                            </div>
-                        </div>
-                    </div>
+                    <div id="my-budgets-container"></div>
                     <h3 class="budget-info-title">My Friends' Budgets</h3>
                     <div class="friend">
-                        <div class="budget-info-container">
-                            <div>Sterling</div>
+                        <div class="friend-info-container">
+                            <div class="info-title">Sterling</div>
                             <div class="info-filler"></div>
                             <div class="budget-info-buttons-container">
                                 <td><button type="button" class="btn btn-light">Message</button></td>
                             </div>
                         </div>
-                        <div class="budget-info-container">
+                        <div class="friend-info-container">
                             <div class="info-filler"></div>
-                            <div>2023 HR Budget</div>
+                            <div class="info-title">2023 HR Budget</div>
                             <div class="info-filler"></div>
                             <div class="budget-info-buttons-container">
                                 <div><button type="button" class="btn btn-light">View</button></div>
                             </div>
                         </div>
-                        <div class="budget-info-container">
+                        <div class="friend-info-container">
                             <div class="info-filler"></div>
-                            <div>2024 HR Budget</div>
+                            <div class="info-title">2024 HR Budget</div>
                             <div class="info-filler"></div>
                             <div class="budget-info-buttons-container">
                                 <div>requested</div>
@@ -120,24 +89,24 @@
                         </div>
                     </div>
                     <div class="friend">
-                        <div class="budget-info-container">
-                            <div>Kristina</div>
+                        <div class="friend-info-container">
+                            <div class="info-title">Kristina</div>
                             <div class="info-filler"></div>
                             <div class="budget-info-buttons-container">
                                 <button type="button" class="btn btn-light">Message</button>
                             </div>
                         </div>
-                        <div class="budget-info-container">
+                        <div class="friend-info-container">
                             <div class="info-filler"></div>
-                            <div>2024 - tech</div>
+                            <div class="info-title">2024 - tech</div>
                             <div class="info-filler"></div>
                             <div class="budget-info-buttons-container">
                                 <div><button type="button" class="btn btn-light">View</button></div>
                             </div>
                         </div>
-                        <div class="budget-info-container">
+                        <div class="friend-info-container">
                             <div class="info-filler"></div>
-                            <div>2025 - tech</div>
+                            <div class="info-title">2025 - tech</div>
                             <div class="info-filler"></div>
                             <div class="budget-info-buttons-container">
                                 <div><button type="button" class="btn btn-light">Request Access</button></div>

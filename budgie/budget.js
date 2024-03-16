@@ -8,25 +8,26 @@
 // TODO: Display name based on the budget's listed name
 
 
-let addSelection = null;
-let headerSelection = null;
-let monthSelection = null;
+let addSelection = document.querySelector("#add-selector").options[0];
+let headerSelection = document.querySelector("#header-selector").options[0];
+let monthSelection = document.querySelector("#month-selector").options[0];
 
 let incomeRestarted = false;
 let expenseRestarted = false;
 let viewNum = 12;
+
 let user = localStorage.getItem("currentUser");
 let budget = localStorage.getItem("currentBudget");
 let users = JSON.parse(localStorage.getItem("users"));
 let thisUser = null;
-for (checkUser of users) {
-    if (checkUser.username === user) {
-        thisUser = checkUser;
+let userData = null;
+for (thisUser of users) {
+    if (thisUser.username === user) {
+        thisUser = thisUser;
         break;
     }
 }
 
-let userData = null;
 for (thisBudget of thisUser.budgets) {
     if (thisBudget.budgetName === budget) {
         userData = thisBudget;
@@ -34,11 +35,9 @@ for (thisBudget of thisUser.budgets) {
     }
 }
 
+
 //TODO: Make load async
 function load(isProjected) {
-    addSelection = document.querySelector("#add-selector").options[0];
-    headerSelection = document.querySelector("#header-selector").options[0];
-    monthSelection = document.querySelector("#month-selector").options[0];
     unload();
     initialClass();
     loadData(true, isProjected); // Load Income
@@ -144,22 +143,23 @@ function dataClass(num, isIncome) {
 
 
 function addIncome(isProjected) {
-    addData(true, isProjected);
+    addData(true, isProjected, true);
 }
 
 
 function addExpense(isProjected) {
-    addData(false, isProjected);
+    addData(false, isProjected, true);
 }
 
 
-function addData(isIncome, isProjected) {
-    //Initialize header
-    let headerName = "";
-    if (isIncome) headerName = prompt("Enter name for income field");
-    else headerName = prompt("Enter name for expense field");
-    //If they clicked cancel, don't continue
-    if (headerName === null || headerName === "") return;
+function addData(isIncome, isProjected, first, headerName = "") {
+    if (first) {
+        //Initialize header
+        if (isIncome) headerName = prompt("Enter name for income field");
+        else headerName = prompt("Enter name for expense field");
+        //If they clicked cancel, don't continue
+        if (headerName === null || headerName === "") return;
+    }
     
     //Initialize data
     let data = [headerName];
@@ -179,14 +179,22 @@ function addData(isIncome, isProjected) {
                 if (isProjected) userData.pExpenses.push(data);
                 else userData.aExpenses.push(data);
             }
-            users[i] = userData;
-            localStorage.setItem("users", JSON.stringify(users));
+            for (let j = 0; j < users[i].budgets.length; j++) {
+                if (users[i].budgets[j].budgetName === budget) {
+                    users[i].budgets[j] = userData
+                    localStorage.setItem("users", JSON.stringify(users));
+                    break;
+                }
+            }
             break;
         }
     }
 
-    //Load header and data
-    loadRow(headerName, data, isIncome);
+    //Store row for the opposite sheet, or load header and data
+    if (first) {
+        addData(isIncome, !isProjected, false, headerName);
+        loadRow(headerName, data, isIncome);
+    }
 
     //TODO: Make this display according to view
 }
@@ -335,7 +343,7 @@ function makeChange(isProjected) {
         
     function storeData(numToStore, storageType) {
         for (let i = 0; i < users.length; i++) {
-            if (users[i].username == user) {
+            if (users[i].username === user) {
                 if (storageType === "income") {
                     if (isProjected) userData.pIncome[childNum][monthNum+1] = numToStore;
                     else userData.aIncome[childNum][monthNum+1] = numToStore;
@@ -347,8 +355,13 @@ function makeChange(isProjected) {
                 else {
                     userData.initial = numToStore;
                 }
-                users[i] = userData;
-                localStorage.setItem("users", JSON.stringify(users));
+                for (let j = 0; j < users[i].budgets.length; j++) {
+                    if (users[i].budgets[j].budgetName === budget) {
+                        users[i].budgets[j] = userData
+                        localStorage.setItem("users", JSON.stringify(users));
+                        break;
+                    }
+                }
                 break;
             }
         }

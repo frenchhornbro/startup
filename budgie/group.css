@@ -23,7 +23,7 @@
     padding: 1vh;
 }
 
-.budget-info-container {
+.budget-info-container, .friend-info-container {
     font-weight: bold;
     display: flex;
     padding: 1vh;

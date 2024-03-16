@@ -5,6 +5,7 @@ let pwdWarningShowing = false;
 let confWarningShowing = false;
 let warning = "";
 localStorage.removeItem("currentUser");
+localStorage.removeItem("currentBudget");
 
 function createNewUser() {
     const user = document.querySelector("#username");
