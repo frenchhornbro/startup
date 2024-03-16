@@ -87,7 +87,7 @@
                     </div>
                 </div>
                 <div class="button-spacer">
-                    <h2 class="data-format">2024 Budget (Personal)</h2>
+                    <h2 class="data-format" id="title">2024 Budget (Personal)</h2>
                     <div class="budget-data-container data-format">
                         <div class="initial-savings"></div>
                         <div class="initial-savings">Initial Savings:</div>
@@ -116,11 +116,11 @@
                     </div>
                     <div class="button-container">
                         <div class="stretch-button">My Budget</div>
-                        <button type="button" class="btn btn-light stretch-button"><a href="group.html">See Group</a></button>
+                        <button type="button" class="btn btn-light stretch-button" onclick="seeGroup()">See Group</button>
                     </div>
                     <div class="button-container">
                         <button type="button" class="btn stretch-button" disabled style="background-color: green;">Projected</button>
-                        <button type="button" class="btn btn-light stretch-button"><a href="actual.html">Actual</a></button>
+                        <button type="button" class="btn btn-light stretch-button" onclick="actual()">Actual</button>
                         <button type="button" class="btn btn-light login" onclick="clearStorage()">TEMP Clear</button>
                     </div>
                 </div>

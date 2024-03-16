@@ -5,7 +5,6 @@
 // TODO: Add a delete button for fields
 // TODO: Add a way to edit field names
 // TODO: Prevent generating duplicate headers -- maybe do this in the load function
-// TODO: Display name based on the budget's listed name
 
 
 let addSelection = document.querySelector("#add-selector").options[0];
@@ -42,6 +41,7 @@ function load(isProjected) {
     initialClass();
     loadData(true, isProjected); // Load Income
     loadData(false, isProjected); // Load Expenses
+    loadTitle();
     loadCurrSelections();
 }
 
@@ -78,6 +78,10 @@ function loadData(isIncome, isProjected) {
     }
 }
 
+function loadTitle() {
+    let title = document.querySelector("#title");
+    title.textContent = thisBudget.budgetName;
+}
 
 function loadCurrSelections() {
     document.querySelector("#add-selector").value = addSelection.value;
@@ -409,6 +413,17 @@ function changeMonthSelection() {
     monthSelection = selection.options[optionNum];
 }
 
+function projected() {
+    window.location.href = "projected.html";
+}
+
+function actual() {
+    window.location.href = "actual.html";
+}
+
+function seeGroup() {
+    window.location.href = "group.html";
+}
 
 function clearStorage() {
     localStorage.clear();

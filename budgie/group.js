@@ -140,3 +140,7 @@ function newBudget() {
     localStorage.setItem("currentBudget", budgetName);
     window.location.href = "projected.html";
 }
+
+function logout() {
+    window.location.href = "index.html";
+}

@@ -48,13 +48,18 @@
         <main>
             <div class="group-main-container">
                 <div class="group-container">
-                    <h2 class="budget-info-title">Group</h2>
-                    <button type="button" class="btn btn-light"><a href="index.html">Log Out</a></button>
+                    <div class="budget-info-title" style="display:flex;">
+                        <h2>Group</h2>
+                        <div class="info-filler"></div>
+                        <div class="budget-info-buttons-container">
+                            <button type="button" class="btn btn-light" onclick="logout()">Log Out</button>
+                        </div>
+                    </div>
                     <div class="add-friend-container">
                         <input type="text" class="form-control add-friend-textbox" id="new-request" placeholder="username" required/>
                         <button type="submit" class="btn btn-light add-friend-button">Add Friend</button>
                     </div>
-                    <div class="budget-info-title" style="display:flex">
+                    <div class="budget-info-title" style="display:flex;">
                         <h3>My Budgets</h3>
                         <div class="info-filler"></div>
                         <div class="budget-info-buttons-container">
