@@ -10,7 +10,7 @@
 }
 
 .group-container {
-    flex: 2;
+    flex: 3;
     margin: 3vh;
     padding: 1vh;
     border-radius: 1%;
@@ -31,7 +31,7 @@
 
 .budget-info-buttons-container {
     display: flex;
-    flex: 1;
+    flex: 10;
     justify-content: right;
 }
 
@@ -41,6 +41,10 @@
 
 .tiny-filler {
     flex: .05;
+}
+
+.center-filler {
+    flex: .5;
 }
 
 .add-friend-container {
@@ -76,8 +80,6 @@
 
 .response {
     flex: 1;
-    /* position: absolute;
-    bottom: 0%; */
     display: flex;
     flex-direction: row;
 }
