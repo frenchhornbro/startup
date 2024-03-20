@@ -1,5 +1,33 @@
 > [!NOTE]
 > *_myfinancialbudgie.click_*
+# Databases
+## MongoDB
+Instruction: https://learn.cs260.click/page/webServices/dataServices/dataServices_md
+
+Collection: A large array of JavaScript objects, each with a unique ID
+
+`db.house.find();` // find all houses
+
+`db.house.find({beds: {$gte: 2}});` // find houses with two or more bedrooms
+
+`db.house.find({ $or: [(beds: { $lt: 3 }), (price: { $lt: 1000 })] });`
+// find houses with either less than three beds or less than $1000 a night
+
+To use MongoDB in an application, use `npm install mongodb`
+
+More ways to affect the output:
+```
+const query = {property_type: 'Condo', beds: {$lt: 2}};
+const option = {
+  sort: {price: -1},
+  limit: 10
+};
+collection.find(query, options);
+```
+
+Atlas will be our managed service. Allows us to not actually physically install MongoDB on our development server.
+
+Setting up Atlas: https://www.youtube.com/watch?v=daIH4o75KE8&ab_channel=LeeJensen
 
 # JavaScript notes
 ## Express
