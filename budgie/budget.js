@@ -88,6 +88,7 @@ function loadCurrSelections() {
     document.querySelector("#add-selector").value = addSelection.value;
     document.querySelector("#header-selector").value = headerSelection.value;
     document.querySelector("#month-selector").value = monthSelection.value;
+    changeHeaderSelection();
 }
 
 
@@ -425,7 +426,9 @@ function changeHeaderSelection() {
     while (selection.options[optionNum].value !== selection.value) optionNum++;
     headerSelection = selection.options[optionNum];
 
-    console.log(selection.options[optionNum].className); //TODO: <<< If this is equal to "option-initial", disable the month-selector
+    let monthSelector = document.getElementById("month-selector");
+    monthSelector.disabled = (selection.options[optionNum].className === "option-initial");
+    monthSelector.value = (selection.options[optionNum].className === "option-initial") ? "" : monthSelection.value;
 }
 
 function changeMonthSelection() {
