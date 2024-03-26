@@ -1,9 +1,9 @@
 //Feature: Be able to see components of the sum for each cell
 //Feature: Insert commas after every third integer
 //Feature: Switch the $ and - on negative numbers
+//Feature: Be able to edit field names after creation
 
 // TODO: Add a delete button for fields
-// TODO: Add a way to edit field names
 // TODO: Prevent generating duplicate headers -- maybe do this in the load function
 
 

@@ -33,7 +33,7 @@ function login () {
                 break;
             }
         }
-        window.location.href = "projected.html";
+        window.location.href = "group.html";
     }
     
     function verified() {

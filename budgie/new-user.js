@@ -17,7 +17,7 @@ function createNewUser() {
                 if (pwdWarningShowing) hideWarning("#pwdWarning");
                 if (confWarningShowing) hideWarning("#confWarning");
                 storeData(user.value, pwd.value);
-                window.location.href = "projected.html";
+                window.location.href = "group.html";
             }
             else {
                 if (pwdWarningShowing) hideWarning("#pwdWarning");

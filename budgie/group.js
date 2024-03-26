@@ -1,6 +1,5 @@
 //Feature: Assign a random color to the name of each person messaging
 
-//TODO: Add an edit budget name button next to the View button
 //TODO: Add a delete budget button next to the Edit button
 //TODO: Don't allow duplicate budget names
 
@@ -109,7 +108,7 @@ function savePrivacy(selectElement) {
 
 function viewBudget(buttonElement) {
     //Change the selected budget to be the one selected, and go to the page with that budget loaded in
-    let budgetName = buttonElement.parentElement.parentElement.parentElement.querySelector(".info-title").textContent;
+    let budgetName = buttonElement.parentElement.parentElement.querySelector(".info-title").textContent;
     localStorage.setItem("currentBudget", budgetName);
     window.location.href = "projected.html";
 }
@@ -144,6 +143,10 @@ function newBudget() {
     //Then unload the budgets and call loadBudgets
     budgetName = prompt("Enter new budget name:");
     if (budgetName === null || budgetName === "") return;
+    if (budgetNameAlreadyExists(budgetName)) {
+        alert("That budget name is already in use");
+        return;
+    }
     
     let newBudget = {budgetName: budgetName, privacy: "private", initial: 0, pIncome: [], pExpenses: [], aIncome: [], aExpenses: []};
     currUser.budgets.push(newBudget);
@@ -164,17 +167,45 @@ function editName(editButton) {
     //Input the new budget name. Find the budget corresponding to that button. Edit the name in localStorage. Call load.
     let budgetInfoContainer = editButton.parentElement.parentElement;
     let oldBudgetName = budgetInfoContainer.querySelector(".info-title").textContent;
-    console.log(oldBudgetName)
     let newBudgetName = prompt("Enter budget name:");
     if (newBudgetName === "" || newBudgetName === null) return;
+    if (budgetNameAlreadyExists(newBudgetName)) {
+        alert("That budget name is already in use");
+        return;
+    }
     let budgetElement = parseBudget(oldBudgetName);
     budgetElement.budgetName = newBudgetName;
     saveBudget(budgetElement, oldBudgetName);
     loadBudgets();
 }
 
+function budgetNameAlreadyExists(name) {
+    //Returns true if the budget already exists and false otherwise
+    for (budget of currUser.budgets) if (budget.budgetName === name) return true;
+    return false;
+}
+
 function deleteBudget(deleteButton) {
-    console.log("deleteBudget called");
+    //Deletes the budget with that name (after confirmation)
+    let budgetInfoContainer = deleteButton.parentElement.parentElement;
+    let budgetName = budgetInfoContainer.querySelector(".info-title").textContent;
+    if (!confirm("Do you want to delete the budget " + budgetName + "?")) return;
+
+    for (let i = 0; i < currUser.budgets.length; i++) {
+        if (currUser.budgets[i].budgetName === budgetName) {
+            currUser.budgets.splice(i, 1);
+            break;
+        }
+    }
+
+    for (let i = 0; i < users.length; i++) {
+        if (users[i].username === user) {
+            users[i] = currUser;
+            break;
+        }
+    }
+    localStorage.setItem("users", JSON.stringify(users));
+    loadBudgets();
 }
 
 function sendMessage() {
