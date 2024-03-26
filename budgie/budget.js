@@ -5,6 +5,7 @@
 
 // TODO: Add a delete button for fields
 // TODO: Prevent generating duplicate headers -- maybe do this in the load function
+//TODO: Upon change of income/expense type to "Initial", month selector is disabled
 
 
 let addSelection = document.querySelector("#add-selector").options[0];
@@ -163,6 +164,25 @@ function addData(isIncome, isProjected, first, headerName = "") {
         else headerName = prompt("Enter name for expense field");
         //If they clicked cancel, don't continue
         if (headerName === null || headerName === "") return;
+        //If the name is a duplicate, alert them and don't continue
+        if (headerName === "Initial") {
+            alert("That field name is already in use");
+            return;
+        }
+        for (let i = 0; i < userData.pIncome.length; i++) {
+            if (userData.pIncome[i][0] === headerName) {
+                alert("That field name is already in use");
+                return;
+            }
+            else console.log(`Income header ${userData.pIncome[i][0]} != inputted header ${headerName}}`);
+        }
+        for (let i = 0; i < userData.pExpenses.length; i++) {
+            if (userData.pExpenses[i][0] === headerName) {
+                alert("That field name is already in use");
+                return;
+            }
+            else console.log(`Expense header ${userData.pExpenses[i][0]} != inputted header ${headerName}}`);
+        }
     }
     
     //Initialize data
@@ -404,6 +424,8 @@ function changeHeaderSelection() {
     let selection = document.querySelector("#header-selector");
     while (selection.options[optionNum].value !== selection.value) optionNum++;
     headerSelection = selection.options[optionNum];
+
+    console.log(selection.options[optionNum].className); //TODO: <<< If this is equal to "option-initial", disable the month-selector
 }
 
 function changeMonthSelection() {

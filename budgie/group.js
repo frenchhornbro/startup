@@ -1,9 +1,5 @@
 //Feature: Assign a random color to the name of each person messaging
 
-//TODO: Add a delete budget button next to the Edit button
-//TODO: Don't allow duplicate budget names
-
-
 let user = localStorage.getItem("currentUser");
 let budget = localStorage.getItem("currentBudget");
 let users = JSON.parse(localStorage.getItem("users"));
