@@ -1,6 +1,3 @@
-/* Allign buttons in group-container on the right if time */
-/* TODO: Make the buttons all the same flex value */
-
 .group-main-container {
     display: flex;
     flex-direction: row;

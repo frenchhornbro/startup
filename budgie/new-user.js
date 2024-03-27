@@ -1,4 +1,4 @@
-// TODO: Feature: Don't allow the creation of a user with the same name (bc I think that could also wipe out all their data)
+//TODO: Make clicking the Budgie logo take you to Group, not to the homepage
 
 let dupeWarningShowing = false;
 let pwdWarningShowing = false;
@@ -44,7 +44,6 @@ function createNewUser() {
         if (users === null) return false;
         for (let i = 0; i < users.length; i++) {
             if (users[i].username === username) return true;
-            else console.log(`${users[i]} !== ${username}`);
         }
         return false;
     }
@@ -107,5 +106,8 @@ class User {
             aExpenses: []
         }
         this.budgets = [budget];
+        this.friends = [];
+        this.sentFriendRequests = [];
+        this.receivedFriendRequests = [];
     }
 }
