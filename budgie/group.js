@@ -1,13 +1,32 @@
-//Feature: Assign a random color to the name of each person messaging
+//Feature: Assign a random color to the name of each person messaging and display it for their name
 //Feature: Limit number of budgets that can be created
 
-let budget = localStorage.getItem("currentBudget");
 let users = JSON.parse(localStorage.getItem("users"));
 let currUser = null;
 for (thisUser of users) {
     if (thisUser.username === localStorage.getItem("currentUser")) {
         currUser = thisUser;
         break;
+    }
+}
+
+function load() {
+    unload();
+    loadBudgets();
+    loadFriends();
+}
+
+function unload() {
+    while (document.querySelector(".budget-info-container") !== null) {
+        document.querySelector(".budget-info-container").remove();
+    }
+
+    while (document.querySelector(".friend") !== null) {
+        document.querySelector(".friend").remove();
+    }
+
+    while (document.querySelector(".friend-info-container") !== null) {
+        document.querySelector(".friend-info-container").remove();
     }
 }
 
@@ -24,12 +43,12 @@ function loadBudgets() {
     }
 }
 
-function loadBudget(budget) {
+function loadBudget(thisBudget) {
     let row = document.createElement("div");
     row.className = "budget-info-container";
 
     let title = document.createElement("div");
-    title.textContent = budget.budgetName;
+    title.textContent = thisBudget.budgetName;
     title.className = "info-title"
     row.appendChild(title);
 
@@ -50,10 +69,10 @@ function loadBudget(budget) {
     let privateOption = document.createElement("option");
     privateOption.textContent = "Private";
     privacySelection.appendChild(privateOption);
-    privateOption.selected = (budget.privacy === "private") ? 1 : 0;
+    privateOption.selected = (thisBudget.privacy === "private") ? 1 : 0;
     let publicOption = document.createElement("option");
     publicOption.textContent = "Public";
-    publicOption.selected = (budget.privacy === "public") ? 1 : 0;
+    publicOption.selected = (thisBudget.privacy === "public") ? 1 : 0;
     privacySelection.appendChild(publicOption);
     privacySelectionContainer.appendChild(privacySelection);
     buttonContainer.appendChild(privacySelectionContainer);
@@ -175,7 +194,7 @@ function editName(editButton) {
 
 function budgetNameAlreadyExists(name) {
     //Returns true if the budget already exists and false otherwise
-    for (budget of currUser.budgets) if (budget.budgetName === name) return true;
+    for (thisBudget of currUser.budgets) if (thisBudget.budgetName === name) return true;
     return false;
 }
 
@@ -271,54 +290,204 @@ function userExists(username) {
 
 function inList(username, list) {
     if (list === null) return false;
-    for (user of list) {
-        if (user.username === username) return true;
+    for (thisUser of list) {
+        if (thisUser.username === username) return true;
     }
     return false;
 }
 
-function inFriendsList(username) {
-    if (currUser.friends === null) return false;
-    for (friend in currUser.friends) {
-        if (friend === username) return true;
+function rejectFriend(rejectButton) {
+    let friendName = rejectButton.parentElement.parentElement.querySelector(".info-title").textContent;
+    //Verify the friend request was actually sent
+    if (!userExists(friendName)) return;
+    if (inList(friendName, currUser.friends)) return;
+    let friendData = null;
+    for (thisUser of users) {
+        if (thisUser.username === friendName) {
+            friendData = thisUser;
+            break;
+        }
     }
-    return false;
-}
+    if (!inList(currUser.username, friendData.sentFriendRequests)) return;
 
-function inSentRequestsList(username) {
-    if (currUser.sentFriendRequests === null) return false;
-    for (request of currUser.sentFriendRequests) {
-        if (request === username) return true;
+    //Remove friend's username from currUser's receivedFriendRequests list
+    for (let i = 0; i < currUser.receivedFriendRequests.length; i++) {
+        if (currUser.receivedFriendRequests[i].username === friendName) {
+            currUser.receivedFriendRequests.splice(i,1);
+            saveUser(currUser);
+            break;
+        }
     }
-    return false;
+
+    //Remove currUser's usernamename from friend's sentFriendRequests list
+    for (let i = 0; i < friendData.sentFriendRequests.length; i++) {
+        if (friendData.sentFriendRequests[i].username === currUser.username) {
+            friendData.sentFriendRequests.splice(i, 1);
+            saveUser(friendData);
+            break;
+        }
+    }
+
+    load();
 }
 
-function rejectFriend(username) {
-    //TODO:
-    //Logic:
-    //Remove them from the requested list and remove the prompt
-    //Call load
-}
+function acceptFriend(acceptButton) {
+    let friendName = acceptButton.parentElement.parentElement.querySelector(".info-title").textContent;
+    if (inList(friendName, currUser.friends)) return;
+    //Check if currUser.username is stored in that user's sentFriendRequests list
 
-function acceptFriend(username) {
+    //TODO: Verify that they actually sent the request and that they're not already a friend
+
+    //
+
     //TODO:
     //Logic:
     //If they're already a friend, don't display the prompt
-    //Otherwise, add them to the friends list for you and for them, remove them from the requested list,
+    //Otherwise, add a Friend object with their username to the friends list for you and for them,
+    // remove them from your requested list and you from theirs,
     // update the prompt text, and alert ("Friend added: ${username}")
     // Call load
 }
 
-function displayFriends() {
-    //TODO: Implement displaying friends' public budgets (load should call this)
-    //Maybe make this async? The "then" part is each friend
-    //Logic:
-    // For each friend in friends, pull their budgets from users
-    // For each budget, if privacy is set to public, then display
-    // For each requested friend, display the request
+function loadFriends() {
+    //TODO: Maybe make this async? The "then" part is each friend
+
+    let friendContainers = document.getElementById("my-friends-container");
+    
+    //Display all incoming friend requests
+    for (request of currUser.receivedFriendRequests) {
+        displayFriendRequest(request);
+    }
+
+    //Display all friends public budgets
+    for (friend of currUser.friends) {
+        let friendData = null;
+        for (user of users) {
+            if (user.username === friend.username) {
+                friendData = user;
+                break;
+            }
+        }
+
+        let friendContainer = document.createElement("div");
+        friendContainer.className = "friend";
+
+        //Add the title to the DOM
+        displayFriendName(friendContainer);
+
+        //Add the budgets to the DOM
+        for (thisBudget of friendData.budgets) {
+            if (thisBudget.privacy === "public") {
+                displayBudget(friendContainer, thisBudget);
+            }
+        }
+        friendContainers.appendChild(friendContainer);
+    }
+
+    function displayFriendRequest(request) {
+        let requestContainer = document.createElement("div");
+        requestContainer.className = "friend-info-container";
+
+        let requestTitleContainer = document.createElement("div");
+
+        let requestTitle = document.createElement("span");
+        requestTitle.className = "info-title";
+        requestTitle.textContent = request.username;
+        requestTitleContainer.appendChild(requestTitle);
+
+        let requestText = document.createElement("span");
+        requestText.textContent = " sent a friend request";
+        requestTitleContainer.appendChild(requestText);
+        requestContainer.appendChild(requestTitleContainer);
+
+        let space = document.createElement("div");
+        space.className = "info-filler";
+        requestContainer.appendChild(space);
+
+        let buttonContainer = document.createElement("div");
+        buttonContainer.className = "budget-info-buttons-container";
+
+        let acceptButton = document.createElement("button");
+        acceptButton.type = "button";
+        acceptButton.className = "btn btn-light";
+        acceptButton.textContent = "Accept";
+        acceptButton.onclick = () => acceptFriend(acceptButton);
+        buttonContainer.appendChild(acceptButton);
+
+        let miniSpace = document.createElement("div");
+        miniSpace.className = "tiny-filler";
+        buttonContainer.appendChild(miniSpace);
+
+        let rejectButton = document.createElement("button");
+        rejectButton.type = "button";
+        rejectButton.className = "btn btn-light";
+        rejectButton.textContent = "Reject";
+        rejectButton.onclick = () => rejectFriend(rejectButton);
+        buttonContainer.appendChild(rejectButton);
+        requestContainer.appendChild(buttonContainer);
+        friendContainers.appendChild(requestContainer);
+    }
+
+    function displayFriendName(friendContainer) {
+        let friendNameContainer = document.createElement("div");
+        friendNameContainer.className = "friend-info-container";
+        
+        let friendTitle = document.createAttribute("div");
+        friendTitle.className = "info-title";
+        friendTitle.textContent = friendData.username;
+        friendNameContainer.appendChild(friendTitle);
+        
+        let space = document.createAttribute("div");
+        space.className = "info-title";
+        friendNameContainer.appendChild(space);
+
+        let buttonContainer = document.createElement("div");
+        buttonContainer.className = "budget-info-buttons-container";
+
+        let msgButton = document.createElement("button");
+        msgButton.type = "button";
+        msgButton.className = "btn btn-light";
+        msgButton.textContent = "Message";
+        //TODO: Set msgButton.onclick
+        buttonContainer.appendChild(msgButton);
+        friendNameContainer.appendChild(buttonContainer);
+        friendContainer.appendChild(friendNameContainer);
+    }
+
+    function displayBudget(friendContainer, thisBudget) {
+                let budgetContainer = document.createElement("div");
+                budgetContainer.className = "friend-info-container";
+
+                let space = document.createElement("div");
+                space.className = "info-filler";
+                budgetContainer.appendChild(space);
+
+                let budgetTitle = document.createElement("div");
+                budgetTitle.clasName = "info-title";
+                budgetTitle.textContent = thisBudget.budgetName;
+                budgetContainer.appendChild(budgetTitle);
+
+                space = document.createElement("div");
+                space.className = "info-filler";
+                budgetContainer.appendChild(space);
+
+                let buttonContainer = document.createElement("div");
+                buttonContainer.className = "budget-info-buttons-container";
+                
+                let requestButton = document.createElement("div");
+                requestButton.type = "button";
+                requestButton.className = "btn btn-light";
+                requestButton.textContent = "Request Access";
+                requestButton.onclick = () => requestFriendsBudget(requestButton);
+                //TODO: ^^^ Save permissions within a Friend object and display View or Request Access (and their functions) accordingly
+                buttonContainer.appendChild(requestButton);
+                budgetContainer.appendChild(buttonContainer);
+                friendContainer.appendChild(budgetContainer);
+    }
 }
 
-function requestFriendsBudget(budget) {
+function requestFriendsBudget(requestButton) {
+    console.log("Budget requested");
     //TODO: Implement requesting access to a friend's budget.
     //Logic:
     // Send a request message in messages

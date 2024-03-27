@@ -26,6 +26,10 @@
     padding: 1vh;
 }
 
+.info-title {
+    font-weight: bold;
+}
+
 .budget-info-buttons-container {
     display: flex;
     flex: 10;
