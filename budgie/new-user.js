@@ -1,5 +1,6 @@
 // TODO: Feature: Don't allow the creation of a user with the same name (bc I think that could also wipe out all their data)
 
+let dupeWarningShowing = false;
 let pwdWarningShowing = false;
 let confWarningShowing = false;
 let warning = "";
@@ -8,25 +9,44 @@ localStorage.removeItem("currentBudget");
 
 function createNewUser() {
     const user = document.querySelector("#username");
+    if (duplicateUser(user.value)) {
+        if (pwdWarningShowing) hideWarning("pwdWarning");
+        else if (confWarningShowing) hideWarning("confWarning");
+        if (!dupeWarningShowing) displayWarning("dupeWarning", "That username is taken");
+        return;
+    }
     const pwd = document.querySelector("#password");
     const confirm = document.querySelector("#confirm");
     if (user.value !== "" && pwd.value !== "" && confirm.value !== "") {
         if (pwd.value.length >= 7) {
             if (pwd.value == confirm.value) {
-                if (pwdWarningShowing) hideWarning("#pwdWarning");
-                if (confWarningShowing) hideWarning("#confWarning");
+                if (dupeWarningShowing) hideWarning("dupeWarning");
+                if (pwdWarningShowing) hideWarning("pwdWarning");
+                if (confWarningShowing) hideWarning("confWarning");
                 storeData(user.value, pwd.value);
                 window.location.href = "group.html";
             }
             else {
-                if (pwdWarningShowing) hideWarning("#pwdWarning");
+                if (dupeWarningShowing) hideWarning("dupeWarning");
+                if (pwdWarningShowing) hideWarning("pwdWarning");
                 if (!confWarningShowing) displayWarning("confWarning", "Inputted passwords must be the same");
             }
         }
         else {
-            if (confWarningShowing) hideWarning("#confWarning");
+            if (dupeWarningShowing) hideWarning("dupeWarning");
+            if (confWarningShowing) hideWarning("confWarning");
             if (!pwdWarningShowing) displayWarning("pwdWarning", "Password must be at least 7 characters long");
         }
+    }
+
+    function duplicateUser(username) {
+        let users = JSON.parse(localStorage.getItem("users"));
+        if (users === null) return false;
+        for (let i = 0; i < users.length; i++) {
+            if (users[i].username === username) return true;
+            else console.log(`${users[i]} !== ${username}`);
+        }
+        return false;
     }
 
     function displayWarning(id, warningText) {
@@ -38,13 +58,27 @@ function createNewUser() {
         warning.style.fontStyle = "italic";
         insertBox = document.querySelector("#password-container");
         insertBox.appendChild(warning);
-        (id === "pwdWarning") ? pwdWarningShowing = true : confWarningShowing = true;
+        setWarnings(id, true);
     }
 
     function hideWarning(id) {
-        removeElement = document.querySelector(id);
+        removeElement = document.getElementById(id);
         removeElement.parentElement.removeChild(removeElement);
-        (id === "#pwdWarning") ? pwdWarningShowing = false : confWarningShowing = false;
+        setWarnings(id, false);
+    }
+
+    function setWarnings(id, isTrue) {
+        switch (id) {
+            case ("pwdWarning"):
+                pwdWarningShowing = isTrue;
+                break;
+            case ("confWarning"):
+                confWarningShowing = isTrue;
+                break;
+            default:
+                dupeWarningShowing = isTrue;
+                break;
+        }
     }
 
     function storeData(user, pwd) {
