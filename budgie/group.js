@@ -1,6 +1,8 @@
 //Feature: Assign a random color to the name of each person messaging and display it for their name
 //Feature: Limit number of budgets that can be created
 
+//TODO: Rename "Group" to "Home"
+
 let users = JSON.parse(localStorage.getItem("users"));
 let currUser = null;
 for (thisUser of users) {
@@ -298,9 +300,34 @@ function inList(username, list) {
 
 function rejectFriend(rejectButton) {
     let friendName = rejectButton.parentElement.parentElement.querySelector(".info-title").textContent;
-    //Verify the friend request was actually sent
-    if (!userExists(friendName)) return;
-    if (inList(friendName, currUser.friends)) return;
+    let friendData = verifyRequest(friendName);
+    if (friendData === null) return;
+    removeRequest(friendName, friendData);
+    load();
+}
+
+function acceptFriend(acceptButton) {
+    let friendName = acceptButton.parentElement.parentElement.querySelector(".info-title").textContent;
+    let friendData = verifyRequest(friendName);
+    if (friendData === null) return;
+    removeRequest(friendName, friendData);
+
+    let friend = new Friend(friendName);
+    currUser.friends.push(friend)
+    saveUser(currUser);
+
+    let thisUser = new Friend(currUser.username);
+    friendData.friends.push(thisUser);
+    saveUser(friendData);
+
+    alert(`Friend added: ${friendName}`);
+    load();
+}
+
+function verifyRequest(friendName) {
+    //Verify the friend request was actually sent and that they're not already a friend
+    if (!userExists(friendName)) return null;
+    if (inList(friendName, currUser.friends)) return null;
     let friendData = null;
     for (thisUser of users) {
         if (thisUser.username === friendName) {
@@ -308,8 +335,11 @@ function rejectFriend(rejectButton) {
             break;
         }
     }
-    if (!inList(currUser.username, friendData.sentFriendRequests)) return;
+    if (!inList(currUser.username, friendData.sentFriendRequests)) return null;
+    return friendData;
+}
 
+function removeRequest(friendName, friendData) {
     //Remove friend's username from currUser's receivedFriendRequests list
     for (let i = 0; i < currUser.receivedFriendRequests.length; i++) {
         if (currUser.receivedFriendRequests[i].username === friendName) {
@@ -327,26 +357,6 @@ function rejectFriend(rejectButton) {
             break;
         }
     }
-
-    load();
-}
-
-function acceptFriend(acceptButton) {
-    let friendName = acceptButton.parentElement.parentElement.querySelector(".info-title").textContent;
-    if (inList(friendName, currUser.friends)) return;
-    //Check if currUser.username is stored in that user's sentFriendRequests list
-
-    //TODO: Verify that they actually sent the request and that they're not already a friend
-
-    //
-
-    //TODO:
-    //Logic:
-    //If they're already a friend, don't display the prompt
-    //Otherwise, add a Friend object with their username to the friends list for you and for them,
-    // remove them from your requested list and you from theirs,
-    // update the prompt text, and alert ("Friend added: ${username}")
-    // Call load
 }
 
 function loadFriends() {
@@ -373,7 +383,7 @@ function loadFriends() {
         friendContainer.className = "friend";
 
         //Add the title to the DOM
-        displayFriendName(friendContainer);
+        displayFriendName(friendContainer, friendData);
 
         //Add the budgets to the DOM
         for (thisBudget of friendData.budgets) {
@@ -428,16 +438,16 @@ function loadFriends() {
         friendContainers.appendChild(requestContainer);
     }
 
-    function displayFriendName(friendContainer) {
+    function displayFriendName(friendContainer, friendData) {
         let friendNameContainer = document.createElement("div");
         friendNameContainer.className = "friend-info-container";
         
-        let friendTitle = document.createAttribute("div");
+        let friendTitle = document.createElement("div");
         friendTitle.className = "info-title";
         friendTitle.textContent = friendData.username;
         friendNameContainer.appendChild(friendTitle);
         
-        let space = document.createAttribute("div");
+        let space = document.createElement("div");
         space.className = "info-title";
         friendNameContainer.appendChild(space);
 
@@ -448,7 +458,7 @@ function loadFriends() {
         msgButton.type = "button";
         msgButton.className = "btn btn-light";
         msgButton.textContent = "Message";
-        //TODO: Set msgButton.onclick
+        msgButton.onclick = () => openMessage(msgButton);
         buttonContainer.appendChild(msgButton);
         friendNameContainer.appendChild(buttonContainer);
         friendContainer.appendChild(friendNameContainer);
@@ -487,7 +497,7 @@ function loadFriends() {
 }
 
 function requestFriendsBudget(requestButton) {
-    console.log("Budget requested");
+    console.log("requestFriendsBudget called");
     //TODO: Implement requesting access to a friend's budget.
     //Logic:
     // Send a request message in messages
@@ -497,6 +507,7 @@ function requestFriendsBudget(requestButton) {
 }
 
 function viewFriendsBudget(budget) {
+    console.log("viewFriendsBudget called");
     //TODO: Implement viewing a friend's budget (have two fake accounts already set up and display their data)
     //      Logic:
     // Verify you're in their friends' list
@@ -504,7 +515,8 @@ function viewFriendsBudget(budget) {
     // Disable all buttons in Budget View since the guestBudget is not null
 }
 
-function openMessage(friend) {
+function openMessage(msgButton) {
+    console.log("openMessage called");
     //TODO: Implement opening the messaging box for a friend
     //      Logic:
     // Have a variable for group.js called activeMessagingBox, set to the username of your friend
@@ -519,5 +531,12 @@ function logout() {
 class FriendRequest { //Eventually could include number of friend requests sent to that person as an attribute
     constructor(username) {
         this.username = username
+    }
+}
+
+class Friend {
+    constructor(username) {
+        this.username = username;
+        this.permittedBudgets = []; //TODO: Wherever that happens, permitted budgets should be checked each time to remove budgets that have been deleted
     }
 }
