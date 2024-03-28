@@ -18,6 +18,7 @@
 .budget-info-title {
     background-color: green;
     padding: 1vh;
+    height: 8vh;
 }
 
 .budget-info-container, .friend-info-container {
@@ -75,7 +76,7 @@
     height: 95%;
 }
 
-.messages {
+#messages {
     flex: 90;
 }
 

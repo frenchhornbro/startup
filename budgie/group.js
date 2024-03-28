@@ -1,8 +1,10 @@
 //Feature: Assign a random color to the name of each person messaging and display it for their name
 //Feature: Limit number of budgets that can be created
+//Take note: There's a vulnerability wherever we set a value to the textContent of an attribute, as that can be edited
 
 //TODO: Rename "Group" to "Home"
 
+let activeMessage = null;
 let users = JSON.parse(localStorage.getItem("users"));
 let currUser = null;
 for (thisUser of users) {
@@ -16,6 +18,7 @@ function load() {
     unload();
     loadBudgets();
     loadFriends();
+    loadMessages();
 }
 
 function unload() {
@@ -29,6 +32,10 @@ function unload() {
 
     while (document.querySelector(".friend-info-container") !== null) {
         document.querySelector(".friend-info-container").remove();
+    }
+
+    while (document.querySelector(".message-line-container") !== null) {
+        document.querySelector(".message-line-container").remove();
     }
 }
 
@@ -218,34 +225,6 @@ function deleteBudget(deleteButton) {
     loadBudgets();
 }
 
-function sendMessage() {
-    let messageContainer = document.querySelector(".messages");
-    
-    let thisMessageContainer = document.createElement("div");
-
-    let messageTitle = document.createElement("span");
-    messageTitle.textContent = "You: ";
-    thisMessageContainer.appendChild(messageTitle);
-
-    let inputtedMessage = document.querySelector("#response").value;
-    let newMessage = document.createElement("span");
-    newMessage.textContent = inputtedMessage;
-    thisMessageContainer.appendChild(newMessage);
-
-    messageContainer.appendChild(thisMessageContainer);
-    
-    document.querySelector("#response").value = "";
-    
-    //TODO: Save messages sent
-    // Logic: Store the messageTitle and newMessage together as a JSON object in "messages" in localStorage based on the username
-
-    //TODO: Have a clear button for messages / make them expire after so much time...? How would I even count time when the page isn't rendered?
-
-    //TODO: Send fake messages every so often
-
-    //TODO: Automatically make two fake accounts who are friends with everyone)
-}
-
 function addFriend() {
     //TODO: Eventually cap the number of friend requests that can be sent in a day, or set a time limit between sending friend requests
     let friendUsername = document.getElementById("new-request").value; //This is the user to firend
@@ -270,10 +249,10 @@ function addFriend() {
         }
         currUser.sentFriendRequests.push(new FriendRequest(friendUsername));
         saveUser(currUser);
-        for (user of users) {
-            if (user.username === friendUsername) {
-                user.receivedFriendRequests.push(new FriendRequest(currUser.username));
-                saveUser(user);
+        for (thisUser of users) {
+            if (thisUser.username === friendUsername) {
+                thisUser.receivedFriendRequests.push(new FriendRequest(currUser.username));
+                saveUser(thisUser);
                 break;
             }
         }
@@ -448,7 +427,6 @@ function loadFriends() {
         friendNameContainer.appendChild(friendTitle);
         
         let space = document.createElement("div");
-        space.className = "info-title";
         friendNameContainer.appendChild(space);
 
         let buttonContainer = document.createElement("div");
@@ -500,19 +478,20 @@ function loadFriends() {
         friendContainer.appendChild(budgetContainer);
 
         function isPermitted() {
-            for (eachFriend of currUser.friends) {
-                if (eachFriend.username === friendData.username) {
-                    for (eachBudget of eachFriend.permittedBudgets) {
-                        if (eachBudget.budgetName === thisBudget.budgetName) {
-                            return true;
-                        }
-                    }
-                    break;
-                }
+            let friend = getFriend(friendData.username);
+            for (eachBudget of friend.permittedBudgets) {
+                if (eachBudget.budgetName === thisBudget.budgetName) return true;
             }
             return false;
         }
     }
+}
+
+function getFriend(username) {
+    for (eachFriend of currUser.friends) {
+        if (eachFriend.username === username) return eachFriend;
+    }
+    return null;
 }
 
 function requestFriendsBudget(requestButton) {
@@ -534,13 +513,78 @@ function viewFriendsBudget(requestButton) {
     // Disable all buttons in Budget View since the guestBudget is not null
 }
 
+function sendMessage() {
+    if (activeMessage === null) return;
+    let name = currUser.username
+    let body = document.querySelector("#response").value;
+    let message = new Message(name, body);
+    displayMessage(message);
+    document.querySelector("#response").value = "";
+
+    for (let i = 0; i < currUser.friends.length; i++) {
+        if (currUser.friends[i].username === activeMessage) {
+            currUser.friends[i].messages.push(message);
+            saveUser(currUser);
+            break;
+        }
+    }
+
+    for (let i = 0; i < users.length; i++) {
+        if (users[i].username === activeMessage) {
+            for (let j = 0; j < users[i].friends.length; j++) {
+                if (users[i].friends[j].username === currUser.username) {
+                    users[i].friends[j].messages.push(message);
+                    saveUser(users[i]);
+                    break;
+                }
+            }
+            break;
+        }
+    }
+
+    //TODO: Send fake messages every so often
+
+    //TODO: Automatically make two fake accounts who are friends with everyone)
+}
+
 function openMessage(msgButton) {
-    console.log("openMessage called");
-    //TODO: Implement opening the messaging box for a friend
-    //      Logic:
-    // Have a variable for group.js called activeMessagingBox, set to the username of your friend
-    // Pull the info from that friend's username in `messages` in localStorage
-    // Populate any buttons with the functions they store
+    let friendName = msgButton.parentElement.parentElement.querySelector(".info-title").textContent;
+    activeMessage = friendName;
+    load();
+}
+
+function loadMessages() {
+    if (activeMessage === null) {
+        document.getElementById("response").disabled = true;
+        document.querySelector(".response-button").disabled = true;
+        return;
+    }
+    document.getElementById("response").disabled = false;
+    document.querySelector(".response-button").disabled = false;
+    document.getElementById("message-title").textContent = `Messaging ${activeMessage}`;
+    let friendData = getFriend(activeMessage);
+    for (message of friendData.messages) {
+        displayMessage(message);
+    }
+    //TODO: Populate any buttons with the functions they store
+}
+
+function displayMessage(message) {
+    let messageContainer = document.getElementById("messages");
+    messageContainer.className = "message-line-container";
+    
+    let thisMessageContainer = document.createElement("div");
+
+    let messageTitle = document.createElement("span");
+    messageTitle.textContent = `${message.name}: `;
+    thisMessageContainer.appendChild(messageTitle);
+
+    let inputtedMessage = message.body;
+    let newMessage = document.createElement("span");
+    newMessage.textContent = inputtedMessage;
+    thisMessageContainer.appendChild(newMessage);
+
+    messageContainer.appendChild(thisMessageContainer);
 }
 
 function logout() {
@@ -560,5 +604,14 @@ class Friend {
         //TODO: Wherever that happens, permitted budgets should be checked each time to remove budgets that have been deleted
             //Or when the budget is deleted, check for it in all friends
         //TODO: When a budget is set to private, remove it from all permittedBudgets
+        this.messages = [];
+    }
+}
+
+class Message {
+    constructor(name, body) {
+        this.name = name;
+        this.body = body;
+        //TODO: Could set a time for the message to let it expire
     }
 }
