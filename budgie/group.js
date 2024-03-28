@@ -388,7 +388,7 @@ function loadFriends() {
         //Add the budgets to the DOM
         for (thisBudget of friendData.budgets) {
             if (thisBudget.privacy === "public") {
-                displayBudget(friendContainer, thisBudget);
+                displayBudget(friendContainer, thisBudget, friendData);
             }
         }
         friendContainers.appendChild(friendContainer);
@@ -464,35 +464,54 @@ function loadFriends() {
         friendContainer.appendChild(friendNameContainer);
     }
 
-    function displayBudget(friendContainer, thisBudget) {
-                let budgetContainer = document.createElement("div");
-                budgetContainer.className = "friend-info-container";
+    function displayBudget(friendContainer, thisBudget, friendData) {
+        let budgetContainer = document.createElement("div");
+        budgetContainer.className = "friend-info-container";
 
-                let space = document.createElement("div");
-                space.className = "info-filler";
-                budgetContainer.appendChild(space);
+        let space = document.createElement("div");
+        space.className = "info-filler";
+        budgetContainer.appendChild(space);
 
-                let budgetTitle = document.createElement("div");
-                budgetTitle.clasName = "info-title";
-                budgetTitle.textContent = thisBudget.budgetName;
-                budgetContainer.appendChild(budgetTitle);
+        let budgetTitle = document.createElement("div");
+        budgetTitle.clasName = "info-title";
+        budgetTitle.textContent = thisBudget.budgetName;
+        budgetContainer.appendChild(budgetTitle);
 
-                space = document.createElement("div");
-                space.className = "info-filler";
-                budgetContainer.appendChild(space);
+        space = document.createElement("div");
+        space.className = "info-filler";
+        budgetContainer.appendChild(space);
 
-                let buttonContainer = document.createElement("div");
-                buttonContainer.className = "budget-info-buttons-container";
-                
-                let requestButton = document.createElement("div");
-                requestButton.type = "button";
-                requestButton.className = "btn btn-light";
-                requestButton.textContent = "Request Access";
-                requestButton.onclick = () => requestFriendsBudget(requestButton);
-                //TODO: ^^^ Save permissions within a Friend object and display View or Request Access (and their functions) accordingly
-                buttonContainer.appendChild(requestButton);
-                budgetContainer.appendChild(buttonContainer);
-                friendContainer.appendChild(budgetContainer);
+        let buttonContainer = document.createElement("div");
+        buttonContainer.className = "budget-info-buttons-container";
+        
+        let reqViewButton = document.createElement("div");
+        reqViewButton.type = "button";
+        reqViewButton.className = "btn btn-light";
+        if (isPermitted()) {
+            reqViewButton.textContent = "View";
+            reqViewButton.onclick = () => viewFriendsBudget(reqViewButton);
+        }
+        else {
+            reqViewButton.textContent = "Request Access";
+            reqViewButton.onclick = () => requestFriendsBudget(reqViewButton);
+        }
+        buttonContainer.appendChild(reqViewButton);
+        budgetContainer.appendChild(buttonContainer);
+        friendContainer.appendChild(budgetContainer);
+
+        function isPermitted() {
+            for (eachFriend of currUser.friends) {
+                if (eachFriend.username === friendData.username) {
+                    for (eachBudget of eachFriend.permittedBudgets) {
+                        if (eachBudget.budgetName === thisBudget.budgetName) {
+                            return true;
+                        }
+                    }
+                    break;
+                }
+            }
+            return false;
+        }
     }
 }
 
@@ -506,7 +525,7 @@ function requestFriendsBudget(requestButton) {
     // If it's rejected, return the button to the "Request Access" text (and corresponding function)
 }
 
-function viewFriendsBudget(budget) {
+function viewFriendsBudget(requestButton) {
     console.log("viewFriendsBudget called");
     //TODO: Implement viewing a friend's budget (have two fake accounts already set up and display their data)
     //      Logic:
@@ -537,6 +556,9 @@ class FriendRequest { //Eventually could include number of friend requests sent 
 class Friend {
     constructor(username) {
         this.username = username;
-        this.permittedBudgets = []; //TODO: Wherever that happens, permitted budgets should be checked each time to remove budgets that have been deleted
+        this.permittedBudgets = [];
+        //TODO: Wherever that happens, permitted budgets should be checked each time to remove budgets that have been deleted
+            //Or when the budget is deleted, check for it in all friends
+        //TODO: When a budget is set to private, remove it from all permittedBudgets
     }
 }
