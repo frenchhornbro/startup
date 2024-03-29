@@ -486,8 +486,8 @@ function loadFriends() {
 
         function isPermitted() {
             let friend = getFriend(friendData.username);
-            for (eachBudget of friend.permittedBudgets) {
-                if (eachBudget.budgetName === thisBudget.budgetName) return true;
+            for (thisBudgetName of friend.permittedBudgets) {
+                if (thisBudgetName === thisBudget.budgetName) return true;
             }
             return false;
         }
@@ -504,7 +504,6 @@ function getFriend(username) {
 function requestFriendsBudget(requestButton) {
     let friendName = requestButton.parentElement.parentElement.parentElement.querySelector(".friend-name").textContent;
     let budgetName = requestButton.parentElement.parentElement.querySelector(".budget-name").textContent;
-    //TODO: Don't permit sending a request multiple times before it's been responded to
 
     let name = currUser.username;
     let body = "";
@@ -514,43 +513,26 @@ function requestFriendsBudget(requestButton) {
     if (requestAlreadySent(budgetName, friendName)) return;
     saveMessage(request, friendName);
     load();
-
-    // Send a request message in messages
-    // If it's accepted, change the button text (and corresponding function) to "view",
-    //      and add the budget name to "approvedBudgets" for that friend in "friends" in localStorage
-    // If it's rejected, return the button to the "Request Access" text (and corresponding function)
-    //Call load
 }
 
 function requestAlreadySent(budgetName, friendName) {
     let friend = getFriend(friendName);
     if (friend === null) return true;
     for (message of friend.messages) {
-        if (message !== null && message.params.length > 1 && message.params[1] === budgetName) {
+        if (message !== null && message.params.length > 1 && message.params[1] === budgetName && message.tag === "request") {
                 return true;
             }
     }
     return false;
 }
 
-function givePermission(username, budgetName) {
-    //TODO
-    //Is this username supposed to be the friendName or currUser.username?
-    console.log("givePermission called");
-}
-
-function rejectPermission(username, budgetName) {
-    //TODO
-    console.log("rejectPermission called");
-}
-
 function viewFriendsBudget(requestButton) {
     console.log("viewFriendsBudget called");
-    //TODO: Implement viewing a friend's budget (have two fake accounts already set up and display their data)
+    //TODO: Implement viewing a friend's budget
     //      Logic:
     // Verify you're in their friends' list
+    // Verify that budget isPermitted()
     // Call that budget as the guestBudget (new localStorage variable)
-    // Disable all buttons in Budget View since the guestBudget is not null
 }
 
 function sendMessage() {
@@ -618,9 +600,12 @@ function displayMessage(message) {
     if (message.tag === "request") {
         thisMessageContainer.appendChild(displayRequest(message));
     }
+    else if (message.tag === "permission") {
+        thisMessageContainer.appendChild(displayPermission(message));
+    }
     else {
         let messageTitle = document.createElement("span");
-        messageTitle.textContent = `${message.name}: `;
+        messageTitle.textContent = `${message.origin}: `;
         thisMessageContainer.appendChild(messageTitle);
         
         let inputtedMessage = message.body;
@@ -633,32 +618,104 @@ function displayMessage(message) {
 
 function displayRequest(request) {
     let reqContainer = document.createElement("div");
-    let friend = request.params[0];
+    let friendName = request.params[0];
     let budgetName = request.params[1];
 
-    if (request.name === currUser.username) {
+    if (request.origin === currUser.username) {
         let reqMsg = document.createElement("span");
-        reqMsg.textContent = `You requested access to ${friend}'s budget: ${budgetName}`;
+        reqMsg.textContent = `You requested access to ${friendName}'s budget: ${budgetName}`;
         reqContainer.appendChild(reqMsg);
     }
     else {
         let reqMsg = document.createElement("span");
-        reqMsg.textContent = `${request.name} requested access to your budget: ${budgetName}`
+        reqMsg.textContent = `${request.origin} requested access to your budget: ${budgetName}`
         reqContainer.appendChild(reqMsg);
         
         let acceptButton = document.createElement("button");
         acceptButton.className = "btn btn-light";
         acceptButton.textContent = "Accept";
-        acceptButton.onclick = () => givePermission(request.params[0], request.params[1]);
+        acceptButton.onclick = () => givePermission(acceptButton, request.origin, budgetName);
         reqContainer.appendChild(acceptButton);
         
         let declineButton = document.createElement("div");
         declineButton.className = "btn btn-light";
         declineButton.textContent = "Decline";
-        declineButton.onclick = () => rejectPermission(request.params[0], request.params[1]);
+        declineButton.onclick = () => rejectPermission(rejectButton, request.origin, budgetName);
         reqContainer.appendChild(declineButton);
     }
     return reqContainer;
+}
+
+function displayPermission(permission) {
+    let permitContainer = document.createElement("div");
+    let friendName = permission.params[0];
+    let budgetName = permission.params[1];
+
+    let permitMsg = document.createElement("div");
+    if (permission.origin === currUser.username) {
+        permitMsg.textContent = `You permitted ${friendName} to access your budget: ${budgetName}`;
+    }
+    else {
+        permitMsg.textContent = `${permission.origin} gave you access to their budget: ${budgetName}`;
+    }
+    permitContainer.appendChild(permitMsg);
+    return permitContainer;
+}
+
+function givePermission(acceptButton, friendName, budgetName) {
+    let friendData = null;
+    for (thisUser of users) {
+        if (thisUser.username === friendName) {
+            friendData = thisUser;
+            break;
+        }
+    }
+    if (friendData === null) return;
+    let currUserFriend = null;
+    for (thisFriend of friendData.friends) {
+        if (thisFriend.username === currUser.username) {
+            currUserFriend = thisFriend;
+            break;
+        }
+    }
+    if (currUserFriend === null) return;
+
+    //Add budgetName to permittedBudgets
+    currUserFriend.permittedBudgets.push(budgetName);
+
+    //Change the message in friend's inbox
+    for (let i = 0; i < currUserFriend.messages.length; i++) {
+        let message = currUserFriend.messages[i];
+        if (message.origin === friendName && message.tag === "request" && message.params[0] === currUser.username && message.params[1] === budgetName) {
+            let permitMessage = new Message(currUser.username, "", "permission", [friendName, budgetName]);
+            currUserFriend.messages[i] = permitMessage;
+            break;
+        }
+    }
+    saveUser(friendData);
+
+    //Change the message in currUser's inbox
+    for (let i = 0; i < currUser.friends.length; i++) {
+        if (currUser.friends[i].username === friendName) {
+            let friend = currUser.friends[i];
+            for (let j = 0; j < friend.messages.length; j++) {
+                let message = friend.messages[j];
+                if (message.origin === friendName && message.tag === "request" && message.params[0] === currUser.username && message.params[1] === budgetName) {
+                    let permitMessage = new Message(currUser.username, "", "permission", [friendName, budgetName]);
+                    currUser.friends[i].messages[j] = permitMessage;
+                    break;
+                }
+            }
+            break;
+        }
+    }
+    saveUser(currUser);
+    load();
+}
+
+function rejectPermission(rejectButton, friendName, budgetName) {
+    //TODO
+    console.log("rejectPermission called");
 }
 
 function logout() {
@@ -683,8 +740,8 @@ class Friend {
 }
 
 class Message {
-    constructor(name, body, tag=null, params=[]) {
-        this.name = name;
+    constructor(origin, body, tag=null, params=[]) {
+        this.origin = origin;
         this.body = body;
         this.tag = tag;
         this.params = params;
