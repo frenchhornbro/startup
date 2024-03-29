@@ -367,7 +367,7 @@ function loadFriends() {
         //Add the budgets to the DOM
         for (thisBudget of friendData.budgets) {
             if (thisBudget.privacy === "public") {
-                displayBudget(friendContainer, thisBudget, friendData);
+                displayFriendBudget(friendContainer, thisBudget, friendData);
             }
         }
         friendContainers.appendChild(friendContainer);
@@ -442,7 +442,7 @@ function loadFriends() {
         friendContainer.appendChild(friendNameContainer);
     }
 
-    function displayBudget(friendContainer, thisBudget, friendData) {
+    function displayFriendBudget(friendContainer, thisBudget, friendData) {
         let budgetContainer = document.createElement("div");
         budgetContainer.className = "friend-info-container";
 
@@ -462,18 +462,25 @@ function loadFriends() {
         let buttonContainer = document.createElement("div");
         buttonContainer.className = "budget-info-buttons-container";
         
-        let reqViewButton = document.createElement("div");
-        reqViewButton.type = "button";
-        reqViewButton.className = "btn btn-light";
-        if (isPermitted()) {
-            reqViewButton.textContent = "View";
-            reqViewButton.onclick = () => viewFriendsBudget(reqViewButton);
+        if (requestAlreadySent(thisBudget.budgetName, friendData.username)) {
+            let reqTitle = document.createElement("div");
+            reqTitle.textContent = "Request sent";
+            buttonContainer.appendChild(reqTitle);
         }
         else {
-            reqViewButton.textContent = "Request Access";
-            reqViewButton.onclick = () => requestFriendsBudget(reqViewButton);
+            let reqViewButton = document.createElement("button");
+            reqViewButton.type = "button";
+            reqViewButton.className = "btn btn-light";
+            if (isPermitted()) {
+                reqViewButton.textContent = "View";
+                reqViewButton.onclick = () => viewFriendsBudget(reqViewButton);
+            }
+            else {
+                reqViewButton.textContent = "Request Access";
+                reqViewButton.onclick = () => requestFriendsBudget(reqViewButton);
+            }
+            buttonContainer.appendChild(reqViewButton);
         }
-        buttonContainer.appendChild(reqViewButton);
         budgetContainer.appendChild(buttonContainer);
         friendContainer.appendChild(budgetContainer);
 
@@ -497,15 +504,14 @@ function getFriend(username) {
 function requestFriendsBudget(requestButton) {
     let friendName = requestButton.parentElement.parentElement.parentElement.querySelector(".friend-name").textContent;
     let budgetName = requestButton.parentElement.parentElement.querySelector(".budget-name").textContent;
-    //TODO: Implement requesting access to a friend's budget.
     //TODO: Don't permit sending a request multiple times before it's been responded to
 
-    //Create a message. When that message is read, interpret it to display the appropriate buttons (givePermission and rejectPermission)
     let name = currUser.username;
     let body = "";
     let tag = "request";
     let params = [friendName, budgetName];
     let request = new Message(name, body, tag, params);
+    if (requestAlreadySent(budgetName, friendName)) return;
     saveMessage(request, friendName);
     load();
 
@@ -514,6 +520,17 @@ function requestFriendsBudget(requestButton) {
     //      and add the budget name to "approvedBudgets" for that friend in "friends" in localStorage
     // If it's rejected, return the button to the "Request Access" text (and corresponding function)
     //Call load
+}
+
+function requestAlreadySent(budgetName, friendName) {
+    let friend = getFriend(friendName);
+    if (friend === null) return true;
+    for (message of friend.messages) {
+        if (message !== null && message.params.length > 1 && message.params[1] === budgetName) {
+                return true;
+            }
+    }
+    return false;
 }
 
 function givePermission(username, budgetName) {
@@ -573,8 +590,7 @@ function saveMessage(message, friend=activeMessage) {
 }
 
 function openMessage(msgButton) {
-    let friendName = msgButton.parentElement.parentElement.querySelector(".info-title").textContent;
-    activeMessage = friendName;
+    activeMessage = msgButton.parentElement.parentElement.querySelector(".info-title").textContent;
     load();
 }
 
@@ -591,14 +607,13 @@ function loadMessages() {
     for (message of friendData.messages) {
         displayMessage(message);
     }
-    //TODO: Populate any buttons with the functions they store
 }
 
 function displayMessage(message) {
     let messageContainer = document.getElementById("messages");
-    messageContainer.className = "message-line-container";
     
     let thisMessageContainer = document.createElement("div");
+    thisMessageContainer.className = "message-line-container";
 
     if (message.tag === "request") {
         thisMessageContainer.appendChild(displayRequest(message));
@@ -628,7 +643,7 @@ function displayRequest(request) {
     }
     else {
         let reqMsg = document.createElement("span");
-        reqMsg.textContent = `${friend} requested access to your budget: ${budgetName}`
+        reqMsg.textContent = `${request.name} requested access to your budget: ${budgetName}`
         reqContainer.appendChild(reqMsg);
         
         let acceptButton = document.createElement("button");
