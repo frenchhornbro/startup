@@ -422,7 +422,7 @@ function loadFriends() {
         friendNameContainer.className = "friend-info-container";
         
         let friendTitle = document.createElement("div");
-        friendTitle.className = "info-title";
+        friendTitle.className = "info-title friend-name";
         friendTitle.textContent = friendData.username;
         friendNameContainer.appendChild(friendTitle);
         
@@ -451,7 +451,7 @@ function loadFriends() {
         budgetContainer.appendChild(space);
 
         let budgetTitle = document.createElement("div");
-        budgetTitle.clasName = "info-title";
+        budgetTitle.className = "info-title budget-name";
         budgetTitle.textContent = thisBudget.budgetName;
         budgetContainer.appendChild(budgetTitle);
 
@@ -495,13 +495,36 @@ function getFriend(username) {
 }
 
 function requestFriendsBudget(requestButton) {
-    console.log("requestFriendsBudget called");
+    let friendName = requestButton.parentElement.parentElement.parentElement.querySelector(".friend-name").textContent;
+    let budgetName = requestButton.parentElement.parentElement.querySelector(".budget-name").textContent;
     //TODO: Implement requesting access to a friend's budget.
-    //Logic:
+    //TODO: Don't permit sending a request multiple times before it's been responded to
+
+    //Create a message. When that message is read, interpret it to display the appropriate buttons (givePermission and rejectPermission)
+    let name = currUser.username;
+    let body = "";
+    let tag = "request";
+    let params = [friendName, budgetName];
+    let request = new Message(name, body, tag, params);
+    saveMessage(request, friendName);
+    load();
+
     // Send a request message in messages
     // If it's accepted, change the button text (and corresponding function) to "view",
     //      and add the budget name to "approvedBudgets" for that friend in "friends" in localStorage
     // If it's rejected, return the button to the "Request Access" text (and corresponding function)
+    //Call load
+}
+
+function givePermission(username, budgetName) {
+    //TODO
+    //Is this username supposed to be the friendName or currUser.username?
+    console.log("givePermission called");
+}
+
+function rejectPermission(username, budgetName) {
+    //TODO
+    console.log("rejectPermission called");
 }
 
 function viewFriendsBudget(requestButton) {
@@ -520,9 +543,15 @@ function sendMessage() {
     let message = new Message(name, body);
     displayMessage(message);
     document.querySelector("#response").value = "";
+    saveMessage(message);
 
+    //TODO: Send fake messages every so often
+    //TODO: Automatically make two fake accounts who are friends with everyone)
+}
+
+function saveMessage(message, friend=activeMessage) {
     for (let i = 0; i < currUser.friends.length; i++) {
-        if (currUser.friends[i].username === activeMessage) {
+        if (currUser.friends[i].username === friend) {
             currUser.friends[i].messages.push(message);
             saveUser(currUser);
             break;
@@ -530,7 +559,7 @@ function sendMessage() {
     }
 
     for (let i = 0; i < users.length; i++) {
-        if (users[i].username === activeMessage) {
+        if (users[i].username === friend) {
             for (let j = 0; j < users[i].friends.length; j++) {
                 if (users[i].friends[j].username === currUser.username) {
                     users[i].friends[j].messages.push(message);
@@ -541,10 +570,6 @@ function sendMessage() {
             break;
         }
     }
-
-    //TODO: Send fake messages every so often
-
-    //TODO: Automatically make two fake accounts who are friends with everyone)
 }
 
 function openMessage(msgButton) {
@@ -575,16 +600,50 @@ function displayMessage(message) {
     
     let thisMessageContainer = document.createElement("div");
 
-    let messageTitle = document.createElement("span");
-    messageTitle.textContent = `${message.name}: `;
-    thisMessageContainer.appendChild(messageTitle);
-
-    let inputtedMessage = message.body;
-    let newMessage = document.createElement("span");
-    newMessage.textContent = inputtedMessage;
-    thisMessageContainer.appendChild(newMessage);
-
+    if (message.tag === "request") {
+        thisMessageContainer.appendChild(displayRequest(message));
+    }
+    else {
+        let messageTitle = document.createElement("span");
+        messageTitle.textContent = `${message.name}: `;
+        thisMessageContainer.appendChild(messageTitle);
+        
+        let inputtedMessage = message.body;
+        let newMessage = document.createElement("span");
+        newMessage.textContent = inputtedMessage;
+        thisMessageContainer.appendChild(newMessage);
+    }
     messageContainer.appendChild(thisMessageContainer);
+}
+
+function displayRequest(request) {
+    let reqContainer = document.createElement("div");
+    let friend = request.params[0];
+    let budgetName = request.params[1];
+
+    if (request.name === currUser.username) {
+        let reqMsg = document.createElement("span");
+        reqMsg.textContent = `You requested access to ${friend}'s budget: ${budgetName}`;
+        reqContainer.appendChild(reqMsg);
+    }
+    else {
+        let reqMsg = document.createElement("span");
+        reqMsg.textContent = `${friend} requested access to your budget: ${budgetName}`
+        reqContainer.appendChild(reqMsg);
+        
+        let acceptButton = document.createElement("button");
+        acceptButton.className = "btn btn-light";
+        acceptButton.textContent = "Accept";
+        acceptButton.onclick = () => givePermission(request.params[0], request.params[1]);
+        reqContainer.appendChild(acceptButton);
+        
+        let declineButton = document.createElement("div");
+        declineButton.className = "btn btn-light";
+        declineButton.textContent = "Decline";
+        declineButton.onclick = () => rejectPermission(request.params[0], request.params[1]);
+        reqContainer.appendChild(declineButton);
+    }
+    return reqContainer;
 }
 
 function logout() {
@@ -609,9 +668,11 @@ class Friend {
 }
 
 class Message {
-    constructor(name, body) {
+    constructor(name, body, tag=null, params=[]) {
         this.name = name;
         this.body = body;
+        this.tag = tag;
+        this.params = params;
         //TODO: Could set a time for the message to let it expire
     }
 }
