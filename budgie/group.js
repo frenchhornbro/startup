@@ -5,6 +5,7 @@
 //TODO: Rename "Group" to "Home"
 
 let activeMessage = null;
+localStorage.removeItem("budgetOwner");
 let users = JSON.parse(localStorage.getItem("users"));
 let currUser = null;
 for (thisUser of users) {
@@ -124,7 +125,6 @@ function loadBudget(thisBudget) {
 
 function savePrivacy(selectElement) {
     //Figure out which budget that row correlates to, and update the budget.privacy to be "private" or "public" accordingly
-    //TODO: When a budget is set to private, remove it from all permittedBudgets, or just check that it's not private when it's rendered
     let budgetName = selectElement.parentElement.parentElement.parentElement.querySelector(".info-title").textContent;
     let budgetElement = parseBudget(budgetName);
     budgetElement.privacy = selectElement.value.toLowerCase();
@@ -473,7 +473,7 @@ function loadFriends() {
             let reqViewButton = document.createElement("button");
             reqViewButton.type = "button";
             reqViewButton.className = "btn btn-light";
-            if (isPermitted()) {
+            if (isPermitted(friendData)) {
                 reqViewButton.textContent = "View";
                 reqViewButton.onclick = () => viewFriendsBudget(reqViewButton);
             }
@@ -485,15 +485,15 @@ function loadFriends() {
         }
         budgetContainer.appendChild(buttonContainer);
         friendContainer.appendChild(budgetContainer);
-
-        function isPermitted() {
-            let friend = getFriend(friendData.username);
-            for (thisBudgetName of friend.permittedBudgets) {
-                if (thisBudgetName === thisBudget.budgetName) return true;
-            }
-            return false;
-        }
     }
+}
+
+function isPermitted(friendData) {
+    let friend = getFriend(friendData.username);
+    for (thisBudgetName of friend.permittedBudgets) {
+        if (thisBudgetName === thisBudget.budgetName) return true;
+    }
+    return false;
 }
 
 function getFriend(username) {
@@ -528,13 +528,75 @@ function requestAlreadySent(budgetName, friendName) {
     return false;
 }
 
-function viewFriendsBudget(requestButton) {
-    console.log("viewFriendsBudget called");
-    //TODO: Implement viewing a friend's budget
-    //      Logic:
-    // Verify you're in their friends' list
-    // Verify that budget isPermitted()
+function viewFriendsBudget(viewButton) {
+    // If you don't have a friend object for them, display an alert
+    let friendName = viewButton.parentElement.parentElement.parentElement.querySelector(".friend-name").textContent;
+    let friend = getFriend(friendName);
+    if (friend === null) {
+        alert(`${friendName} is not listed as one of your friends :(`);
+        return;
+    }
+    
+    // If the budget is not listed in permittedBudgets, display an alert
+    let budgetName = viewButton.parentElement.parentElement.querySelector(".budget-name").textContent;
+    if (!isPermitted(friend)) {
+        alert(`You have not been granted access to ${budgetName}`)
+        return;
+    }
+    
+    // If friend no longer exists, display an alert
+    let friendUserData = null;
+    for (thisUser of users) {
+        if (thisUser.username === friendName) {
+            friendUserData = thisUser;
+            break;
+        }
+    }
+    if (friendUserData === null) {
+        alert(`${friendName} is not an existing user`);
+        return;
+    }
+    
+    // If budget no longer exists, display an alert and remove it from the friend's permittedBudgets
+    let budgetData = null;
+    for (thisBudget of friendUserData.budgets) {
+        if (thisBudget.budgetName === budgetName) {
+            budgetData = thisBudget.budgetName;
+            break;
+        }
+    }
+    if (budgetData === null) {
+        alert(`${budgetName} has been deleted`);
+        removePermissions(friendName, budgetName);
+        return;
+    }
+
+    // If a budget is set to private, display an alert and remove it from the friend's permittedBudgets
+    if (budgetData.privacy === "private") {
+        alert(`${budgetName} has been set as a private budget`);
+        removePermissions(friendName, budgetName);
+        return;
+    }
+
     // Call that budget as the guestBudget (new localStorage variable)
+    localStorage.setItem("budgetOwner", friendName);
+    localStorage.setItem("currentBudget", budgetName);
+    window.location.href = "projected.html";
+}
+
+function removePermissions(friendName, budgetName) {
+    for (let i = 0; i < currUser.friends.length; i++) {
+        if (currUser.friends[i].username === friendName) {
+            let friend = currUser.friends[i];
+            for (let j = 0; j < friend.permittedBudgets.length; j++) {
+                if (friend.permittedBudgets[i] === budgetName) {
+                    currUser.friends[i].permittedBudgets.slice(j, 1);
+                    break;
+                }
+            }
+            break;
+        }
+    }
 }
 
 function sendMessage() {

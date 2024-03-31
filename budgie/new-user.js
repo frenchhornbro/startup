@@ -5,6 +5,7 @@ let pwdWarningShowing = false;
 let confWarningShowing = false;
 let warning = "";
 localStorage.removeItem("currentUser");
+localStorage.removeItem("budgetOwner");
 localStorage.removeItem("currentBudget");
 
 function createNewUser() {

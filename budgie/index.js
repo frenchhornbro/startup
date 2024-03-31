@@ -2,6 +2,7 @@ let incorrectPwdWarningShowing = false;
 let noUserWarningShowing = false;
 let warning = "";
 localStorage.removeItem("currentUser");
+localStorage.removeItem("budgetOwner");
 localStorage.removeItem("currentBudget");
 let users = null;
 if (localStorage.getItem("users") !== null) users = JSON.parse(localStorage.getItem("users"))

@@ -1,12 +1,9 @@
 //Feature: Be able to see components of the sum for each cell
 //Feature: Insert commas after every third integer
 //Feature: Switch the $ and - on negative numbers
-//Feature: Be able to edit field names after creation
 
+// TODO: Be able to edit field names after creation
 // TODO: Add a delete button for fields
-// TODO: Prevent generating duplicate headers -- maybe do this in the load function
-//TODO: Upon change of income/expense type to "Initial", month selector is disabled
-
 
 let addSelection = document.querySelector("#add-selector").options[0];
 let headerSelection = document.querySelector("#header-selector").options[0];
@@ -14,21 +11,22 @@ let monthSelection = document.querySelector("#month-selector").options[0];
 
 let incomeRestarted = false;
 let expenseRestarted = false;
-let viewNum = 12;
+let VIEWNUM = 12;
 
 let user = localStorage.getItem("currentUser");
+if (localStorage.getItem("budgetOwner") !== null) user = localStorage.getItem("budgetOwner");
 let budget = localStorage.getItem("currentBudget");
 let users = JSON.parse(localStorage.getItem("users"));
-let thisUser = null;
+let currUser = null;
 let userData = null;
 for (thisUser of users) {
     if (thisUser.username === user) {
-        thisUser = thisUser;
+        currUser = thisUser;
         break;
     }
 }
 
-for (thisBudget of thisUser.budgets) {
+for (thisBudget of currUser.budgets) {
     if (thisBudget.budgetName === budget) {
         userData = thisBudget;
         break;
@@ -36,7 +34,6 @@ for (thisBudget of thisUser.budgets) {
 }
 
 
-//TODO: Make load async
 function load(isProjected) {
     unload();
     initialClass();
@@ -60,7 +57,7 @@ function unload() {
 
 
 function initialClass() {
-    let initial = document.querySelector("#initial");
+    let initial = document.getElementById("initial");
     initial.textContent = "$" + userData.initial.toFixed(2);
     initial.className = dataClass(initial.textContent.slice(1), true);
     initial.className = dataClass(userData.initial, true);
@@ -175,25 +172,22 @@ function addData(isIncome, isProjected, first, headerName = "") {
                 alert("That field name is already in use");
                 return;
             }
-            else console.log(`Income header ${userData.pIncome[i][0]} != inputted header ${headerName}}`);
         }
         for (let i = 0; i < userData.pExpenses.length; i++) {
             if (userData.pExpenses[i][0] === headerName) {
                 alert("That field name is already in use");
                 return;
             }
-            else console.log(`Expense header ${userData.pExpenses[i][0]} != inputted header ${headerName}}`);
         }
     }
     
     //Initialize data
     let data = [headerName];
-    for (let i = 0; i < viewNum; i++) {
+    for (let i = 0; i < VIEWNUM; i++) {
         data.push(0);
     }
     
     //Store the header and data
-    //For each user, if the user
     for (let i = 0; i < users.length; i++) {
         if (users[i].username == user) {
             if (isIncome) {
@@ -205,7 +199,7 @@ function addData(isIncome, isProjected, first, headerName = "") {
                 else userData.aExpenses.push(data);
             }
             for (let j = 0; j < users[i].budgets.length; j++) {
-                if (users[i].budgets[j].budgetName === budget) {
+                if (users[i].budgets[j].budgetName === thisBudget) {
                     users[i].budgets[j] = userData
                     localStorage.setItem("users", JSON.stringify(users));
                     break;
@@ -220,8 +214,6 @@ function addData(isIncome, isProjected, first, headerName = "") {
         addData(isIncome, !isProjected, false, headerName);
         loadRow(headerName, data, isIncome);
     }
-
-    //TODO: Make this display according to view
 }
 
 
@@ -229,23 +221,23 @@ function calculateMonth(data, isIncome) {
     sums = []
     let monthTag = (isIncome) ? "#month-income" : "#month-expenses";
     if ((!incomeRestarted && monthTag === "#month-income") || (!expenseRestarted && monthTag === "#month-expenses")) {
-        for (let i = 1; i <= viewNum; i++) sums.push(Number(document.querySelector(monthTag).children[i].textContent.slice(1)));
+        for (let i = 1; i <= VIEWNUM; i++) sums.push(Number(document.querySelector(monthTag).children[i].textContent.slice(1)));
     }
     else {
-        for (let i = 1; i <= viewNum; i++) sums.push(0);
+        for (let i = 1; i <= VIEWNUM; i++) sums.push(0);
     }
     if (monthTag === "#month-income") incomeRestarted = false;
     else expenseRestarted = false;
 
-    for (let i = 1; i < data.length; i++) {
+    for (let i = 1; i < VIEWNUM+1; i++) {
         sums[i-1] += Number(data[i]);
         loadMonthData(i, sums[i-1]);
     }
     
     //Calculate the total for the inputted row
     let total = 0;
-    for (let i = 0; i < sums.length; i++) total += Number(sums[i]);
-    loadMonthData(viewNum+1,total);
+    for (let i = 0; i < VIEWNUM; i++) total += Number(sums[i]);
+    loadMonthData(VIEWNUM+1,total);
 
     //Update the net and total values
     let netGainSum = 0;
@@ -304,8 +296,6 @@ function calculateMonth(data, isIncome) {
         }
     }
 }
-
-
 
 
 function makeChange(isProjected) {
@@ -438,6 +428,11 @@ function changeMonthSelection() {
     monthSelection = selection.options[optionNum];
 }
 
+function editHeaderName() {
+    //TODO: Figure out how I'm going to incorporate this (where's the button going to be?)
+    //Edit the name in userData, save userData to thisUser, save thisUser to users, save users to localStorage
+}
+
 function projected() {
     window.location.href = "projected.html";
 }
@@ -448,9 +443,4 @@ function actual() {
 
 function seeGroup() {
     window.location.href = "group.html";
-}
-
-function clearStorage() {
-    localStorage.clear();
-    console.log("Cleared");
 }
