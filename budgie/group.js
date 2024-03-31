@@ -124,6 +124,7 @@ function loadBudget(thisBudget) {
 
 function savePrivacy(selectElement) {
     //Figure out which budget that row correlates to, and update the budget.privacy to be "private" or "public" accordingly
+    //TODO: When a budget is set to private, remove it from all permittedBudgets, or just check that it's not private when it's rendered
     let budgetName = selectElement.parentElement.parentElement.parentElement.querySelector(".info-title").textContent;
     let budgetElement = parseBudget(budgetName);
     budgetElement.privacy = selectElement.value.toLowerCase();
@@ -208,6 +209,7 @@ function budgetNameAlreadyExists(name) {
 }
 
 function deleteBudget(deleteButton) {
+    //TODO: Delete this budget from all permittedBudgets
     //Deletes the budget with that name (after confirmation)
     let budgetInfoContainer = deleteButton.parentElement.parentElement;
     let budgetName = budgetInfoContainer.querySelector(".info-title").textContent;
@@ -601,7 +603,10 @@ function displayMessage(message) {
         thisMessageContainer.appendChild(displayRequest(message));
     }
     else if (message.tag === "permission") {
-        thisMessageContainer.appendChild(displayPermission(message));
+        thisMessageContainer.appendChild(displayPermission(message, true));
+    }
+    else if (message.tag === "rejection") {
+        thisMessageContainer.appendChild(displayPermission(message, false));
     }
     else {
         let messageTitle = document.createElement("span");
@@ -634,35 +639,38 @@ function displayRequest(request) {
         let acceptButton = document.createElement("button");
         acceptButton.className = "btn btn-light";
         acceptButton.textContent = "Accept";
-        acceptButton.onclick = () => givePermission(acceptButton, request.origin, budgetName);
+        acceptButton.onclick = () => givePermission(request.origin, budgetName, true);
         reqContainer.appendChild(acceptButton);
         
         let declineButton = document.createElement("div");
         declineButton.className = "btn btn-light";
         declineButton.textContent = "Decline";
-        declineButton.onclick = () => rejectPermission(rejectButton, request.origin, budgetName);
+        declineButton.onclick = () => givePermission(request.origin, budgetName, false);
         reqContainer.appendChild(declineButton);
     }
     return reqContainer;
 }
 
-function displayPermission(permission) {
+function displayPermission(permission, permitted) {
     let permitContainer = document.createElement("div");
     let friendName = permission.params[0];
     let budgetName = permission.params[1];
 
     let permitMsg = document.createElement("div");
     if (permission.origin === currUser.username) {
-        permitMsg.textContent = `You permitted ${friendName} to access your budget: ${budgetName}`;
+        if (permitted) permitMsg.textContent = `You permitted ${friendName} to access your budget: ${budgetName}`;
+        else permitMsg.textContent = `You denied ${friendName}'s request to access your budget: ${budgetName}`;
     }
     else {
-        permitMsg.textContent = `${permission.origin} gave you access to their budget: ${budgetName}`;
+        if (permitted) permitMsg.textContent = `${permission.origin} gave you access to their budget: ${budgetName}`;
+        else permitMsg.textContent = `${permission.origin} denied you access to their budget: ${budgetName}`;
     }
     permitContainer.appendChild(permitMsg);
     return permitContainer;
 }
 
-function givePermission(acceptButton, friendName, budgetName) {
+function givePermission(friendName, budgetName, permitted) {
+    //Get friend data
     let friendData = null;
     for (thisUser of users) {
         if (thisUser.username === friendName) {
@@ -671,6 +679,8 @@ function givePermission(acceptButton, friendName, budgetName) {
         }
     }
     if (friendData === null) return;
+
+    //Get currUser's friend object in friendData
     let currUserFriend = null;
     for (thisFriend of friendData.friends) {
         if (thisFriend.username === currUser.username) {
@@ -681,27 +691,40 @@ function givePermission(acceptButton, friendName, budgetName) {
     if (currUserFriend === null) return;
 
     //Add budgetName to permittedBudgets
-    currUserFriend.permittedBudgets.push(budgetName);
+    if (permitted) currUserFriend.permittedBudgets.push(budgetName);
 
     //Change the message in friend's inbox
+    changeFriendsInbox(currUserFriend, friendData, friendName, budgetName, permitted);
+
+    //Change the message in currUser's inbox
+    changeCurrUsersInbox(friendName, budgetName, permitted);
+    
+    //Reload
+    load();
+}
+
+function changeFriendsInbox(currUserFriend, friendData, friendName, budgetName, permitted) {
     for (let i = 0; i < currUserFriend.messages.length; i++) {
         let message = currUserFriend.messages[i];
         if (message.origin === friendName && message.tag === "request" && message.params[0] === currUser.username && message.params[1] === budgetName) {
-            let permitMessage = new Message(currUser.username, "", "permission", [friendName, budgetName]);
+            let permitTag = (permitted) ? "permission" : "rejection";
+            let permitMessage = new Message(currUser.username, "", permitTag, [friendName, budgetName]);
             currUserFriend.messages[i] = permitMessage;
             break;
         }
     }
     saveUser(friendData);
+}
 
-    //Change the message in currUser's inbox
+function changeCurrUsersInbox(friendName, budgetName, permitted) {
     for (let i = 0; i < currUser.friends.length; i++) {
         if (currUser.friends[i].username === friendName) {
             let friend = currUser.friends[i];
             for (let j = 0; j < friend.messages.length; j++) {
                 let message = friend.messages[j];
                 if (message.origin === friendName && message.tag === "request" && message.params[0] === currUser.username && message.params[1] === budgetName) {
-                    let permitMessage = new Message(currUser.username, "", "permission", [friendName, budgetName]);
+                    let permitTag = (permitted) ? "permission" : "rejection";
+                    let permitMessage = new Message(currUser.username, "", permitTag, [friendName, budgetName]);
                     currUser.friends[i].messages[j] = permitMessage;
                     break;
                 }
@@ -710,12 +733,6 @@ function givePermission(acceptButton, friendName, budgetName) {
         }
     }
     saveUser(currUser);
-    load();
-}
-
-function rejectPermission(rejectButton, friendName, budgetName) {
-    //TODO
-    console.log("rejectPermission called");
 }
 
 function logout() {
@@ -732,9 +749,6 @@ class Friend {
     constructor(username) {
         this.username = username;
         this.permittedBudgets = [];
-        //TODO: Wherever that happens, permitted budgets should be checked each time to remove budgets that have been deleted
-            //Or when the budget is deleted, check for it in all friends
-        //TODO: When a budget is set to private, remove it from all permittedBudgets
         this.messages = [];
     }
 }
