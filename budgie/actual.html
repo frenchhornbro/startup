@@ -87,11 +87,11 @@
                     </div>
                 </div>
                 <div class="button-spacer">
-                    <h2 class="data-format" id="title">Budget Title</h2>
+                    <h2 class="data-format" id="title"></h2>
                     <div class="budget-data-container data-format">
                         <div class="initial-savings"></div>
                         <div class="initial-savings">Initial Savings:</div>
-                        <div class="budget-data neut" id="initial">$0.00</div>
+                        <div id="initial"></div>
                         <div class="initial-savings"></div>
                     </div>
                     <div class="cumulative-stats-container">
@@ -99,23 +99,22 @@
                         <div class="data-format">
                             <div>Net Gain:</div>
                             <div class="small-space"></div>
-                            <div class="budget-data neut" id="net-gain">$0.00</div>
+                            <div id="net-gain"></div>
                         </div>
                         <div class="data-format">
                             <div>Total Savings:</div>
                             <div class="small-space"></div>
-                            <div class="budget-data neut" id="total">$0.00</div>
+                            <div id="total"></div>
                         </div>
                     </div>
                 </div>
                 <div class="controls-container">
                     <div class="button-container">
-                        <div class="stretch-button"></div>
-                        <!-- TODO: Display username here -->
+                        <div class="stretch-button" id="username" style="font-size:larger"></div>
                         <button type="button" class="btn btn-light stretch-button">Log Out</button>
                     </div>
                     <div class="button-container">
-                        <div class="stretch-button">My Budget</div>
+                        <div class="stretch-button" id="budget-owner"></div>
                         <button type="button" class="btn btn-light stretch-button" onclick="seeGroup()">See Group</button>
                     </div>
                     <div class="button-container">

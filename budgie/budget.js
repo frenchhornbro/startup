@@ -2,7 +2,6 @@
 //Feature: Insert commas after every third integer
 //Feature: Switch the $ and - on negative numbers
 
-// TODO: Be able to edit field names after creation
 // TODO: Add a delete button for fields
 
 let addSelection = document.querySelector("#add-selector").options[0];
@@ -16,6 +15,8 @@ let VIEWNUM = 12;
 let user = localStorage.getItem("currentUser");
 if (localStorage.getItem("budgetOwner") !== null) user = localStorage.getItem("budgetOwner");
 let budget = localStorage.getItem("currentBudget");
+if (budget === null) window.location.href = "group.html";
+
 let users = JSON.parse(localStorage.getItem("users"));
 let currUser = null;
 let userData = null;
@@ -41,6 +42,8 @@ function load(isProjected) {
     loadData(false, isProjected); // Load Expenses
     loadTitle();
     loadCurrSelections();
+    displayUsername();
+    displayBudgetOwner();
 }
 
 
@@ -247,8 +250,7 @@ function calculateMonth(data, isIncome) {
 
     function loadMonthData(counter, currSum) {
         //Change the month's data to reflect the new data
-        let id = "#month-expenses";
-        if (isIncome) id = "#month-income";
+        let id = (isIncome) ? "#month-income" : "#month-expenses";
         let monthData = document.querySelector(id).children[counter];
         monthData.textContent = "$" + Number(currSum).toFixed(2);
         monthData.className = dataClass(parseFloat(currSum), isIncome);
@@ -431,6 +433,19 @@ function changeMonthSelection() {
 function editHeaderName() {
     //TODO: Figure out how I'm going to incorporate this (where's the button going to be?)
     //Edit the name in userData, save userData to thisUser, save thisUser to users, save users to localStorage
+}
+
+function displayUsername() {
+    document.getElementById("username").textContent = localStorage.getItem("currentUser");
+}
+
+
+function displayBudgetOwner() {
+    let budgetOwnerElement = document.getElementById("budget-owner");
+    if (localStorage.getItem("budgetOwner") !== null) {
+        budgetOwnerElement.textContent = `${localStorage.getItem("budgetOwner")}'s budget`;
+    }
+    else budgetOwnerElement.textContent = "My budget";
 }
 
 function projected() {
