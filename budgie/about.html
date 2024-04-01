@@ -14,8 +14,9 @@
         <link href="index.css" rel="stylesheet" />
         <link href="about.css" rel="stylesheet" />
         <link href="https://fonts.googleapis.com/css2?family=Honk&display=swap" rel="stylesheet">
+        <script src="about.js"></script>
     </head>
-    <body>
+    <body onload="loadLogout()">
         <header>
             <nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
                 <div class="container-fluid">
@@ -45,9 +46,7 @@
         </header>
         <main>
             <div class="about-main-container">
-                <div class="log-out">
-                    <button type="button" class="btn btn-light"><a href="index.html">Log Out</a></button>
-                </div>
+                <div class="log-out"></div>
                 <h2 class="title-container">About</h2>
                 <p>
                     Budgie is a free and simple financial application to help you plan out your budget according to
@@ -67,7 +66,11 @@
                 </p>
                 <p>
                     <div style="font-weight: bold;">Want to work together?</div>
-                    <div>You can add friends, request to view and edit their budgets, and send messages in the Group tab.</div>
+                    <div>
+                      You can add friends, request to view and edit their budgets, and send messages in the Home tab.
+                      Setting a budget's privacy setting to "Public" will allow your friends to see it and be able to
+                      request access. If a budget is listed as "Private", it will be visible to you only.
+                    </div>
                 </p>
                 <div class="img-frame-container">
                     <div class="about-img-frame">
