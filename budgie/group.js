@@ -1,8 +1,8 @@
 //Feature: Assign a random color to the name of each person messaging and display it for their name
 //Feature: Limit number of budgets that can be created
+//Feature: Eventually cap the number of friend requests that can be sent in a day, or set a time limit between sending friend requests
+//Feature: Could set a time for each message to let it expire
 //Take note: There's a vulnerability wherever we set a value to the textContent of an attribute, as that can be edited
-
-//TODO: Rename "Group" to "Home"
 
 let activeMessage = null;
 localStorage.removeItem("budgetOwner");
@@ -15,7 +15,10 @@ for (thisUser of users) {
     }
 }
 
+callPlaceholdersMsgs();
+
 function load() {
+    genPlaceholderFriend();
     unload();
     loadBudgets();
     loadFriends();
@@ -209,7 +212,6 @@ function budgetNameAlreadyExists(name) {
 }
 
 function deleteBudget(deleteButton) {
-    //TODO: Delete this budget from all permittedBudgets
     //Deletes the budget with that name (after confirmation)
     let budgetInfoContainer = deleteButton.parentElement.parentElement;
     let budgetName = budgetInfoContainer.querySelector(".info-title").textContent;
@@ -228,7 +230,6 @@ function deleteBudget(deleteButton) {
 }
 
 function addFriend() {
-    //TODO: Eventually cap the number of friend requests that can be sent in a day, or set a time limit between sending friend requests
     let friendUsername = document.getElementById("new-request").value; //This is the user to firend
     // Can't send a friend request if they have a blank username or if they're your own user
     if (friendUsername === null || friendUsername === "" || friendUsername === currUser.username) return;
@@ -341,8 +342,6 @@ function removeRequest(friendName, friendData) {
 }
 
 function loadFriends() {
-    //TODO: Maybe make this async? The "then" part is each friend
-
     let friendContainers = document.getElementById("my-friends-container");
     
     //Display all incoming friend requests
@@ -607,9 +606,6 @@ function sendMessage() {
     displayMessage(message);
     document.querySelector("#response").value = "";
     saveMessage(message);
-
-    //TODO: Send fake messages every so often
-    //TODO: Automatically make two fake accounts who are friends with everyone)
 }
 
 function saveMessage(message, friend=activeMessage) {
@@ -821,6 +817,89 @@ class Message {
         this.body = body;
         this.tag = tag;
         this.params = params;
-        //TODO: Could set a time for the message to let it expire
+    }
+}
+
+function genPlaceholderFriend() {
+    if (getFriend("Bot Friend") !== null) return;
+
+    let friendData = null;
+    for (thisUser of users) {
+        if (thisUser.username === "Bot Friend") {
+            friendData = thisUser;
+            break;
+        }
+    }
+
+    let botFriend = new Friend("Bot Friend");
+    botFriend.permittedBudgets.push("Bot Friend's Budget");
+    currUser.friends.push(botFriend)
+    saveUser(currUser);
+
+    let currUserFriend = new Friend(currUser.username);
+    friendData.friends.push(currUserFriend);
+    saveUser(friendData);
+}
+
+function callPlaceholdersMsgs() {
+    setTimeout(() => genPlaceholderMsgs(), 18000);
+}
+
+function genPlaceholderMsgs() {
+    let botFriendData = null;
+    for (let i = 0; i < users.length; i++) {
+        if (users[i].username === "Bot Friend") {
+            botFriendData = users[i];
+            break;
+        }
+    }
+
+    let name = "Bot Friend"
+    let body = genPlaceholderBody();
+    let message = new Message(name, body);
+    if (activeMessage === "Bot Friend") displayMessage(message);
+
+    for (let i = 0; i < currUser.friends.length; i++) {
+        if (currUser.friends[i].username === "Bot Friend") {
+            currUser.friends[i].messages.push(message);
+            saveUser(currUser);
+            break;
+        }
+    }
+
+    for (let i = 0; i < users.length; i++) {
+        if (users[i].username === "Bot Friend") {
+            for (let j = 0; j < users[i].friends.length; j++) {
+                if (users[i].friends[j].username === currUser.username) {
+                    users[i].friends[j].messages.push(message);
+                    saveUser(users[i]);
+                    break;
+                }
+            }
+            break;
+        }
+    }
+    callPlaceholdersMsgs();
+
+    function genPlaceholderBody() {
+        let num = Math.floor(Math.random() * 10);
+        switch (num) {
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+                return "Hey";
+            case 5:
+                return "You haven't messaged me in a while";
+            case 6:
+            case 7:
+                return "I'm bored";
+            case 8:
+                return "You should make a new budget";
+            case 9:
+                return "Bro";
+            default:
+                return "What's up";
+        }
     }
 }

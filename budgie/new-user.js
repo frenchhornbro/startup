@@ -1,5 +1,3 @@
-//TODO: Make clicking the Budgie logo take you to Group, not to the homepage
-
 let dupeWarningShowing = false;
 let pwdWarningShowing = false;
 let confWarningShowing = false;
@@ -25,6 +23,7 @@ function createNewUser() {
                 if (pwdWarningShowing) hideWarning("pwdWarning");
                 if (confWarningShowing) hideWarning("confWarning");
                 storeData(user.value, pwd.value);
+                genBotFriend();
                 window.location.href = "group.html";
             }
             else {
@@ -105,6 +104,36 @@ class User {
             pExpenses: [],
             aIncome: [],
             aExpenses: []
+        }
+        this.budgets = [budget];
+        this.friends = [];
+        this.sentFriendRequests = [];
+        this.receivedFriendRequests = [];
+    }
+}
+
+function genBotFriend() {
+    //Generate a placeholder bot friend
+    let users = JSON.parse(localStorage.getItem("users"));
+    for (user of users) {
+        if (user.username === "Bot Friend") return;
+    }
+    users.push(new Bot());
+    localStorage.setItem("users", JSON.stringify(users));
+}
+
+class Bot {
+    constructor() {
+        this.username = "Bot Friend";
+        this.password = "my very secret password";
+        let budget = {
+            budgetName: "Bot Friend's Budget",
+            privacy: "public",
+            initial: 123.45,
+            pIncome: [["Work", 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250]],
+            pExpenses: [["Groceries", 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100],["Taxes", 0, 0, 0, 200, 0, 0, 0, 0, 0, 0, 0, 0]],
+            aIncome: [["Work", 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200]],
+            aExpenses: [["Groceries", 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120],["Taxes", 0, 0, 0, -50.15, 0, 0, 0, 0, 0, 0, 0, 0,]]
         }
         this.budgets = [budget];
         this.friends = [];

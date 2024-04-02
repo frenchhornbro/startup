@@ -29,7 +29,7 @@ function login () {
         localStorage.setItem("currentUser", inputtedUser);
         
         for (let i = 0; i < users.length; i++) {
-            if (users[i].username) {
+            if (users[i].username === inputtedUser) {
                 localStorage.setItem("currentBudget", users[i].budgets[0].budgetName);
                 break;
             }
