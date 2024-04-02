@@ -1,8 +1,9 @@
 //Feature: Be able to see components of the sum for each cell
 //Feature: Insert commas after every third integer
 //Feature: Switch the $ and - on negative numbers
+//Feature: Add a delete button for fields
+//Feature: Figure out how I'm going to incorporate this (where's the button going to be?)
 
-// TODO: Add a delete button for fields
 
 let addSelection = document.querySelector("#add-selector").options[0];
 let headerSelection = document.querySelector("#header-selector").options[0];
@@ -431,7 +432,6 @@ function changeMonthSelection() {
 }
 
 function editHeaderName() {
-    //TODO: Figure out how I'm going to incorporate this (where's the button going to be?)
     //Edit the name in userData, save userData to thisUser, save thisUser to users, save users to localStorage
 }
 

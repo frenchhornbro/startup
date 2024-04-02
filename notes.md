@@ -129,11 +129,13 @@ try {
 	console.log(“Finished”);
 }
 ```
+
 `async` declares that a function will return a promise
 
 You cannot call await unless it is called at the top level of your JS, or in an async function
 
-`await` will wrap a cal to the async function, block execution until the promise has resolved, and then returns the result of the promise
+`await` will wrap a call to the async function, block execution until the promise has resolved, and then returns the result of the promise.
+Essentially it will take all the code after it and put it in a giant `then` box.
 
 ## Loops
 `for in` iterates over an object's property names (gives the index number for arrays, the key for maps)
