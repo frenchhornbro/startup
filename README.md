@@ -61,3 +61,9 @@ Here's how the technology will be used:
 - **Application elements** - All buttons and dropdowns are styled with Bootstrap. Elements are appropriate in line on the screen and don't look weird. Background color applied appropriately.
 - **Application text content** - Use of two different fonts (one for navbar and one for all other text), some text bolded
 - **Application images** - All images put in a frame with corners rounded
+
+## JS Deliverable
+- **JS support for future login** - Can create a new user and log in with an existing user. Access to Home or budget pages is prevented without signing in.
+- **JS support for future database data** - Login credentials, messages, friends, friend requests, budget requests, permitted budgets, and budget data (income, expenses, privacy setting) are stored in localStorage.
+- **JS support for future WebSocket** - Can send messages to friends. A placeholder friend account is automatically generated and sends messages on an interval.
+- **JS support for application's interaction logic** - Can create a new user and log in with an existing user. Functionality added to create new budgets and rename or delete existing budgets. Can send friend requests, accept or reject friend requests, send messages to friends, request permission to see a friend's public budget, grant or deny permission to incoming budget access requests, and view friends' budgets that have been permitted. In the Budget view, can create new budget fields (income or expenses), edit the corresponding values for the fields (in projected or actual), and edit the initial amount. Calculations for sums are performed correctly and displayed.
