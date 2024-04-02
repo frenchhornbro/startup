@@ -1,5 +1,4 @@
-/* Take a look at Boostrap dashboard */
-/* TODO: Add a minmum length on the flex to make it look better (make this consistent across all cells in a table) */
+/* Feature: Take a look at Boostrap dashboard */
 
 main {
     /* Override the effects of index.css for main so it doesn't look dumb */
@@ -111,6 +110,7 @@ main {
     flex: 1;
     display: flex;
     justify-content: center;
+    text-align: center;
     align-items: center;
 }
 
