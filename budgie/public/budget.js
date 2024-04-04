@@ -16,7 +16,7 @@ let VIEWNUM = 12;
 let user = localStorage.getItem("currentUser");
 if (localStorage.getItem("budgetOwner") !== null) user = localStorage.getItem("budgetOwner");
 let budget = localStorage.getItem("currentBudget");
-if (budget === null) window.location.href = "group.html";
+if (budget === null) window.location.href = "home.html";
 
 let users = JSON.parse(localStorage.getItem("users"));
 let currUser = null;
@@ -456,6 +456,6 @@ function actual() {
     window.location.href = "actual.html";
 }
 
-function seeGroup() {
-    window.location.href = "group.html";
+function seeHome() {
+    window.location.href = "home.html";
 }

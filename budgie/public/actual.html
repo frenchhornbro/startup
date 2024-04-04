@@ -15,12 +15,12 @@
         <link href="budget.css" rel="stylesheet" />
         <script src="kick.js"></script>
     </head>
-    <body onload="load(true)">
+    <body onload="load(false)">
         <header>
             <nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
                 <div class="container-fluid">
                   <img alt="Budgie logo" src="budgie-images/budgie-logo.png" class="logo">
-                  <a class="navbar-brand brand-name" href="group.html">Budgie</a>
+                  <a class="navbar-brand brand-name" href="home.html">Budgie</a>
                   <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                   </button>
@@ -30,7 +30,7 @@
                         <a class="nav-link" aria-current="page" href="index.html">Login</a>
                       </li>
                       <li class="nav-item">
-                        <a class="nav-link" href="group.html">Home</a>
+                        <a class="nav-link" href="home.html">Home</a>
                       </li>
                       <li class="nav-item">
                         <a class="nav-link active" href="projected.html">Budget</a>
@@ -47,9 +47,9 @@
             <div class="all-buttons-container">
                 <div class="edit-budget-container">
                     <div class="button-container">
-                        <button type="button" class="btn btn-light stretch-button income" onclick="addIncome(true)">+ Add Income</button>
+                        <button type="button" class="btn btn-light stretch-button income" onclick="addIncome(false)">+ Add Income</button>
                         <div class="small-space"></div>
-                        <button type="button" class="btn btn-light stretch-button expense" onclick="addExpense(true)">- Add Expense</button>
+                        <button type="button" class="btn btn-light stretch-button expense" onclick="addExpense(false)">- Add Expense</button>
                     </div>
                     <div class="button-container">
                         <select class="form-select stretch-button" id="add-selector" onchange="changeAddSelection()">
@@ -82,7 +82,7 @@
                         <label for="edit-cell" class="stretch-button">Input Amount: $</label>
                         <input type="number" class="form-control stretch-button" id="edit-cell" placeholder="0.00" />
                         <div class="small-space"></div>
-                        <button type="submit" class="btn btn-light stretch-button" onclick="makeChange(true)">Make change</button>
+                        <button type="submit" class="btn btn-light stretch-button" onclick="makeChange(false)">Make change</button>
                     </div>
                 </div>
                 <div class="button-spacer">
@@ -94,7 +94,7 @@
                         <div class="initial-savings"></div>
                     </div>
                     <div class="cumulative-stats-container">
-                        <div>By End of Year:</div>
+                        <div>To Date:</div>
                         <div class="data-format">
                             <div>Net Gain:</div>
                             <div class="small-space"></div>
@@ -114,11 +114,11 @@
                     </div>
                     <div class="button-container">
                         <div class="stretch-button" id="budget-owner"></div>
-                        <button type="button" class="btn btn-light stretch-button" onclick="seeGroup()">See Group</button>
+                        <button type="button" class="btn btn-light stretch-button" onclick="seeHome()">Home</button>
                     </div>
                     <div class="button-container">
-                        <button type="button" class="btn stretch-button" disabled style="background-color: green;">Projected</button>
-                        <button type="button" class="btn btn-light stretch-button" onclick="actual()">Actual</button>
+                        <button type="button" class="btn btn-light stretch-button" onclick="projected()">Projected</button>
+                        <button type="button" class="btn stretch-button selected" disabled style="background-color: green;">Actual</button>
                     </div>
                 </div>
             </div>

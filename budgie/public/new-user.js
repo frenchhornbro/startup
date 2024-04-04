@@ -24,7 +24,7 @@ function createNewUser() {
                 if (confWarningShowing) hideWarning("confWarning");
                 storeData(user.value, pwd.value);
                 genBotFriend();
-                window.location.href = "group.html";
+                window.location.href = "home.html";
             }
             else {
                 if (dupeWarningShowing) hideWarning("dupeWarning");

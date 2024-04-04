@@ -1,4 +1,4 @@
-.group-main-container {
+.home-main-container {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -6,7 +6,7 @@
     color: white;
 }
 
-.group-container {
+.home-container {
     flex: 3;
     margin: 3vh;
     padding: 1vh;

@@ -34,7 +34,7 @@ function login () {
                 break;
             }
         }
-        window.location.href = "group.html";
+        window.location.href = "home.html";
     }
     
     function verified() {
