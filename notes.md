@@ -1,5 +1,45 @@
 > [!NOTE]
 > *_myfinancialbudgie.click_*
+# React
+## Vite
+Create a new React-based web application using Vite:
+```
+npm create vite@latest demoVite -- --template react
+cd demoVite
+npm install
+npm run dev
+```
+
+`npm run dev` opens up a menu. Press h for help and o to open the page (functions similar to Go Live extension). 
+This bundles the code into a temporary directory.
+
+To deploy to a proudction environment, run `npm run build`
+
+## Router
+```
+root.render(
+<BrowserRouter>
+    <div className='app'>
+      <nav>
+        <NavLink to='/'>Home</Link>
+        <NavLink to='/about'>About</Link>
+        <NavLink to='/users'>Users</Link>
+      </nav>
+
+      <main>
+        <Routes>
+          <Route path='/' element={<Home />} exact />
+          <Route path='/about' element={<About />} />
+          <Route path='/users' element={<Users />} />
+          <Route path='*' element={<Navigate to='/' replace />} />
+        </Routes>
+      </main>
+    </div>
+  </BrowserRouter>
+)
+```
+
+
 # Databases
 ## MongoDB
 Instruction: https://learn.cs260.click/page/webServices/dataServices/dataServices_md
@@ -416,6 +456,7 @@ To hide the headers and footers when the screen is too short:
 > ```./deployFiles.sh -k <yourpemkey> -h <yourdomain> -s simon```
 > 
 > ```./deployFiles.sh -k "C:\Users\htdur\.ssh\cs-260-aws\Startup - BYU CS260.pem" -h myfinancialbudgie.click -s simon```
+>
 > ```./deployFiles.sh -k "C:\Users\htdur\.ssh\cs-260-aws\Startup - BYU CS260.pem" -h myfinancialbudgie.click -s startup```
 
 # HTML notes:
