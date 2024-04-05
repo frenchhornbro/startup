@@ -94,6 +94,10 @@ app.get('/store/:storeName', (req, res, next) => {
 ```
 Running `curl localhost:8080/store/orem` will return the response `{"name":"orem"}`
 
+How to serve up static files
+
+`app.use(express.static('public'));`
+
 ### Middleware
 A middleware function looks similar to a routing function (probably because a routing function is an example of middleware).
 However, routing functions are only called if the pattern matches.
