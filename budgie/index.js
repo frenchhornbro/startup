@@ -14,23 +14,17 @@ app.use(express.static('budgie\\public'));
 const apiRouter = express.Router();
 app.use(`/api`, apiRouter);
 
-// Get users
-apiRouter.get('/users', (_req, res) => {
-  res.send(getUsers());
-});
-
-// Update users
-apiRouter.post('/users', (req, res) => {
-  updateUsers(req.body);
-  res.send(getUsers());
-});
-
-
 
 // Create User endpoint
 apiRouter.post('/new-user', (req, res) => {
   let submittedUser = newUser(req.body);
-  console.log(submittedUser);
+  if (submittedUser === null) res.send();
+  else res.send(JSON.parse(submittedUser));
+});
+
+//Login endpoint
+apiRouter.post('/login', (req, res) => {
+  let submittedUser = login(req.body);
   if (submittedUser === null) res.send();
   else res.send(JSON.parse(submittedUser));
 });
@@ -46,15 +40,8 @@ app.listen(port, () => {
 
 //---------------------------------------------------------------------------------
 
+//NOTE: Brackets must be placed around the JSON.stringify of a response value if it is not an object (such as an array)
 let users = [];
-
-function getUsers() {
-  return [JSON.stringify(users)];
-}
-
-function updateUsers(requestBody) {
-  users.push(requestBody);
-}
 
 function newUser(requestBody) {
   let username = requestBody.username;
@@ -62,7 +49,6 @@ function newUser(requestBody) {
   let password = requestBody.password;
   let confirm = requestBody.confirm;
   for (thisUser of users) {
-    console.log(users);
     if (thisUser.username == username) {
       return JSON.stringify(new ResponseData(true, "dupeUser", {}));
     }
@@ -73,7 +59,26 @@ function newUser(requestBody) {
   let user = new User(username, password, username + "'s budget")
   let authToken = uuid.v4();
   users.push(user);
-  console.log(users);
+  return JSON.stringify(new ResponseData(false, "", {
+    user: user,
+    authToken: authToken
+  }));
+}
+
+function login(requestBody) {
+  let username = requestBody.username;
+  let password = requestBody.password;
+  let user = null;
+  for (thisUser of users) {
+    if (thisUser.username === username) {
+      user = thisUser;
+      break;
+    }
+  }
+  if (user === null) return JSON.stringify(new ResponseData(true, "noUser", {}));
+  if (user.password !== password) return JSON.stringify(new ResponseData(true, "badPwd", {}));
+
+  let authToken = uuid.v4();
   return JSON.stringify(new ResponseData(false, "", {
     user: user,
     authToken: authToken
