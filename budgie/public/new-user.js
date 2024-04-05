@@ -141,3 +141,32 @@ class Bot {
         this.receivedFriendRequests = [];
     }
 }
+
+async function getTest() {
+    try {
+        const response = await fetch('/api/users');
+        const users = await response.json();
+        console.log("GET Users:");
+        console.log(JSON.parse(users));
+    }
+    catch {
+        console.log("GET Error");
+    }
+}
+
+async function postTest() {
+    try {
+        let newUser = new User("asdf", "asdfasdf", "asdf's budget");
+        const response = await fetch('/api/users', {
+            method: 'POST',
+            headers: {'content-type': 'application/json'},
+            body: JSON.stringify(newUser)
+        });
+        const users = await response.json();
+        console.log("POST Users:");
+        console.log(JSON.parse(users));
+    }
+    catch {
+        console.log("POST Error");
+    }
+}
