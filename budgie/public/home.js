@@ -6,19 +6,12 @@
 
 let activeMessage = null;
 localStorage.removeItem("budgetOwner");
-let users = JSON.parse(localStorage.getItem("users"));
-let currUser = null;
-for (thisUser of users) {
-    if (thisUser.username === localStorage.getItem("currentUser")) {
-        currUser = thisUser;
-        break;
-    }
-}
+let currUser = JSON.parse(localStorage.getItem("user"));
 
-callPlaceholdersMsgs();
+// callPlaceholdersMsgs();
 
 function load() {
-    genPlaceholderFriend();
+    // genPlaceholderFriend();
     unload();
     loadBudgets();
     loadFriends();
@@ -160,14 +153,19 @@ function saveBudget(budgetElement, budgetName) {
     saveUser(currUser);
 }
 
-function saveUser(userDataToSave) {
-    for (let i = 0; i < users.length; i++) {
-        if (users[i].username === userDataToSave.username) {
-            users[i] = userDataToSave;
-            break;
-        }
+async function saveUser(userDataToSave) {
+    try {
+        const response = await fetch('/api/user', {
+            method: 'PUT',
+            headers: {'content-type': 'application/json'},
+            body: JSON.stringify(userDataToSave)
+        });
+        const resObj = await response.json();
+        if (userDataToSave.username === currUser.username) localStorage.setItem("user", JSON.stringify(userDataToSave));
     }
-    localStorage.setItem("users", JSON.stringify(users));
+    catch {
+        console.log("Update User Error");
+    }
 }
 
 function newBudget() {
@@ -225,54 +223,70 @@ function deleteBudget(deleteButton) {
     }
 
     saveUser(currUser);
-    localStorage.setItem("users", JSON.stringify(users));
     loadBudgets();
 }
 
-function addFriend() {
-    let friendUsername = document.getElementById("new-request").value; //This is the user to firend
+async function addFriend() {
+    let friendUsername = document.getElementById("new-request").value; //This is the user to friend
     // Can't send a friend request if they have a blank username or if they're your own user
     if (friendUsername === null || friendUsername === "" || friendUsername === currUser.username) return;
-    if (!userExists(friendUsername)) alert("User does not exist");
+    const exists = await userExists(friendUsername);
+    if (!exists) alert("User does not exist");
     else {
-        // Can't send a friend request to those who are already your friends
-        if (inList(friendUsername, currUser.friends)) {
-            alert(`${friendUsername} is already your friend`)
-            return;
-        }
-        // If a friend request has already been sent, prevent another one from being sent
-        if (inList(friendUsername, currUser.sentFriendRequests)) {
-            alert("Friend already requested")
-            return;
-        }
-        //If they have already sent a friend request to you, prevent sending a friend request to them
-        if (inList(friendUsername, currUser.receivedFriendRequests)) {
-            alert(`${friendUsername} already sent you a friend request! Accept it in messages.`);
-            return;
-        }
         currUser.sentFriendRequests.push(new FriendRequest(friendUsername));
-        saveUser(currUser);
-        for (thisUser of users) {
-            if (thisUser.username === friendUsername) {
-                thisUser.receivedFriendRequests.push(new FriendRequest(currUser.username));
-                saveUser(thisUser);
-                break;
+        await saveUser(currUser);
+        
+        try {
+            const response = await fetch("/api/friendReq", {
+                method: 'POST',
+                headers: {'content-type': 'application/json'},
+                body: JSON.stringify({
+                    request: JSON.stringify(new FriendRequest(currUser.username)),
+                    username: friendUsername
+                })
+            });
+            const respObj = await response.json();
+            if (respObj.isError) {
+                switch (respObj.responseMsg) {
+                    case ("alreadyFriends"):
+                        alert(`${friendUsername} is already your friend`)
+                        break;
+                    case ("alreadyRequested"):
+                        alert("Friend already requested")
+                        break;
+                    case ("doubleRequest"):
+                        alert(`${friendUsername} already sent you a friend request! Accept it in messages.`);
+                        break;
+                    default:
+                        alert("An error occurred: " + respObj.responseMsg);
+                }
             }
+            else alert("Friend request sent");
         }
-        alert("Friend request sent");
+        catch {
+            console.log("Friend Request Error");
+        }
     }
 }
 
-function userExists(username) {
-    for (thisUser of users) {
-        if (thisUser.username === username) {
-            return true;
-        }
+async function userExists(username) {
+    try {
+        const response = await fetch('/api/userEx', {
+            method: 'POST',
+            headers: {'content-type': 'application/json'},
+            body: JSON.stringify({'username': username})
+        });
+        const respObj = await response.json();
+        if (respObj.isError) alert("An error occurred: " + respObj.responseMsg);
+        else return respObj.data.exists;
     }
-    return false;
+    catch {
+        console.log("User Exists Error");
+    }
 }
 
 function inList(username, list) {
+    //FIXME: ^^^ This no longer works
     if (list === null) return false;
     for (thisUser of list) {
         if (thisUser.username === username) return true;
@@ -820,86 +834,86 @@ class Message {
     }
 }
 
-function genPlaceholderFriend() {
-    if (getFriend("Bot Friend") !== null) return;
+// function genPlaceholderFriend() {
+//     if (getFriend("Bot Friend") !== null) return;
 
-    let friendData = null;
-    for (thisUser of users) {
-        if (thisUser.username === "Bot Friend") {
-            friendData = thisUser;
-            break;
-        }
-    }
+//     let friendData = null;
+//     for (thisUser of users) {
+//         if (thisUser.username === "Bot Friend") {
+//             friendData = thisUser;
+//             break;
+//         }
+//     }
 
-    let botFriend = new Friend("Bot Friend");
-    botFriend.permittedBudgets.push("Bot Friend's Budget");
-    currUser.friends.push(botFriend)
-    saveUser(currUser);
+//     let botFriend = new Friend("Bot Friend");
+//     botFriend.permittedBudgets.push("Bot Friend's Budget");
+//     currUser.friends.push(botFriend)
+//     saveUser(currUser);
 
-    let currUserFriend = new Friend(currUser.username);
-    friendData.friends.push(currUserFriend);
-    saveUser(friendData);
-}
+//     let currUserFriend = new Friend(currUser.username);
+//     friendData.friends.push(currUserFriend);
+//     saveUser(friendData);
+// }
 
-function callPlaceholdersMsgs() {
-    setTimeout(() => genPlaceholderMsgs(), 18000);
-}
+// function callPlaceholdersMsgs() {
+//     setTimeout(() => genPlaceholderMsgs(), 18000);
+// }
 
-function genPlaceholderMsgs() {
-    let botFriendData = null;
-    for (let i = 0; i < users.length; i++) {
-        if (users[i].username === "Bot Friend") {
-            botFriendData = users[i];
-            break;
-        }
-    }
+// function genPlaceholderMsgs() {
+//     let botFriendData = null;
+//     for (let i = 0; i < users.length; i++) {
+//         if (users[i].username === "Bot Friend") {
+//             botFriendData = users[i];
+//             break;
+//         }
+//     }
 
-    let name = "Bot Friend"
-    let body = genPlaceholderBody();
-    let message = new Message(name, body);
-    if (activeMessage === "Bot Friend") displayMessage(message);
+//     let name = "Bot Friend"
+//     let body = genPlaceholderBody();
+//     let message = new Message(name, body);
+//     if (activeMessage === "Bot Friend") displayMessage(message);
 
-    for (let i = 0; i < currUser.friends.length; i++) {
-        if (currUser.friends[i].username === "Bot Friend") {
-            currUser.friends[i].messages.push(message);
-            saveUser(currUser);
-            break;
-        }
-    }
+//     for (let i = 0; i < currUser.friends.length; i++) {
+//         if (currUser.friends[i].username === "Bot Friend") {
+//             currUser.friends[i].messages.push(message);
+//             saveUser(currUser);
+//             break;
+//         }
+//     }
 
-    for (let i = 0; i < users.length; i++) {
-        if (users[i].username === "Bot Friend") {
-            for (let j = 0; j < users[i].friends.length; j++) {
-                if (users[i].friends[j].username === currUser.username) {
-                    users[i].friends[j].messages.push(message);
-                    saveUser(users[i]);
-                    break;
-                }
-            }
-            break;
-        }
-    }
-    callPlaceholdersMsgs();
+//     for (let i = 0; i < users.length; i++) {
+//         if (users[i].username === "Bot Friend") {
+//             for (let j = 0; j < users[i].friends.length; j++) {
+//                 if (users[i].friends[j].username === currUser.username) {
+//                     users[i].friends[j].messages.push(message);
+//                     saveUser(users[i]);
+//                     break;
+//                 }
+//             }
+//             break;
+//         }
+//     }
+//     callPlaceholdersMsgs();
 
-    function genPlaceholderBody() {
-        let num = Math.floor(Math.random() * 10);
-        switch (num) {
-            case 1:
-            case 2:
-            case 3:
-            case 4:
-                return "Hey";
-            case 5:
-                return "You haven't messaged me in a while";
-            case 6:
-            case 7:
-                return "I'm bored";
-            case 8:
-                return "You should make a new budget";
-            case 9:
-                return "Bro";
-            default:
-                return "What's up";
-        }
-    }
-}
+//     function genPlaceholderBody() {
+//         let num = Math.floor(Math.random() * 10);
+//         switch (num) {
+//             case 1:
+//             case 2:
+//             case 3:
+//             case 4:
+//                 return "Hey";
+//             case 5:
+//                 return "You haven't messaged me in a while";
+//             case 6:
+//             case 7:
+//                 return "I'm bored";
+//             case 8:
+//                 return "You should make a new budget";
+//             case 9:
+//                 return "Bro";
+//             default:
+//                 return "What's up";
+//         }
+//     }
+// }

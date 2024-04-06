@@ -36,7 +36,7 @@ async function login() {
             if (noUserWarningShowing) hideWarning("#noUser");
             localStorage.setItem("currentUser", inputtedUser);
             localStorage.setItem("currentBudget", resObj.data.user.budgets[0].budgetName);
-            localStorage.setItem("user", resObj.data.user);
+            localStorage.setItem("user", JSON.stringify(resObj.data.user));
             window.location.href = "home.html";
         }
     }

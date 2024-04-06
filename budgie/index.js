@@ -17,6 +17,7 @@ app.use(`/api`, apiRouter);
 
 // Create User endpoint
 apiRouter.post('/new-user', (req, res) => {
+  console.log("new-user called");
   let submittedUser = newUser(req.body);
   if (submittedUser === null) res.send();
   else res.send(JSON.parse(submittedUser));
@@ -24,9 +25,35 @@ apiRouter.post('/new-user', (req, res) => {
 
 //Login endpoint
 apiRouter.post('/login', (req, res) => {
+  console.log("login called");
   let submittedUser = login(req.body);
+  console.log(submittedUser);
   if (submittedUser === null) res.send();
   else res.send(JSON.parse(submittedUser));
+});
+
+//Update User endpoint (For editing current user)
+apiRouter.put('/user', (req, res) => {
+  console.log("user called");
+  let submittedUser = updateUser(req.body);
+  if (submittedUser === null) res.send();
+  else res.send(JSON.parse(submittedUser));
+});
+
+//User Exists endpoint
+apiRouter.post('/userEx', (req, res) => {
+  console.log("userEx called");
+  let submittedUser = userExists(req.body);
+  if (submittedUser === null) res.send();
+  res.send(JSON.parse(submittedUser));
+});
+
+//Send Friend Request endpoint
+apiRouter.post('/friendReq', (req, res) => {
+  console.log("friendReq called");
+  let submittedUser = friendRequest(req.body);
+  if (submittedUser === null) res.send();
+  res.send(JSON.parse(submittedUser));
 });
 
 // Return the application's default page if the path is unknown
@@ -41,24 +68,20 @@ app.listen(port, () => {
 //---------------------------------------------------------------------------------
 
 //NOTE: Brackets must be placed around the JSON.stringify of a response value if it is not an object (such as an array)
-let users = [];
+let users = new Map();
 
 function newUser(requestBody) {
   let username = requestBody.username;
   if (username === "" || username === null) return null;
   let password = requestBody.password;
   let confirm = requestBody.confirm;
-  for (thisUser of users) {
-    if (thisUser.username == username) {
-      return JSON.stringify(new ResponseData(true, "dupeUser", {}));
-    }
-  }
+  if (users.get(username) !== null && users.get(username) !== undefined) return JSON.stringify(new ResponseData(true, "dupeUser", {}));
   if (password.length < 7) return JSON.stringify(new ResponseData(true, "shortPwd", {}));
   if (password != confirm) return JSON.stringify(new ResponseData(true, "badConf", {}));
 
   let user = new User(username, password, username + "'s budget")
   let authToken = uuid.v4();
-  users.push(user);
+  users.set(username, user);
   return JSON.stringify(new ResponseData(false, "", {
     user: user,
     authToken: authToken
@@ -68,14 +91,8 @@ function newUser(requestBody) {
 function login(requestBody) {
   let username = requestBody.username;
   let password = requestBody.password;
-  let user = null;
-  for (thisUser of users) {
-    if (thisUser.username === username) {
-      user = thisUser;
-      break;
-    }
-  }
-  if (user === null) return JSON.stringify(new ResponseData(true, "noUser", {}));
+  let user = users.get(username);
+  if (user === null || user === undefined) return JSON.stringify(new ResponseData(true, "noUser", {}));
   if (user.password !== password) return JSON.stringify(new ResponseData(true, "badPwd", {}));
 
   let authToken = uuid.v4();
@@ -85,20 +102,75 @@ function login(requestBody) {
   }));
 }
 
+function updateUser(requestBody) {
+  try {
+    if (users.get(requestBody.username) === null || users.get(requestBody.username) === undefined) return;
+    const updatedUser = new User(requestBody.username, requestBody.password, null);
+    for (budget of requestBody.budgets) updatedUser.budgets.push(budget);
+    for (friend of requestBody.friends) updatedUser.friends.push(friend);
+    for (request of requestBody.sentFriendRequests) updatedUser.sentFriendRequests.push(request);
+    for (request of requestBody.receivedFriendRequests) updatedUser.receivedFriendRequests.push(request);
+    users.set(requestBody.username, updatedUser);
+    return JSON.stringify(new ResponseData(false, "", {user: updatedUser}));
+  }
+  catch {
+    return JSON.stringify(new ResponseData(true, "unknownError", {}));
+  }
+}
+
+function userExists(requestBody) {
+  try {
+    const username = requestBody.username;
+    if (users.get(username) === null || users.get(username) === undefined) {
+      return JSON.stringify(new ResponseData(false, "", {exists: false}));
+    }
+    else return JSON.stringify(new ResponseData(false, "", {exists: true}));
+  }
+  catch {
+    return JSON.stringify(new ResponseData(true, "unknownError", {}));
+  }
+}
+
+function friendRequest(requestBody) {
+  try {
+    console.log(requestBody);
+    let requestorName = JSON.parse(requestBody.request).username;
+    let requestor = users.get(requestorName);
+    let friendUsername = requestBody.username;
+    let friendUser = users.get(friendUsername);
+    for (friend of friendUser.friends) {
+      if (friend.username === requestorName) return JSON.stringify(new ResponseData(true, "alreadyFriends", {}));
+    }
+    for (friendReq of friendUser.receivedFriendRequests) {
+      if (friendReq.username === requestorName) return JSON.stringify(new ResponseData(true, "alreadyRequested", {}));
+    }
+    for (friendReq of requestor.receivedFriendRequests) {
+      if (friendReq.username === friendUsername) return JSON.stringify(new ResponseData(true, "doubleRequest", {}));
+    }
+    friendUser.receivedFriendRequests.push(JSON.parse(requestBody.request));
+    users.set(friendUsername, friendUser);
+    return JSON.stringify(new ResponseData(false, "", {}));
+  }
+  catch {
+    return JSON.stringify(new ResponseData(true, "unknownError", {}));
+  }
+}
+
 class User {
   constructor(user, pwd, budgetName) {
       this.username = user;
       this.password = pwd;
       let budget = {
-          budgetName: budgetName,
-          privacy: "private",
-          initial: 0,
-          pIncome: [],
-          pExpenses: [],
-          aIncome: [],
-          aExpenses: []
+        budgetName: budgetName,
+        privacy: "private",
+        initial: 0,
+        pIncome: [],
+        pExpenses: [],
+        aIncome: [],
+        aExpenses: []
       }
-      this.budgets = [budget];
+      if (budgetName !== null) this.budgets = [budget];
+      else this.budgets = [];
       this.friends = [];
       this.sentFriendRequests = [];
       this.receivedFriendRequests = [];

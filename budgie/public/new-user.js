@@ -38,7 +38,6 @@ async function createNewUser() {
             }
         }
         else {
-            console.log(resObj.data.user);
             if (dupeWarningShowing) hideWarning("dupeWarning");
             if (pwdWarningShowing) hideWarning("pwdWarning");
             if (confWarningShowing) hideWarning("confWarning");
