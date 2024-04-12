@@ -83,6 +83,10 @@ Check that node is installed:
 
 `node -v`
 
+Initialize node:
+
+`npm init -y`
+
 Install express:
 
 `npm install express`
@@ -94,9 +98,40 @@ app.get('/store/:storeName', (req, res, next) => {
 ```
 Running `curl localhost:8080/store/orem` will return the response `{"name":"orem"}`
 
-How to serve up static files
+How to serve up static files:
 
 `app.use(express.static('public'));`
+
+How to do a GET request:
+```
+const express = require('express');
+const app = express();
+let port = 3000
+app.listen(port);
+
+app.get('/store/:storeName', (req, res, next) => {
+  res.send({name: req.params.storeName});
+});
+```
+
+You can use a router as an organizational tool (according to my understanding). In this example this would tack on "/api" before each path specified by the GET requests:
+```
+const apiRouter = express.Router();
+app.use(`/api`, apiRouter);
+apiRouter.get('/store/:storeName', (req, res) => {
+  res.send({name: req.params.storeName});
+});
+```
+
+To call the endpoint you created, do the following:
+```
+const response = await fetch(‘/api/endpointName’, {
+	method: ‘POST’,
+	headers: {},
+	body: JSON.stringify(myClassOrArray)
+});
+```
+^^^ Put this inside of a `try` `catch` block in case an error is thrown
 
 ### Middleware
 A middleware function looks similar to a routing function (probably because a routing function is an example of middleware).
