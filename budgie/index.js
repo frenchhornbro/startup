@@ -63,14 +63,6 @@ apiRouter.post('/budget', (req, res) => {
   res.send(JSON.parse(submittedUser));
 });
 
-//Update Budget Name endpoint
-apiRouter.patch(('/budget-name'), (req, res) => {
-  console.log('budget-name called');
-  let submittedUser = updateBudgetName(req.body);
-  if (submittedUser === null) res.send();
-  res.send(JSON.parse(submittedUser));
-});
-
 // Return the application's default page if the path is unknown
 app.use((_req, res) => {
   res.sendFile('index.html', { root: 'budgie\\public' });
@@ -186,27 +178,6 @@ function newBudget(requestBody) {
     user.budgets.push(newBudget);
     users.set(username, user);
     return JSON.stringify(new ResponseData(false, "", user));
-  }
-  catch {
-    return JSON.stringify(new ResponseData(true, "unknownError", {}));
-  }
-}
-
-function updateBudgetName(requestBody) {
-  try {
-    let username = requestBody.username;
-    let user = users.get(username);
-    if (user === null || user === undefined) return JSON.stringify(new ResponseData(true, "noUser", {}));
-    let oldBudgetName = requestBody.oldBudgetName;
-    let newBudgetName = requestBody.newBudgetName;
-    for (let i = 0; i < user.budgets.length; i++) {
-      if (user.budgets[i].budgetName === oldBudgetName) {
-        user.budgets[i].budgetName = newBudgetName;
-        users.set(username, user);
-        return JSON.stringify(new ResponseData(false, "", user));
-      }
-    }
-    return JSON.stringify(new ResponseData(true, "noBudget", {}));
   }
   catch {
     return JSON.stringify(new ResponseData(true, "unknownError", {}));

@@ -209,32 +209,14 @@ async function editName(editButton) {
     let oldBudgetName = budgetInfoContainer.querySelector(".info-title").textContent;
     let newBudgetName = prompt("Enter budget name:");
     if (newBudgetName === "" || newBudgetName === null) return;
-
-    try {
-        const response = await fetch('/api/budget-name', {
-            method: 'PATCH',
-            headers: {'content-type': 'application/json'},
-            body: JSON.stringify({
-                'username': currUser.username,
-                'oldBudgetName': oldBudgetName,
-                'newBudgetName': newBudgetName
-            })
-        });
-        const resObj = await response.json();
-        if (resObj.isError) {
-            if (resObj.responseMsg === "noBudget") alert ("Budget does not exist");
-            else if (resObj.responseMsg === "noUser") alert ("User does not exist");
-            else alert("An error occurred: " + resObj.responseMsg);
-        }
-        else {
-            localStorage.setItem("user", JSON.stringify(resObj.data));
-            currUser = JSON.parse(localStorage.getItem("user"));
-            loadBudgets();
-        }
+    if (budgetNameAlreadyExists(newBudgetName)) {
+        alert("That budget name is already in use");
+        return;
     }
-    catch {
-        console.log("Update Budget Name Error");
-    }
+    let budgetElement = parseBudget(oldBudgetName);
+    budgetElement.budgetName = newBudgetName;
+    saveBudget(budgetElement, oldBudgetName);
+    loadBudgets();
 }
 
 function budgetNameAlreadyExists(name) {
