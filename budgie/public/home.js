@@ -161,30 +161,46 @@ async function saveUser(userDataToSave) {
             body: JSON.stringify(userDataToSave)
         });
         const resObj = await response.json();
-        if (userDataToSave.username === currUser.username) localStorage.setItem("user", JSON.stringify(userDataToSave));
+        if (resObj.isError) alert("An error occurred: " + resObj.responseMsg);
+        else if (userDataToSave.username === currUser.username) {
+            localStorage.setItem("user", JSON.stringify(userDataToSave));
+            currUser = localStorage.getItem("user");
+        }
     }
     catch {
         console.log("Update User Error");
     }
 }
 
-function newBudget() {
+async function newBudget() {
     //Select the budgets for currUser and append a new budget to it according to the inputted name
     //Then unload the budgets and call loadBudgets
+
     budgetName = prompt("Enter new budget name:");
-    if (budgetName === null || budgetName === "") return;
-    if (budgetNameAlreadyExists(budgetName)) {
-        alert("That budget name is already in use");
-        return;
+    try {
+        const response = await fetch('/api/budget', {
+            method: 'POST',
+            headers: {'content-type': 'application/json'},
+            body: JSON.stringify({
+                'username': currUser.username,
+                'newBudgetName': budgetName
+            })
+        });
+        const resObj = await response.json();
+        if (resObj.isError) {
+            if (resObj.responseMsg = "dupeBudget") alert("That budget name is already in use");
+            else alert("An error occurred: " + resObj.responseMsg);
+        }
+        else {
+            localStorage.setItem("user", JSON.stringify(resObj.data));
+            currUser = JSON.parse(localStorage.getItem("user"));
+            localStorage.setItem("currentBudget", budgetName);
+            loadBudgets();
+        }
     }
-    
-    let newBudget = {budgetName: budgetName, privacy: "private", initial: 0, pIncome: [], pExpenses: [], aIncome: [], aExpenses: []};
-    currUser.budgets.push(newBudget);
-    
-    saveUser(currUser);
-    loadBudgets();
-    localStorage.setItem("currentBudget", budgetName);
-    window.location.href = "projected.html";
+    catch {
+        console.log("New Budget Error");
+    }
 }
 
 function editName(editButton) {
@@ -245,9 +261,9 @@ async function addFriend() {
                     username: friendUsername
                 })
             });
-            const respObj = await response.json();
-            if (respObj.isError) {
-                switch (respObj.responseMsg) {
+            const resObj = await response.json();
+            if (resObj.isError) {
+                switch (resObj.responseMsg) {
                     case ("alreadyFriends"):
                         alert(`${friendUsername} is already your friend`)
                         break;
@@ -258,7 +274,7 @@ async function addFriend() {
                         alert(`${friendUsername} already sent you a friend request! Accept it in messages.`);
                         break;
                     default:
-                        alert("An error occurred: " + respObj.responseMsg);
+                        alert("An error occurred: " + resObj.responseMsg);
                 }
             }
             else alert("Friend request sent");
@@ -276,9 +292,9 @@ async function userExists(username) {
             headers: {'content-type': 'application/json'},
             body: JSON.stringify({'username': username})
         });
-        const respObj = await response.json();
-        if (respObj.isError) alert("An error occurred: " + respObj.responseMsg);
-        else return respObj.data.exists;
+        const resObj = await response.json();
+        if (resObj.isError) alert("An error occurred: " + resObj.responseMsg);
+        else return resObj.data.exists;
     }
     catch {
         console.log("User Exists Error");

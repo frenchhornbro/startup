@@ -56,6 +56,14 @@ apiRouter.post('/friendReq', (req, res) => {
   res.send(JSON.parse(submittedUser));
 });
 
+//New Budget endpoint
+apiRouter.post('/budget', (req, res) => {
+  console.log("New budget called");
+  let submittedUser = newBudget(req.body);
+  if (submittedUser === null) res.send();
+  res.send(JSON.parse(submittedUser));
+})
+
 // Return the application's default page if the path is unknown
 app.use((_req, res) => {
   res.sendFile('index.html', { root: 'budgie\\public' });
@@ -79,7 +87,8 @@ function newUser(requestBody) {
   if (password.length < 7) return JSON.stringify(new ResponseData(true, "shortPwd", {}));
   if (password != confirm) return JSON.stringify(new ResponseData(true, "badConf", {}));
 
-  let user = new User(username, password, username + "'s budget")
+  let budgetName = username + '\'s budget';
+  let user = new User(username, password, budgetName)
   let authToken = uuid.v4();
   users.set(username, user);
   return JSON.stringify(new ResponseData(false, "", {
@@ -133,7 +142,6 @@ function userExists(requestBody) {
 
 function friendRequest(requestBody) {
   try {
-    console.log(requestBody);
     let requestorName = JSON.parse(requestBody.request).username;
     let requestor = users.get(requestorName);
     let friendUsername = requestBody.username;
@@ -150,6 +158,27 @@ function friendRequest(requestBody) {
     friendUser.receivedFriendRequests.push(JSON.parse(requestBody.request));
     users.set(friendUsername, friendUser);
     return JSON.stringify(new ResponseData(false, "", {}));
+  }
+  catch {
+    return JSON.stringify(new ResponseData(true, "unknownError", {}));
+  }
+}
+
+function newBudget(requestBody) {
+  try {
+    let username = requestBody.username;
+    let user = users.get(username);
+    if (user === null || user === undefined) return JSON.stringify(new ResponseData(true, "noUser", {}));
+    let budgetName = requestBody.newBudgetName;
+    for (thisBudget of user.budgets) {
+      if (thisBudget.budgetName === budgetName) {
+        return JSON.stringify(new ResponseData(true, "dupeBudget", {}));
+      }
+    }
+    let newBudget = {budgetName: budgetName, privacy: "private", initial: 0, pIncome: [], pExpenses: [], aIncome: [], aExpenses: []};
+    user.budgets.push(newBudget);
+    users.set(username, user);
+    return JSON.stringify(new ResponseData(false, "", user));
   }
   catch {
     return JSON.stringify(new ResponseData(true, "unknownError", {}));
