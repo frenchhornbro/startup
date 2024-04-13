@@ -27,7 +27,6 @@ apiRouter.post('/new-user', (req, res) => {
 apiRouter.post('/login', (req, res) => {
   console.log("login called");
   let submittedUser = login(req.body);
-  console.log(submittedUser);
   if (submittedUser === null) res.send();
   else res.send(JSON.parse(submittedUser));
 });
@@ -41,16 +40,16 @@ apiRouter.put('/user', (req, res) => {
 });
 
 //User Exists endpoint
-apiRouter.post('/userEx', (req, res) => {
-  console.log("userEx called");
+apiRouter.post('/user-exists', (req, res) => {
+  console.log("user-exists called");
   let submittedUser = userExists(req.body);
   if (submittedUser === null) res.send();
   res.send(JSON.parse(submittedUser));
 });
 
 //Send Friend Request endpoint
-apiRouter.post('/friendReq', (req, res) => {
-  console.log("friendReq called");
+apiRouter.post('/friend-request', (req, res) => {
+  console.log("friend-request called");
   let submittedUser = friendRequest(req.body);
   if (submittedUser === null) res.send();
   res.send(JSON.parse(submittedUser));
@@ -62,7 +61,15 @@ apiRouter.post('/budget', (req, res) => {
   let submittedUser = newBudget(req.body);
   if (submittedUser === null) res.send();
   res.send(JSON.parse(submittedUser));
-})
+});
+
+//Update Budget Name endpoint
+apiRouter.patch(('/budget-name'), (req, res) => {
+  console.log('budget-name called');
+  let submittedUser = updateBudgetName(req.body);
+  if (submittedUser === null) res.send();
+  res.send(JSON.parse(submittedUser));
+});
 
 // Return the application's default page if the path is unknown
 app.use((_req, res) => {
@@ -179,6 +186,27 @@ function newBudget(requestBody) {
     user.budgets.push(newBudget);
     users.set(username, user);
     return JSON.stringify(new ResponseData(false, "", user));
+  }
+  catch {
+    return JSON.stringify(new ResponseData(true, "unknownError", {}));
+  }
+}
+
+function updateBudgetName(requestBody) {
+  try {
+    let username = requestBody.username;
+    let user = users.get(username);
+    if (user === null || user === undefined) return JSON.stringify(new ResponseData(true, "noUser", {}));
+    let oldBudgetName = requestBody.oldBudgetName;
+    let newBudgetName = requestBody.newBudgetName;
+    for (let i = 0; i < user.budgets.length; i++) {
+      if (user.budgets[i].budgetName === oldBudgetName) {
+        user.budgets[i].budgetName = newBudgetName;
+        users.set(username, user);
+        return JSON.stringify(new ResponseData(false, "", user));
+      }
+    }
+    return JSON.stringify(new ResponseData(true, "noBudget", {}));
   }
   catch {
     return JSON.stringify(new ResponseData(true, "unknownError", {}));

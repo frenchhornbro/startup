@@ -203,20 +203,38 @@ async function newBudget() {
     }
 }
 
-function editName(editButton) {
+async function editName(editButton) {
     //Input the new budget name. Find the budget corresponding to that button. Edit the name in localStorage. Call load.
     let budgetInfoContainer = editButton.parentElement.parentElement;
     let oldBudgetName = budgetInfoContainer.querySelector(".info-title").textContent;
     let newBudgetName = prompt("Enter budget name:");
     if (newBudgetName === "" || newBudgetName === null) return;
-    if (budgetNameAlreadyExists(newBudgetName)) {
-        alert("That budget name is already in use");
-        return;
+
+    try {
+        const response = await fetch('/api/budget-name', {
+            method: 'PATCH',
+            headers: {'content-type': 'application/json'},
+            body: JSON.stringify({
+                'username': currUser.username,
+                'oldBudgetName': oldBudgetName,
+                'newBudgetName': newBudgetName
+            })
+        });
+        const resObj = await response.json();
+        if (resObj.isError) {
+            if (resObj.responseMsg === "noBudget") alert ("Budget does not exist");
+            else if (resObj.responseMsg === "noUser") alert ("User does not exist");
+            else alert("An error occurred: " + resObj.responseMsg);
+        }
+        else {
+            localStorage.setItem("user", JSON.stringify(resObj.data));
+            currUser = JSON.parse(localStorage.getItem("user"));
+            loadBudgets();
+        }
     }
-    let budgetElement = parseBudget(oldBudgetName);
-    budgetElement.budgetName = newBudgetName;
-    saveBudget(budgetElement, oldBudgetName);
-    loadBudgets();
+    catch {
+        console.log("Update Budget Name Error");
+    }
 }
 
 function budgetNameAlreadyExists(name) {
@@ -253,7 +271,7 @@ async function addFriend() {
         await saveUser(currUser);
         
         try {
-            const response = await fetch("/api/friendReq", {
+            const response = await fetch("/api/friend-request", {
                 method: 'POST',
                 headers: {'content-type': 'application/json'},
                 body: JSON.stringify({
@@ -287,7 +305,7 @@ async function addFriend() {
 
 async function userExists(username) {
     try {
-        const response = await fetch('/api/userEx', {
+        const response = await fetch('/api/user-exists', {
             method: 'POST',
             headers: {'content-type': 'application/json'},
             body: JSON.stringify({'username': username})
