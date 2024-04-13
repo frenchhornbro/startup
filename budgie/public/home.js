@@ -164,7 +164,7 @@ async function saveUser(userDataToSave) {
         if (resObj.isError) alert("An error occurred: " + resObj.responseMsg);
         else if (userDataToSave.username === currUser.username) {
             localStorage.setItem("user", JSON.stringify(userDataToSave));
-            currUser = localStorage.getItem("user");
+            currUser = JSON.parse(localStorage.getItem("user"));
         }
     }
     catch {
@@ -188,7 +188,7 @@ async function newBudget() {
         });
         const resObj = await response.json();
         if (resObj.isError) {
-            if (resObj.responseMsg = "dupeBudget") alert("That budget name is already in use");
+            if (resObj.responseMsg === "dupeBudget") alert("That budget name is already in use");
             else alert("An error occurred: " + resObj.responseMsg);
         }
         else {

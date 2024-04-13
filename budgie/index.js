@@ -63,6 +63,14 @@ apiRouter.post('/budget', (req, res) => {
   res.send(JSON.parse(submittedUser));
 });
 
+//Edit Budget Data endpoint
+apiRouter.patch('/budget-data', (req, res) => {
+  console.log("Edit Budget Data called");
+  let submittedUser = editBudgetData(req.body);
+  if (submittedUser === null) res.send();
+  res.send(JSON.parse(submittedUser));
+});
+
 // Return the application's default page if the path is unknown
 app.use((_req, res) => {
   res.sendFile('index.html', { root: 'budgie\\public' });
