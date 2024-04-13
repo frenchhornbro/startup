@@ -13,6 +13,8 @@ let currUser = JSON.parse(localStorage.getItem("user"));
 function load() {
     // genPlaceholderFriend();
     unload();
+    //TODO: Update localStorage with an endpoint call
+    currUser = JSON.parse(localStorage.getItem("user"));
     loadBudgets();
     loadFriends();
     loadMessages();
@@ -243,45 +245,47 @@ function deleteBudget(deleteButton) {
 }
 
 async function addFriend() {
-    let friendUsername = document.getElementById("new-request").value; //This is the user to friend
-    // Can't send a friend request if they have a blank username or if they're your own user
-    if (friendUsername === null || friendUsername === "" || friendUsername === currUser.username) return;
-    const exists = await userExists(friendUsername);
-    if (!exists) alert("User does not exist");
-    else {
-        currUser.sentFriendRequests.push(new FriendRequest(friendUsername));
-        await saveUser(currUser);
-        
-        try {
-            const response = await fetch("/api/friend-request", {
-                method: 'POST',
-                headers: {'content-type': 'application/json'},
-                body: JSON.stringify({
-                    request: JSON.stringify(new FriendRequest(currUser.username)),
-                    username: friendUsername
-                })
-            });
-            const resObj = await response.json();
-            if (resObj.isError) {
-                switch (resObj.responseMsg) {
-                    case ("alreadyFriends"):
-                        alert(`${friendUsername} is already your friend`)
-                        break;
-                    case ("alreadyRequested"):
-                        alert("Friend already requested")
-                        break;
-                    case ("doubleRequest"):
-                        alert(`${friendUsername} already sent you a friend request! Accept it in messages.`);
-                        break;
-                    default:
-                        alert("An error occurred: " + resObj.responseMsg);
-                }
+    try {
+        let friendUsername = document.getElementById("new-request").value; //This is the user to friend
+        if (friendUsername === "") return;
+        const response = await fetch("/api/friend-request", {
+            method: 'POST',
+            headers: {'content-type': 'application/json'},
+            body: JSON.stringify({
+                currUsername: currUser.username,
+                friendName: friendUsername
+            })
+        });
+        const resObj = await response.json();
+        if (resObj.isError) {
+            switch (resObj.responseMsg) {
+                case ("noUser"):
+                    alert("User does not exist");
+                    break;
+                case ("alreadyFriends"):
+                    alert(`${friendUsername} is already your friend`)
+                    break;
+                case ("alreadyRequested"):
+                    alert("Friend already requested")
+                    break;
+                case ("doubleRequest"):
+                    alert(`${friendUsername} already sent you a friend request! Accept it in messages.`);
+                    break;
+                case ("self"):
+                    alert("You can't friend yourself");
+                    break;
+                default:
+                    alert("An error occurred: " + resObj.responseMsg);
             }
-            else alert("Friend request sent");
         }
-        catch {
-            console.log("Friend Request Error");
+        else {
+            alert("Friend request sent");
+            localStorage.setItem("user", JSON.stringify(resObj.data.user));
+            currUser = JSON.parse(localStorage.getItem("user"));
         }
+    }
+    catch {
+        console.log("Friend Request Error");
     }
 }
 
@@ -318,22 +322,45 @@ function rejectFriend(rejectButton) {
     load();
 }
 
-function acceptFriend(acceptButton) {
+async function acceptFriend(acceptButton) {
     let friendName = acceptButton.parentElement.parentElement.querySelector(".info-title").textContent;
-    let friendData = verifyRequest(friendName);
-    if (friendData === null) return;
-    removeRequest(friendName, friendData);
 
-    let friend = new Friend(friendName);
-    currUser.friends.push(friend)
-    saveUser(currUser);
-
-    let thisUser = new Friend(currUser.username);
-    friendData.friends.push(thisUser);
-    saveUser(friendData);
-
-    alert(`Friend added: ${friendName}`);
-    load();
+    try {
+        const response = await fetch('/api/friend-request-response',  {
+            method: 'POST',
+            headers: {'content-type': 'application/json'},
+            body: JSON.stringify({
+                requestor: friendName,
+                currUser: currUser.username,
+                accept: true
+            })
+        });
+        const resObj = await response.json();
+        if (resObj.isError) {
+            switch (resObj.responseMsg) {
+                case "noUser":
+                    alert(`${currUser.username} doesn't exist`);
+                    break;
+                case "noFriend":
+                    alert(`${friendName} doesn't exist`);
+                    break;
+                case "alreadyFriend":
+                    alert(`${friendName} is already your friend`);
+                    break;
+                case "notSent":
+                    alert("Friend request was never sent");
+                    break;
+                default:
+                    alert("An error occurred: " + resObj.responseMsg);
+            }
+        }
+        else alert(`Friend added: ${friendName}`);
+        localStorage.setItem("user", resObj.data.user);
+        load();
+    }
+    catch {
+        console.log("Accept Friend Error");
+    }
 }
 
 function verifyRequest(friendName) {
@@ -825,12 +852,6 @@ function changeCurrUsersInbox(friendName, budgetName, permitted) {
 
 function logout() {
     window.location.href = "index.html";
-}
-
-class FriendRequest { //Eventually could include number of friend requests sent to that person as an attribute
-    constructor(username) {
-        this.username = username
-    }
 }
 
 class Friend {

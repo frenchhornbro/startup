@@ -55,6 +55,14 @@ apiRouter.post('/friend-request', (req, res) => {
   res.send(JSON.parse(submittedUser));
 });
 
+//Respond to Friend Request endpoint
+apiRouter.post('/friend-request-response', (req, res) => {
+  console.log("friend-request-response called");
+  let submittedUser = respondToFriendRequest(req.body);
+  if (submittedUser === null) res.send();
+  res.send(JSON.parse(submittedUser));
+});
+
 //New Budget endpoint
 apiRouter.post('/budget', (req, res) => {
   console.log("New budget called");
@@ -137,9 +145,7 @@ function updateUser(requestBody) {
 function userExists(requestBody) {
   try {
     const username = requestBody.username;
-    if (users.get(username) === null || users.get(username) === undefined) {
-      return JSON.stringify(new ResponseData(false, "", {exists: false}));
-    }
+    if (users.get(username) === null || users.get(username) === undefined) return JSON.stringify(new ResponseData(false, "", {exists: false}));
     else return JSON.stringify(new ResponseData(false, "", {exists: true}));
   }
   catch {
@@ -149,22 +155,105 @@ function userExists(requestBody) {
 
 function friendRequest(requestBody) {
   try {
-    let requestorName = JSON.parse(requestBody.request).username;
+    let requestorName = requestBody.currUsername;
     let requestor = users.get(requestorName);
-    let friendUsername = requestBody.username;
+    if (requestor === null || requestor === undefined) return JSON.stringify(new ResponseData(true, "noUser", {}));
+    let friendUsername = requestBody.friendName;
     let friendUser = users.get(friendUsername);
-    for (friend of friendUser.friends) {
-      if (friend.username === requestorName) return JSON.stringify(new ResponseData(true, "alreadyFriends", {}));
-    }
-    for (friendReq of friendUser.receivedFriendRequests) {
-      if (friendReq.username === requestorName) return JSON.stringify(new ResponseData(true, "alreadyRequested", {}));
+    if (friendUser === null || friendUser === undefined) return JSON.stringify(new ResponseData(true, "noUser", {}));
+    if (requestorName === friendUsername) return JSON.stringify(new ResponseData(true, "self", {}));
+    for (friend of requestor.friends) {
+      if (friend.username === friendUsername) return JSON.stringify(new ResponseData(true, "alreadyFriends", {}));
     }
     for (friendReq of requestor.receivedFriendRequests) {
-      if (friendReq.username === friendUsername) return JSON.stringify(new ResponseData(true, "doubleRequest", {}));
+      if (friendReq.username === friendName) return JSON.stringify(new ResponseData(true, "doubleRequest", {}));
     }
-    friendUser.receivedFriendRequests.push(JSON.parse(requestBody.request));
+    for (friendReq of requestor.sentFriendRequests) {
+      if (friendReq.username === friendUsername) return JSON.stringify(new ResponseData(true, "alreadyRequested", {}));
+    }
+    requestor.sentFriendRequests.push(new FriendRequest(friendUsername));
+    users.set(requestorName, requestor);
+    friendUser.receivedFriendRequests.push(new FriendRequest(requestorName));
     users.set(friendUsername, friendUser);
-    return JSON.stringify(new ResponseData(false, "", {}));
+    return JSON.stringify(new ResponseData(false, "", {user: requestor}));
+  }
+  catch {
+    return JSON.stringify(new ResponseData(true, "unknownError", {}));
+  }
+}
+
+function respondToFriendRequest(requestBody) {
+  try {
+    //Verify both users exist
+    const currUserName = requestBody.currUser;
+    const currUser = users.get(currUserName);
+    if (currUser === null || currUser === undefined) return JSON.stringify(new ResponseData(true, "noUser", {user: currUser}));
+    const requestorName = requestBody.requestor;
+    const requestor = users.get(requestorName);
+    if (requestor === null || requestor === undefined) return JSON.stringify(new ResponseData(true, "noFriend", {user: currUser}));
+
+    //Verify they aren't already friends
+    for (friend of currUser.friends) {
+      if (friend.username == requestorName) return JSON.stringify(new ResponseData(true, "alreadyFriend", {user: currUser}));
+    }
+    for (friend of requestor.friends) {
+      if (friend.username == currUserName) return JSON.stringify(new ResponseData(true, "alreadyFriend", {user: currUser}));
+    }
+
+    //Verify the request happened
+    let requestHappened = false;
+    for (request of currUser.receivedFriendRequests) {
+      if (request.username === requestorName) {
+        requestHappened = true;
+        break;
+      }
+    }
+    if (!requestHappened) {
+      removeRequests();
+      return JSON.stringify(new ResponseData(true, "notSent", {user: currUser}));
+    }
+    requestHappened = false;
+    for (request of requestor.sentFriendRequests) {
+      if (request.username === currUserName) {
+        requestHappened = true;
+        break;
+      }
+    }
+    if (!requestHappened) {
+      removeRequests();
+      return JSON.stringify(new ResponseData(true, "notSent", {user: currUser}));
+    }
+
+    //Remove the friend requests
+    removeRequests();
+
+    //Add each other as friends
+    if (JSON.parse(requestBody).accept) {
+      requestor.friends.push(new Friend(currUserName));
+      users.set(requestorName, requestor);
+      currUser.friends.push(new Friend(requestorName));
+      users.set(currUserName, currUser);
+    }
+    return JSON.stringify(new ResponseData(false, "", {user: currUser}));
+
+
+    function removeRequests() {
+      //Remove any sent friend requests that were never received
+      for (let i = 0; i < requestor.sentFriendRequests.length; i++) {
+        if (requestor.sentFriendRequests[i].username === currUser) {
+          requestor.sentFriendRequests.splice(i, 1);
+          break;
+        }
+      }
+
+      //Remove any sent friend requests that were never received
+      for (let i = 0; i < requestor.sentFriendRequests.length; i++) {
+        if (requestor.sentFriendRequests[i].username === currUser) {
+          requestor.sentFriendRequests.splice(i, 1);
+          break;
+        }
+      }
+    }
   }
   catch {
     return JSON.stringify(new ResponseData(true, "unknownError", {}));
@@ -210,6 +299,20 @@ class User {
       this.friends = [];
       this.sentFriendRequests = [];
       this.receivedFriendRequests = [];
+  }
+}
+
+class Friend {
+  constructor(username) {
+      this.username = username;
+      this.permittedBudgets = [];
+      this.messages = [];
+  }
+}
+
+class FriendRequest { //Eventually could include number of friend requests sent to that person as an attribute
+  constructor(username) {
+      this.username = username
   }
 }
 
