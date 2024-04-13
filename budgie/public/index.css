@@ -55,6 +55,7 @@ main {
     flex: 2;
     font-weight: 500;
     font-size: 6vh;
+    text-align: center;
 }
 
 .login {
