@@ -328,9 +328,9 @@ async function respondToFriendRequest(friendName, accepted) {
             method: 'POST',
             headers: {'content-type': 'application/json'},
             body: JSON.stringify({
-                requestor: friendName,
-                currUser: currUser.username,
-                accept: accepted
+                'requestor': friendName,
+                'currUser': currUser.username,
+                'accept': accepted
             })
         });
         const resObj = await response.json();
@@ -481,7 +481,7 @@ function loadFriends() {
             let reqViewButton = document.createElement("button");
             reqViewButton.type = "button";
             reqViewButton.className = "btn btn-light";
-            if (isPermitted(friendName)) {
+            if (isPermitted(friendName, budgetName)) {
                 reqViewButton.textContent = "View";
                 reqViewButton.onclick = () => viewFriendsBudget(reqViewButton);
             }
@@ -496,10 +496,10 @@ function loadFriends() {
     }
 }
 
-function isPermitted(friendName) {
+function isPermitted(friendName, budgetName) {
     let friend = getFriend(friendName);
     for (thisBudgetName of friend.permittedBudgets) {
-        if (thisBudgetName === thisBudget.budgetName) return true;
+        if (thisBudgetName === budgetName) return true;
     }
     return false;
 }
@@ -561,7 +561,7 @@ function viewFriendsBudget(viewButton) {
     
     // If the budget is not listed in permittedBudgets, display an alert
     let budgetName = viewButton.parentElement.parentElement.querySelector(".budget-name").textContent;
-    if (!isPermitted(friend.username)) {
+    if (!isPermitted(friend.username, budgetName)) {
         alert(`You have not been granted access to ${budgetName}`)
         return;
     }
@@ -749,70 +749,31 @@ function displayPermission(permission, permitted) {
     return permitContainer;
 }
 
-function givePermission(friendName, budgetName, permitted) {
-    //Get friend data
-    let friendData = null;
-    for (thisUser of users) {
-        if (thisUser.username === friendName) {
-            friendData = thisUser;
-            break;
+async function givePermission(friendName, budgetName, permitted) {
+    try {
+        const response = await fetch('/api/budget-response', {
+            method: 'POST',
+            headers: {'content-type': 'application/json'},
+            body: JSON.stringify({
+                'currUsername': currUser.username,
+                'friendName': friendName,
+                'budgetName': budgetName,
+                'isPermitted': permitted
+            })
+        });
+        const resObj = await response.json();
+        if (resObj.isError) {
+            if (resObj.responseMsg === "noUser") alert("User does not exist");
+            else if (resObj.responseMsg === "noFriend") alert(`${activeMessage} doesn't exist`);
+            else alert("An error occurred: " + resObj.responseMsg);
+        }
+        else {
+            load();
         }
     }
-    if (friendData === null) return;
-
-    //Get currUser's friend object in friendData
-    let currUserFriend = null;
-    for (thisFriend of friendData.friends) {
-        if (thisFriend.username === currUser.username) {
-            currUserFriend = thisFriend;
-            break;
-        }
+    catch {
+        console.log("Give Permission Error");
     }
-    if (currUserFriend === null) return;
-
-    //Add budgetName to permittedBudgets
-    if (permitted) currUserFriend.permittedBudgets.push(budgetName);
-
-    //Change the message in friend's inbox
-    changeFriendsInbox(currUserFriend, friendData, friendName, budgetName, permitted);
-
-    //Change the message in currUser's inbox
-    changeCurrUsersInbox(friendName, budgetName, permitted);
-    
-    //Reload
-    load();
-}
-
-function changeFriendsInbox(currUserFriend, friendData, friendName, budgetName, permitted) {
-    for (let i = 0; i < currUserFriend.messages.length; i++) {
-        let message = currUserFriend.messages[i];
-        if (message.origin === friendName && message.tag === "request" && message.params[0] === currUser.username && message.params[1] === budgetName) {
-            let permitTag = (permitted) ? "permission" : "rejection";
-            let permitMessage = new Message(currUser.username, "", permitTag, [friendName, budgetName]);
-            currUserFriend.messages[i] = permitMessage;
-            break;
-        }
-    }
-    saveUser(friendData);
-}
-
-function changeCurrUsersInbox(friendName, budgetName, permitted) {
-    for (let i = 0; i < currUser.friends.length; i++) {
-        if (currUser.friends[i].username === friendName) {
-            let friend = currUser.friends[i];
-            for (let j = 0; j < friend.messages.length; j++) {
-                let message = friend.messages[j];
-                if (message.origin === friendName && message.tag === "request" && message.params[0] === currUser.username && message.params[1] === budgetName) {
-                    let permitTag = (permitted) ? "permission" : "rejection";
-                    let permitMessage = new Message(currUser.username, "", permitTag, [friendName, budgetName]);
-                    currUser.friends[i].messages[j] = permitMessage;
-                    break;
-                }
-            }
-            break;
-        }
-    }
-    saveUser(currUser);
 }
 
 function logout() {

@@ -97,7 +97,15 @@ apiRouter.post('/message', (req, res) => {
   let response = sendMessage(req.body);
   if (response === null) res.send();
   res.send(JSON.parse(response));
-})
+});
+
+//Budget Response endpoint
+apiRouter.post('/budget-response', (req, res) => {
+  console.log("Budget Response called");
+  let response = respondToBudgetRequest(req.body);
+  if (response === null) res.send();
+  res.send(JSON.parse(response));
+});
 
 // Return the application's default page if the path is unknown
 app.use((_req, res) => {
@@ -158,8 +166,18 @@ function updatePublicBudgets(username) {
     let friendData = users.get(friendName);
     for (let i = 0; i < friendData.friends.length; i++) {
       if (friendData.friends[i].username === username) {
+        let permittedBudgets = [];
+        for (thisBudget of userData.budgets) {
+          for (thisBudgetName of friendData.friends[i].permittedBudgets) {
+            if (thisBudgetName === thisBudget.budgetName) {
+              permittedBudgets.push(thisBudgetName);
+              break;
+            }
+          }
+        }
+        let messages = friendData.friends[i].messages;
         friendData.friends.splice(i, 1);
-        friendData.friends.push(new Friend(username, publicBudgets));
+        friendData.friends.push(new Friend(username, publicBudgets, permittedBudgets, messages));
         users.set(friendName, friendData);
         console.log(friendData);
         break;
@@ -274,11 +292,11 @@ function respondToFriendRequest(requestBody) {
     if (requestBody.accept) {
       let currUserPublicBudgets = []
       for (budget of currUser.budgets) if (budget.privacy === "public") currUserPublicBudgets.push(budget.budgetName);
-      requestor.friends.push(new Friend(currUserName, currUserPublicBudgets));
+      requestor.friends.push(new Friend(currUserName, currUserPublicBudgets, [], []));
       users.set(requestorName, requestor);
       let requestorPublicBudgets = []
       for (budget of requestor.budgets) if (budget.privacy === "public") requestorPublicBudgets.push(budget.budgetName);
-      currUser.friends.push(new Friend(requestorName, requestorPublicBudgets));
+      currUser.friends.push(new Friend(requestorName, requestorPublicBudgets, [], []));
       users.set(currUserName, currUser);
     }
     return JSON.stringify(new ResponseData(false, "", {user: currUser}));
@@ -410,6 +428,57 @@ function sendMessage(requestBody) {
   }
 }
 
+function respondToBudgetRequest(requestBody) {
+  try {
+    let currUsername = requestBody.currUsername;
+    let currUser = users.get(currUsername);
+    if (currUser === null || currUser === undefined) return JSON.stringify(new ResponseData(true, "noUser", {}));
+    let friendUsername = requestBody.friendName;
+    let friend = users.get(friendUsername);
+    if (friend === null || friend === undefined) return JSON.stringify(new ResponseData(true, "noFriend", {}));
+    let budgetName = requestBody.budgetName;
+    let isPermitted = requestBody.isPermitted;
+
+    //Change the tag in each inbox to be "permission" or "rejection"
+    for (let i = 0; i < currUser.friends.length; i++) {
+      if (currUser.friends[i].username === friendUsername) {
+        for (let j = 0; j < currUser.friends[i].messages.length; j++) {
+          if (currUser.friends[i].messages[j].origin === friendUsername && currUser.friends[i].messages[j].tag === "request" &&
+          currUser.friends[i].messages[j].params[0] === currUsername && currUser.friends[i].messages[j].params[1] === budgetName) {
+            currUser.friends[i].messages[j].origin = currUsername;
+            currUser.friends[i].messages[j].tag = (isPermitted) ? "permission" : "rejection";
+            users.set(currUsername, currUser);
+            break;
+          }
+        }
+        break;
+      }
+    }
+    for (let i = 0; i < friend.friends.length; i++) {
+      if (friend.friends[i].username === currUsername) {
+        for (let j = 0; j < friend.friends[i].messages.length; j++) {
+          if (friend.friends[i].messages[j].origin === friendUsername && friend.friends[i].messages[j].tag === "request" &&
+          friend.friends[i].messages[j].params[0] === currUsername && friend.friends[i].messages[j].params[1] === budgetName) {
+            currUser.friends[i].messages[j].origin = currUsername;
+            friend.friends[i].messages[j].tag = (isPermitted) ? "permission" : "rejection";
+            break;
+          }
+          //Add to the friend's permittedBudgets
+          if (isPermitted) {
+            friend.friends[i].permittedBudgets.push(budgetName);
+            users.set(friendUsername, friend);
+          }
+        }
+        break;
+      }
+    }
+    return JSON.stringify(new ResponseData(false, "", {}));
+  }
+  catch {
+    return JSON.stringify(new ResponseData(true, "unknownError", {}));
+  }
+}
+
 class User {
   constructor(user, pwd, budgetName) {
       this.username = user;
@@ -432,11 +501,11 @@ class User {
 }
 
 class Friend {
-  constructor(username, publicBudgetList) {
+  constructor(username, publicBudgetList, permittedBudgetList, messageList) {
       this.username = username;
       this.publicBudgets = publicBudgetList;
-      this.permittedBudgets = [];
-      this.messages = [];
+      this.permittedBudgets = permittedBudgetList;
+      this.messages = messageList;
   }
 }
 
