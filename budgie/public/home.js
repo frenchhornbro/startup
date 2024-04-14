@@ -370,25 +370,15 @@ function loadFriends() {
 
     //Display all friends public budgets
     for (friend of currUser.friends) {
-        let friendData = null;
-        for (user of users) {
-            if (user.username === friend.username) {
-                friendData = user;
-                break;
-            }
-        }
-
         let friendContainer = document.createElement("div");
         friendContainer.className = "friend";
 
         //Add the title to the DOM
-        displayFriendName(friendContainer, friendData);
+        displayFriendName(friendContainer, friend.username);
 
         //Add the budgets to the DOM
-        for (thisBudget of friendData.budgets) {
-            if (thisBudget.privacy === "public") {
-                displayFriendBudget(friendContainer, thisBudget, friendData);
-            }
+        for (budgetName of friend.publicBudgets) {
+            displayFriendBudget(friendContainer, budgetName, friend.username);
         }
         friendContainers.appendChild(friendContainer);
     }
@@ -437,13 +427,13 @@ function loadFriends() {
         friendContainers.appendChild(requestContainer);
     }
 
-    function displayFriendName(friendContainer, friendData) {
+    function displayFriendName(friendContainer, friendName) {
         let friendNameContainer = document.createElement("div");
         friendNameContainer.className = "friend-info-container";
         
         let friendTitle = document.createElement("div");
         friendTitle.className = "info-title friend-name";
-        friendTitle.textContent = friendData.username;
+        friendTitle.textContent = friendName;
         friendNameContainer.appendChild(friendTitle);
         
         let space = document.createElement("div");
@@ -462,7 +452,7 @@ function loadFriends() {
         friendContainer.appendChild(friendNameContainer);
     }
 
-    function displayFriendBudget(friendContainer, thisBudget, friendData) {
+    function displayFriendBudget(friendContainer, budgetName, friendName) {
         let budgetContainer = document.createElement("div");
         budgetContainer.className = "friend-info-container";
 
@@ -472,7 +462,7 @@ function loadFriends() {
 
         let budgetTitle = document.createElement("div");
         budgetTitle.className = "info-title budget-name";
-        budgetTitle.textContent = thisBudget.budgetName;
+        budgetTitle.textContent = budgetName;
         budgetContainer.appendChild(budgetTitle);
 
         space = document.createElement("div");
@@ -482,7 +472,7 @@ function loadFriends() {
         let buttonContainer = document.createElement("div");
         buttonContainer.className = "budget-info-buttons-container";
         
-        if (requestAlreadySent(thisBudget.budgetName, friendData.username)) {
+        if (requestAlreadySent(budgetName, friendName)) {
             let reqTitle = document.createElement("div");
             reqTitle.textContent = "Request sent";
             buttonContainer.appendChild(reqTitle);
@@ -491,7 +481,7 @@ function loadFriends() {
             let reqViewButton = document.createElement("button");
             reqViewButton.type = "button";
             reqViewButton.className = "btn btn-light";
-            if (isPermitted(friendData)) {
+            if (isPermitted(friendName)) {
                 reqViewButton.textContent = "View";
                 reqViewButton.onclick = () => viewFriendsBudget(reqViewButton);
             }
@@ -506,8 +496,8 @@ function loadFriends() {
     }
 }
 
-function isPermitted(friendData) {
-    let friend = getFriend(friendData.username);
+function isPermitted(friendName) {
+    let friend = getFriend(friendName);
     for (thisBudgetName of friend.permittedBudgets) {
         if (thisBudgetName === thisBudget.budgetName) return true;
     }
@@ -522,6 +512,7 @@ function getFriend(username) {
 }
 
 function requestFriendsBudget(requestButton) {
+    //TODO: I think this should just send a special message using an endpoint
     let friendName = requestButton.parentElement.parentElement.parentElement.querySelector(".friend-name").textContent;
     let budgetName = requestButton.parentElement.parentElement.querySelector(".budget-name").textContent;
 
@@ -539,9 +530,7 @@ function requestAlreadySent(budgetName, friendName) {
     let friend = getFriend(friendName);
     if (friend === null) return true;
     for (message of friend.messages) {
-        if (message !== null && message.params.length > 1 && message.params[1] === budgetName && message.tag === "request") {
-                return true;
-            }
+        if (message !== null && message.params.length > 1 && message.params[1] === budgetName && message.tag === "request") return true;
     }
     return false;
 }
@@ -557,7 +546,7 @@ function viewFriendsBudget(viewButton) {
     
     // If the budget is not listed in permittedBudgets, display an alert
     let budgetName = viewButton.parentElement.parentElement.querySelector(".budget-name").textContent;
-    if (!isPermitted(friend)) {
+    if (!isPermitted(friend.username)) {
         alert(`You have not been granted access to ${budgetName}`)
         return;
     }

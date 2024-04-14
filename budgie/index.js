@@ -134,6 +134,26 @@ function login(requestBody) {
   }));
 }
 
+function updatePublicBudgets(username) {
+  let userData = users.get(username);
+  if (userData === null || userData === undefined) return;
+  let publicBudgets = [];
+  for (thisBudget of userData.budgets) {
+    if (thisBudget.privacy = "public") publicBudgets.push(thisBudget.budgetName);
+  }
+  for (thisFriend of userData.friends) {
+    let friendName = thisFriend.username;
+    let friendData = users.get(friendName);
+    for (let i = 0; i < friendData.friends.length; i++) {
+      if (friendData.friends[i].username === username) {
+        friendData.friends[i] = new Friend(username, publicBudgets);
+        users.set(friendName, friendData);
+        break;
+      }
+    }
+  }
+}
+
 function updateUser(requestBody) {
   try {
     if (users.get(requestBody.username) === null || users.get(requestBody.username) === undefined) return;
@@ -143,6 +163,7 @@ function updateUser(requestBody) {
     for (request of requestBody.sentFriendRequests) updatedUser.sentFriendRequests.push(request);
     for (request of requestBody.receivedFriendRequests) updatedUser.receivedFriendRequests.push(request);
     users.set(requestBody.username, updatedUser);
+    updatePublicBudgets(requestBody.username);
     return JSON.stringify(new ResponseData(false, "", {user: updatedUser}));
   }
   catch {
@@ -311,8 +332,9 @@ class User {
 }
 
 class Friend {
-  constructor(username) {
+  constructor(username, publicBudgetList=[]) {
       this.username = username;
+      this.publicBudgets = publicBudgetList;
       this.permittedBudgets = [];
       this.messages = [];
   }
