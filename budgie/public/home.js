@@ -621,36 +621,35 @@ function removePermissions(friendName, budgetName) {
     }
 }
 
-function sendMessage() {
-    if (activeMessage === null) return;
-    let name = currUser.username
-    let body = document.querySelector("#response").value;
-    let message = new Message(name, body);
-    displayMessage(message);
-    document.querySelector("#response").value = "";
-    saveMessage(message);
-}
-
-function saveMessage(message, friend=activeMessage) {
-    for (let i = 0; i < currUser.friends.length; i++) {
-        if (currUser.friends[i].username === friend) {
-            currUser.friends[i].messages.push(message);
-            saveUser(currUser);
-            break;
+async function sendMessage() {
+    try {
+        if (activeMessage === null) return;
+        let currUsername = currUser.username
+        let body = document.querySelector("#response").value;
+        const response = await fetch('/api/message', {
+            method: 'POST',
+            headers: {'content-type': 'application/json'},
+            body: JSON.stringify({
+                'messageData': {
+                    'currUsername': currUsername,
+                    'friendName': activeMessage,
+                    'body': body
+                }
+            })
+        });
+        const resObj = await response.json();
+        if (resObj.isError) {
+            if (resObj.responseMsg === "noUser") alert("User does not exist");
+            else if (resObj.responseMsg === "noFriend") alert(`${activeMessage} doesn't exist`);
+            else alert("An error occurred: " + resObj.responseMsg);
+        }
+        else {
+            document.querySelector("#response").value = "";
+            load();
         }
     }
-
-    for (let i = 0; i < users.length; i++) {
-        if (users[i].username === friend) {
-            for (let j = 0; j < users[i].friends.length; j++) {
-                if (users[i].friends[j].username === currUser.username) {
-                    users[i].friends[j].messages.push(message);
-                    saveUser(users[i]);
-                    break;
-                }
-            }
-            break;
-        }
+    catch {
+        console.log("Send Message Error");
     }
 }
 

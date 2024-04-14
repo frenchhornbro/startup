@@ -376,6 +376,33 @@ function sendMessage(requestBody) {
     }
     else {
       //Send a standard message
+      let messageData = requestBody.messageData;
+      let currUsername = messageData.currUsername;
+      let friendUsername = messageData.friendName;
+      let body = messageData.body;
+      let currUser = users.get(currUsername);
+      if (currUser === null || currUser == undefined) return JSON.stringify(false, "noUser", {});
+      let friend = users.get(friendUsername);
+      if (friend === null || friend == undefined) return JSON.stringify(false, "noFriend", {});
+      
+      //Save the message in both inboxes
+      let message = new Message(currUsername, body);
+      for (let i = 0; i < currUser.friends.length; i++) {
+        if (currUser.friends[i].username === friendUsername) {
+          currUser.friends[i].messages.push(message);
+          users.set(currUsername, currUser);
+          break;
+        }
+      }
+      for (let i = 0; i < friend.friends.length; i++) {
+        if (friend.friends[i].username === currUsername) {
+          friend.friends[i].messages.push(message);
+          users.set(friendUsername, friend);
+          break;
+        }
+      }
+      console.log(users);
+      return JSON.stringify(new ResponseData(false, "", {}));
     }
   }
   catch {
