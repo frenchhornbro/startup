@@ -10,14 +10,20 @@ let currUser = JSON.parse(localStorage.getItem("user"));
 
 // callPlaceholdersMsgs();
 
-function load() {
+async function load() {
     // genPlaceholderFriend();
     unload();
-    //TODO: Update localStorage with an endpoint call
-    currUser = JSON.parse(localStorage.getItem("user"));
+    await updateCurrUser();
     loadBudgets();
     loadFriends();
     loadMessages();
+}
+
+async function updateCurrUser() {
+    let user = await fetch(`/api/user/${currUser.username}`);
+    let userObj = await user.json();
+    localStorage.setItem("user", JSON.stringify(userObj));
+    currUser = JSON.parse(localStorage.getItem("user"));
 }
 
 function unload() {
@@ -37,6 +43,8 @@ function unload() {
         document.querySelector(".message-line-container").remove();
     }
 }
+
+
 
 function loadBudgets() {
     //Unload all the data
@@ -269,7 +277,7 @@ async function addFriend() {
                     alert("Friend already requested")
                     break;
                 case ("doubleRequest"):
-                    alert(`${friendUsername} already sent you a friend request! Accept it in messages.`);
+                    alert(`${friendUsername} already sent you a friend request!`);
                     break;
                 case ("self"):
                     alert("You can't friend yourself");
@@ -280,8 +288,7 @@ async function addFriend() {
         }
         else {
             alert("Friend request sent");
-            localStorage.setItem("user", JSON.stringify(resObj.data.user));
-            currUser = JSON.parse(localStorage.getItem("user"));
+            load();
         }
     }
     catch {
@@ -305,26 +312,17 @@ async function userExists(username) {
     }
 }
 
-function inList(username, list) {
-    //FIXME: ^^^ This no longer works
-    if (list === null) return false;
-    for (thisUser of list) {
-        if (thisUser.username === username) return true;
-    }
-    return false;
-}
-
 function rejectFriend(rejectButton) {
     let friendName = rejectButton.parentElement.parentElement.querySelector(".info-title").textContent;
-    let friendData = verifyRequest(friendName);
-    if (friendData === null) return;
-    removeRequest(friendName, friendData);
-    load();
+    respondToFriendRequest(friendName, false);
 }
 
-async function acceptFriend(acceptButton) {
+function acceptFriend(acceptButton) {
     let friendName = acceptButton.parentElement.parentElement.querySelector(".info-title").textContent;
+    respondToFriendRequest(friendName, true);
+}
 
+async function respondToFriendRequest(friendName, accepted) {
     try {
         const response = await fetch('/api/friend-request-response',  {
             method: 'POST',
@@ -332,7 +330,7 @@ async function acceptFriend(acceptButton) {
             body: JSON.stringify({
                 requestor: friendName,
                 currUser: currUser.username,
-                accept: true
+                accept: accepted
             })
         });
         const resObj = await response.json();
@@ -354,47 +352,11 @@ async function acceptFriend(acceptButton) {
                     alert("An error occurred: " + resObj.responseMsg);
             }
         }
-        else alert(`Friend added: ${friendName}`);
-        localStorage.setItem("user", resObj.data.user);
+        else if (accepted) alert(`Friend added: ${friendName}`);
         load();
     }
     catch {
         console.log("Accept Friend Error");
-    }
-}
-
-function verifyRequest(friendName) {
-    //Verify the friend request was actually sent and that they're not already a friend
-    if (!userExists(friendName)) return null;
-    if (inList(friendName, currUser.friends)) return null;
-    let friendData = null;
-    for (thisUser of users) {
-        if (thisUser.username === friendName) {
-            friendData = thisUser;
-            break;
-        }
-    }
-    if (!inList(currUser.username, friendData.sentFriendRequests)) return null;
-    return friendData;
-}
-
-function removeRequest(friendName, friendData) {
-    //Remove friend's username from currUser's receivedFriendRequests list
-    for (let i = 0; i < currUser.receivedFriendRequests.length; i++) {
-        if (currUser.receivedFriendRequests[i].username === friendName) {
-            currUser.receivedFriendRequests.splice(i,1);
-            saveUser(currUser);
-            break;
-        }
-    }
-
-    //Remove currUser's usernamename from friend's sentFriendRequests list
-    for (let i = 0; i < friendData.sentFriendRequests.length; i++) {
-        if (friendData.sentFriendRequests[i].username === currUser.username) {
-            friendData.sentFriendRequests.splice(i, 1);
-            saveUser(friendData);
-            break;
-        }
     }
 }
 

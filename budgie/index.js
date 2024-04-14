@@ -31,9 +31,17 @@ apiRouter.post('/login', (req, res) => {
   else res.send(JSON.parse(submittedUser));
 });
 
+//Get User endpoint
+apiRouter.get('/user/:username', (req, res) => {
+  console.log("Get user called");
+  let currUser = JSON.stringify(users.get(req.params.username));
+  if (!currUser) res.send();
+  res.send(JSON.parse(currUser));
+});
+
 //Update User endpoint (For editing current user)
 apiRouter.put('/user', (req, res) => {
-  console.log("user called");
+  console.log("Update user called");
   let submittedUser = updateUser(req.body);
   if (submittedUser === null) res.send();
   else res.send(JSON.parse(submittedUser));
@@ -166,7 +174,7 @@ function friendRequest(requestBody) {
       if (friend.username === friendUsername) return JSON.stringify(new ResponseData(true, "alreadyFriends", {}));
     }
     for (friendReq of requestor.receivedFriendRequests) {
-      if (friendReq.username === friendName) return JSON.stringify(new ResponseData(true, "doubleRequest", {}));
+      if (friendReq.username === friendUsername) return JSON.stringify(new ResponseData(true, "doubleRequest", {}));
     }
     for (friendReq of requestor.sentFriendRequests) {
       if (friendReq.username === friendUsername) return JSON.stringify(new ResponseData(true, "alreadyRequested", {}));
@@ -175,7 +183,7 @@ function friendRequest(requestBody) {
     users.set(requestorName, requestor);
     friendUser.receivedFriendRequests.push(new FriendRequest(requestorName));
     users.set(friendUsername, friendUser);
-    return JSON.stringify(new ResponseData(false, "", {user: requestor}));
+    return JSON.stringify(new ResponseData(false, "", {}));
   }
   catch {
     return JSON.stringify(new ResponseData(true, "unknownError", {}));
@@ -228,7 +236,7 @@ function respondToFriendRequest(requestBody) {
     removeRequests();
 
     //Add each other as friends
-    if (JSON.parse(requestBody).accept) {
+    if (requestBody.accept) {
       requestor.friends.push(new Friend(currUserName));
       users.set(requestorName, requestor);
       currUser.friends.push(new Friend(requestorName));
@@ -239,16 +247,16 @@ function respondToFriendRequest(requestBody) {
 
     function removeRequests() {
       //Remove any sent friend requests that were never received
-      for (let i = 0; i < requestor.sentFriendRequests.length; i++) {
-        if (requestor.sentFriendRequests[i].username === currUser) {
-          requestor.sentFriendRequests.splice(i, 1);
+      for (let i = 0; i < currUser.receivedFriendRequests.length; i++) {
+        if (currUser.receivedFriendRequests[i].username === requestorName) {
+          currUser.receivedFriendRequests.splice(i, 1);
           break;
         }
       }
 
       //Remove any sent friend requests that were never received
       for (let i = 0; i < requestor.sentFriendRequests.length; i++) {
-        if (requestor.sentFriendRequests[i].username === currUser) {
+        if (requestor.sentFriendRequests[i].username === currUserName) {
           requestor.sentFriendRequests.splice(i, 1);
           break;
         }
