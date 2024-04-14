@@ -18,23 +18,27 @@ app.use(`/api`, apiRouter);
 // Create User endpoint
 apiRouter.post('/new-user', (req, res) => {
   console.log("new-user called");
-  let submittedUser = newUser(req.body);
-  if (submittedUser === null) res.send();
-  else res.send(JSON.parse(submittedUser));
+  let response = newUser(req.body);
+  if (response === null) res.send();
+  else res.send(JSON.parse(response));
 });
 
 //Login endpoint
 apiRouter.post('/login', (req, res) => {
   console.log("login called");
-  let submittedUser = login(req.body);
-  if (submittedUser === null) res.send();
-  else res.send(JSON.parse(submittedUser));
+  let response = login(req.body);
+  if (response === null) res.send();
+  else res.send(JSON.parse(response));
 });
 
 //Get User endpoint
 apiRouter.get('/user/:username', (req, res) => {
   console.log("Get user called");
-  let currUser = JSON.stringify(users.get(req.params.username));
+  let currUser;
+  try {
+    currUser = JSON.stringify(users.get(req.params.username));
+  }
+  catch {res.send();}
   if (!currUser) res.send();
   res.send(JSON.parse(currUser));
 });
@@ -42,50 +46,58 @@ apiRouter.get('/user/:username', (req, res) => {
 //Update User endpoint (For editing current user)
 apiRouter.put('/user', (req, res) => {
   console.log("Update user called");
-  let submittedUser = updateUser(req.body);
-  if (submittedUser === null) res.send();
-  else res.send(JSON.parse(submittedUser));
+  let response = updateUser(req.body);
+  if (response === null) res.send();
+  else res.send(JSON.parse(response));
 });
 
 //User Exists endpoint
 apiRouter.post('/user-exists', (req, res) => {
   console.log("user-exists called");
-  let submittedUser = userExists(req.body);
-  if (submittedUser === null) res.send();
-  res.send(JSON.parse(submittedUser));
+  let response = userExists(req.body);
+  if (response === null) res.send();
+  res.send(JSON.parse(response));
 });
 
 //Send Friend Request endpoint
 apiRouter.post('/friend-request', (req, res) => {
   console.log("friend-request called");
-  let submittedUser = friendRequest(req.body);
-  if (submittedUser === null) res.send();
-  res.send(JSON.parse(submittedUser));
+  let response = friendRequest(req.body);
+  if (response === null) res.send();
+  res.send(JSON.parse(response));
 });
 
 //Respond to Friend Request endpoint
 apiRouter.post('/friend-request-response', (req, res) => {
   console.log("friend-request-response called");
-  let submittedUser = respondToFriendRequest(req.body);
-  if (submittedUser === null) res.send();
-  res.send(JSON.parse(submittedUser));
+  let response = respondToFriendRequest(req.body);
+  if (response === null) res.send();
+  res.send(JSON.parse(response));
 });
 
 //New Budget endpoint
 apiRouter.post('/budget', (req, res) => {
   console.log("New budget called");
-  let submittedUser = newBudget(req.body);
-  if (submittedUser === null) res.send();
-  res.send(JSON.parse(submittedUser));
+  let response = newBudget(req.body);
+  if (response === null) res.send();
+  res.send(JSON.parse(response));
 });
 
 //Edit Budget Data endpoint
 apiRouter.patch('/budget-data', (req, res) => {
   console.log("Edit Budget Data called");
-  let submittedUser = editBudgetData(req.body);
-  if (submittedUser === null) res.send();
-  res.send(JSON.parse(submittedUser));
+  let response = editBudgetData(req.body);
+  if (response === null) res.send();
+  res.send(JSON.parse(response));
 });
+
+//Send Message endpoint
+apiRouter.post('/message', (req, res) => {
+  console.log("Message called");
+  let response = sendMessage(req.body);
+  if (response === null) res.send();
+  res.send(JSON.parse(response));
+})
 
 // Return the application's default page if the path is unknown
 app.use((_req, res) => {
@@ -139,15 +151,17 @@ function updatePublicBudgets(username) {
   if (userData === null || userData === undefined) return;
   let publicBudgets = [];
   for (thisBudget of userData.budgets) {
-    if (thisBudget.privacy = "public") publicBudgets.push(thisBudget.budgetName);
+    if (thisBudget.privacy === "public") publicBudgets.push(thisBudget.budgetName);
   }
   for (thisFriend of userData.friends) {
     let friendName = thisFriend.username;
     let friendData = users.get(friendName);
     for (let i = 0; i < friendData.friends.length; i++) {
       if (friendData.friends[i].username === username) {
-        friendData.friends[i] = new Friend(username, publicBudgets);
+        friendData.friends.splice(i, 1);
+        friendData.friends.push(new Friend(username, publicBudgets));
         users.set(friendName, friendData);
+        console.log(friendData);
         break;
       }
     }
@@ -258,9 +272,13 @@ function respondToFriendRequest(requestBody) {
 
     //Add each other as friends
     if (requestBody.accept) {
-      requestor.friends.push(new Friend(currUserName));
+      let currUserPublicBudgets = []
+      for (budget of currUser.budgets) if (budget.privacy === "public") currUserPublicBudgets.push(budget.budgetName);
+      requestor.friends.push(new Friend(currUserName, currUserPublicBudgets));
       users.set(requestorName, requestor);
-      currUser.friends.push(new Friend(requestorName));
+      let requestorPublicBudgets = []
+      for (budget of requestor.budgets) if (budget.privacy === "public") requestorPublicBudgets.push(budget.budgetName);
+      currUser.friends.push(new Friend(requestorName, requestorPublicBudgets));
       users.set(currUserName, currUser);
     }
     return JSON.stringify(new ResponseData(false, "", {user: currUser}));
@@ -310,6 +328,61 @@ function newBudget(requestBody) {
   }
 }
 
+function budgetAlreadyRequested(budgetName, friendName, currUsername) {
+  let currUser = users.get(currUsername);
+  let friendObj = null;
+  for (thisFriend of currUser.friends) {
+    if (thisFriend.username === friendName) {
+      friendObj = thisFriend;
+      break;
+    }
+  }
+  if (friendObj === null || friendObj === undefined) return true;
+  for (message of friendObj.messages) {
+    if (message !== null && message.params.length > 1 && message.params[1] === budgetName && message.tag === "request") return true;
+  }
+  return false;
+}
+
+function sendMessage(requestBody) {
+  try {
+    let budgetRequest = requestBody.budgetRequest;
+    if (budgetRequest !== null && budgetRequest !== undefined) {
+      //Send a budget request
+      let currUsername = budgetRequest.currUsername;
+      let friendUsername = budgetRequest.friendUsername;
+      let budgetName = budgetRequest.budgetName;
+      if (budgetAlreadyRequested(budgetName, friendUsername, currUsername)) return JSON.stringify(new ResponseData(true, "alreadyRequested", {}));
+
+      //Create a message object and add it to messages in both friend objects
+      let requestMessage = new Message(currUsername, "", "request", [friendUsername, budgetName]);
+      let currUser = users.get(currUsername);
+      for (let i = 0; i < currUser.friends.length; i++) {
+        if (currUser.friends[i].username === friendUsername) {
+          currUser.friends[i].messages.push(requestMessage);
+          users.set(currUsername, currUser);
+          break;
+        }
+      }
+      let friend = users.get(friendUsername);
+      for (let i = 0; i < friend.friends.length; i++) {
+        if (friend.friends[i].username === currUsername) {
+          friend.friends[i].messages.push(requestMessage);
+          users.set(friendUsername, friend);
+          break;
+        }
+      }
+      return JSON.stringify(new ResponseData(false, "", {}));
+    }
+    else {
+      //Send a standard message
+    }
+  }
+  catch {
+    return JSON.stringify(new ResponseData(true, "unknownError", {}));
+  }
+}
+
 class User {
   constructor(user, pwd, budgetName) {
       this.username = user;
@@ -332,11 +405,20 @@ class User {
 }
 
 class Friend {
-  constructor(username, publicBudgetList=[]) {
+  constructor(username, publicBudgetList) {
       this.username = username;
       this.publicBudgets = publicBudgetList;
       this.permittedBudgets = [];
       this.messages = [];
+  }
+}
+
+class Message {
+  constructor(origin, body, tag=null, params=[]) {
+      this.origin = origin;
+      this.body = body;
+      this.tag = tag;
+      this.params = params;
   }
 }
 

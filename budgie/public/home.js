@@ -511,19 +511,34 @@ function getFriend(username) {
     return null;
 }
 
-function requestFriendsBudget(requestButton) {
-    //TODO: I think this should just send a special message using an endpoint
+async function requestFriendsBudget(requestButton) {
     let friendName = requestButton.parentElement.parentElement.parentElement.querySelector(".friend-name").textContent;
     let budgetName = requestButton.parentElement.parentElement.querySelector(".budget-name").textContent;
 
-    let name = currUser.username;
-    let body = "";
-    let tag = "request";
-    let params = [friendName, budgetName];
-    let request = new Message(name, body, tag, params);
-    if (requestAlreadySent(budgetName, friendName)) return;
-    saveMessage(request, friendName);
-    load();
+    try {
+        const response = await fetch('/api/message', {
+            method: 'POST',
+            headers: {'content-type': 'application/json'},
+            body: JSON.stringify({
+                'budgetRequest': {
+                    'currUsername': currUser.username,
+                    'friendUsername': friendName,
+                    'budgetName': budgetName
+                }
+            })
+        });
+        const resObj = await response.json();
+        if (resObj.isError) {
+            if (resObj.responseMsg === "alreadyRequested") alert("Budget has already been requested");
+            else alert("An error occurred: " + resObj.responseMsg);
+        }
+        else {
+            load();
+        }
+    }
+    catch {
+        console.log("Budget Request Error");
+    }
 }
 
 function requestAlreadySent(budgetName, friendName) {
@@ -803,14 +818,6 @@ function changeCurrUsersInbox(friendName, budgetName, permitted) {
 
 function logout() {
     window.location.href = "index.html";
-}
-
-class Friend {
-    constructor(username) {
-        this.username = username;
-        this.permittedBudgets = [];
-        this.messages = [];
-    }
 }
 
 class Message {
