@@ -3,6 +3,7 @@ let noUserWarningShowing = false;
 let warning = "";
 localStorage.removeItem("user");
 localStorage.removeItem("currentUser");
+localStorage.removeItem("guestBudget");
 localStorage.removeItem("budgetOwner");
 localStorage.removeItem("currentBudget");
 

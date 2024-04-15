@@ -14,7 +14,6 @@ let expenseRestarted = false;
 let VIEWNUM = 12;
 
 let currUser = JSON.parse(localStorage.getItem("user"));
-if (localStorage.getItem("budgetOwner") !== null) currUser = localStorage.getItem("budgetOwner"); //TODO: Consider whether or not we should remove this
 let budget = localStorage.getItem("currentBudget");
 if (budget === null) window.location.href = "home.html";
 
@@ -22,10 +21,13 @@ let budgetData = null;
 setBudgetData();
 
 function setBudgetData() {
-    for (thisBudget of currUser.budgets) {
-        if (thisBudget.budgetName === budget) {
-            budgetData = thisBudget;
-            break;
+    if (localStorage.getItem("guestBudget") !== null) budgetData = JSON.parse(localStorage.getItem("guestBudget"));
+    else {
+        for (thisBudget of currUser.budgets) {
+            if (thisBudget.budgetName === budget) {
+                budgetData = thisBudget;
+                break;
+            }
         }
     }
 }
@@ -76,7 +78,7 @@ function loadData(isIncome, isProjected) {
 
 function loadTitle() {
     let title = document.querySelector("#title");
-    title.textContent = thisBudget.budgetName;
+    title.textContent = budgetData.budgetName;
 }
 
 function loadCurrSelections() {
@@ -195,7 +197,7 @@ function addData(isIncome, isProjected, first, headerName = "") {
         else budgetData.aExpenses.push(data);
     }
 
-    updatedUser();
+    updateUser();
 
     //Store row for the opposite sheet, or load header and data
     if (first) {
@@ -204,29 +206,52 @@ function addData(isIncome, isProjected, first, headerName = "") {
     }
 }
 
-async function updatedUser() {
+async function updateUser() {
     //This function assume budgetData has been set as the desired data, and will update everything according to that, or revert it back
-    let tempUser = currUser;
-    for (let i = 0; i < tempUser.budgets.length; i++) {
-        if (tempUser.budgets[i].budgetName === budget) {
-            tempUser.budgets[i] = budgetData;
-            break;
+    let tempUser = null;
+    let guestBudget = null;
+    if (localStorage.getItem("guestBudget")) {
+        guestBudget = budgetData;
+    }
+    else {
+        tempUser = currUser;
+        for (let i = 0; i < tempUser.budgets.length; i++) {
+            if (tempUser.budgets[i].budgetName === budget) {
+                tempUser.budgets[i] = budgetData;
+                break;
+            }
         }
     }
     try {
         const response = await fetch('/api/user', {
             method: 'PUT',
             headers: {'content-type': 'application/json'},
-            body: JSON.stringify(tempUser)
+            body: JSON.stringify({
+                    'user': tempUser,
+                    'guestBudget': {
+                        'budget': guestBudget,
+                        'currUsername': currUser.username,
+                        'budgetOwner': localStorage.getItem("budgetOwner")
+                    }
+                })
         });
         const resObj = await response.json();
         if (resObj.isError) {
-            alert("An error occurred: " + resObj.responseMsg);
-            setBudgetData();
+            if (resObj.responseMsg === "noFriend") alert(`${localStorage.getItem("budgetOwner")} doesn't exist`);
+            else if (resObj.responseMsg === "noUser") alert("User doesn't exist");
+            else {
+                alert("An error occurred: " + resObj.responseMsg);
+                setBudgetData();
+            }
         }
         else {
-            localStorage.setItem("user", JSON.stringify(resObj.data.user));
-            currUser = JSON.parse(localStorage.getItem("user"));
+            if (localStorage.getItem("guestBudget") !== null) {
+                localStorage.setItem("guestBudget", JSON.stringify(resObj.data.budget));
+            }
+            else {
+                localStorage.setItem("user", JSON.stringify(resObj.data.user));
+                currUser = JSON.parse(localStorage.getItem("user"));
+            }
             setBudgetData();
         }
     }
@@ -386,7 +411,7 @@ function makeChange(isProjected) {
             budgetData.initial = numToStore;
         }
 
-        updatedUser();
+        updateUser();
     }
 }
 

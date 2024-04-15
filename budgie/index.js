@@ -107,6 +107,14 @@ apiRouter.post('/budget-response', (req, res) => {
   res.send(JSON.parse(response));
 });
 
+//View Friend's Budget endpoint
+apiRouter.post('/view-friend', (req, res) => {
+  console.log("View Friend called");
+  let response = viewFriendsBudget(req.body);
+  if (response === null) res.send();
+  res.send(JSON.parse(response));
+});
+
 // Return the application's default page if the path is unknown
 app.use((_req, res) => {
   res.sendFile('index.html', { root: 'budgie\\public' });
@@ -179,7 +187,6 @@ function updatePublicBudgets(username) {
         friendData.friends.splice(i, 1);
         friendData.friends.push(new Friend(username, publicBudgets, permittedBudgets, messages));
         users.set(friendName, friendData);
-        console.log(friendData);
         break;
       }
     }
@@ -188,17 +195,43 @@ function updatePublicBudgets(username) {
 
 function updateUser(requestBody) {
   try {
-    if (users.get(requestBody.username) === null || users.get(requestBody.username) === undefined) return;
-    const updatedUser = new User(requestBody.username, requestBody.password, null);
-    for (budget of requestBody.budgets) updatedUser.budgets.push(budget);
-    for (friend of requestBody.friends) updatedUser.friends.push(friend);
-    for (request of requestBody.sentFriendRequests) updatedUser.sentFriendRequests.push(request);
-    for (request of requestBody.receivedFriendRequests) updatedUser.receivedFriendRequests.push(request);
-    users.set(requestBody.username, updatedUser);
-    updatePublicBudgets(requestBody.username);
-    return JSON.stringify(new ResponseData(false, "", {user: updatedUser}));
+    let isGuest = (requestBody.guestBudget) ? (requestBody.guestBudget.budgetOwner) : null;
+    if (isGuest) {
+      let currUsername = requestBody.guestBudget.currUsername;
+      let currUser = users.get(currUsername);
+      if (currUser === null || currUser === undefined) return JSON.stringify(new ResponseData(true, "noUser", {}));
+      let ownerUsername = requestBody.guestBudget.budgetOwner;
+      let owner = users.get(ownerUsername);
+      if (owner === null || owner === undefined) return JSON.stringify(new ResponseData(true, "noFriend", {}));
+      let guestBudget = requestBody.guestBudget.budget;
+      let budgetName = guestBudget.budgetName;
+
+      let checkBudget = verifyBudgetPermissions(currUser, owner, budgetName);
+      if (checkBudget.isError) return checkBudget;
+
+      for (let i = 0; i < owner.budgets.length; i++) {
+        if (owner.budgets[i].budgetName === budgetName) {
+          owner.budgets[i] = guestBudget;
+          users.set(ownerUsername, owner);
+          return JSON.stringify(new ResponseData(false, "", {'budget': guestBudget}));
+        }
+      }
+    }
+    else {
+      let currUsername = requestBody.user.username;
+      if (users.get(currUsername) === null || users.get(currUsername) === undefined) return JSON.stringify(new ResponseData(true, "noUser", {}));
+      const updatedUser = new User(currUsername, requestBody.user.password, null);
+      for (budget of requestBody.user.budgets) updatedUser.budgets.push(budget);
+      for (friend of requestBody.user.friends) updatedUser.friends.push(friend);
+      for (request of requestBody.user.sentFriendRequests) updatedUser.sentFriendRequests.push(request);
+      for (request of requestBody.user.receivedFriendRequests) updatedUser.receivedFriendRequests.push(request);
+      users.set(currUsername, updatedUser);
+      updatePublicBudgets(currUsername);
+      return JSON.stringify(new ResponseData(false, "", {user: updatedUser}));
+    }
   }
   catch {
+    
     return JSON.stringify(new ResponseData(true, "unknownError", {}));
   }
 }
@@ -419,7 +452,6 @@ function sendMessage(requestBody) {
           break;
         }
       }
-      console.log(users);
       return JSON.stringify(new ResponseData(false, "", {}));
     }
   }
@@ -473,6 +505,66 @@ function respondToBudgetRequest(requestBody) {
       }
     }
     return JSON.stringify(new ResponseData(false, "", {}));
+  }
+  catch {
+    return JSON.stringify(new ResponseData(true, "unknownError", {}));
+  }
+}
+
+function verifyBudgetPermissions(currUser, friend, budgetName) {
+    //Verify users are friends
+    let isFriend = false;
+    for (thisFriend of friend.friends) {
+      if (thisFriend.username === currUser.username) {
+        isFriend = true;
+        break;
+      }
+    }
+    if (!isFriend) return JSON.stringify(new ResponseData(true, "notFriend", {}));
+
+    //Verify budget exists
+    let budget = null;
+    for (thisBudget of friend.budgets) {
+      if (thisBudget.budgetName === budgetName) {
+        budget = thisBudget;
+        break;
+      }
+    }
+    if (budget === undefined || budget === null) return JSON.stringify(new ResponseData(true, "noBudget", {}));
+
+    //Verify budget is public
+    if (budget.privacy !== "public") return JSON.stringify(new ResponseData(true, "notPublic", {}));
+
+    //Verify budget is permitted
+    for (thisFriend of currUser.friends) {
+      if (thisFriend.username === friend.username) {
+        let isPermitted = false;
+        for (thisBudgetName of thisFriend.permittedBudgets) {
+          if (thisBudgetName === budgetName) {
+            isPermitted = true;
+            break;
+          }
+        }
+        if (!isPermitted) return JSON.stringify(new ResponseData(true, "notPermitted", {}));
+        break;
+      }
+    }
+
+    //Return the budget data
+    return JSON.stringify(new ResponseData(false, "", budget));
+}
+
+function viewFriendsBudget(requestBody) {
+  try {
+    //Verify users exist
+    let currUsername = requestBody.currUsername;
+    let currUser = users.get(currUsername);
+    if (currUser === null || currUser === undefined) return JSON.stringify(new ResponseData(true, "noUser", {}));
+    let friendUsername = requestBody.friendName;
+    let friend = users.get(friendUsername);
+    if (friend === null || friend === undefined) return JSON.stringify(new ResponseData(true, "noFriend", {}));
+    let budgetName = requestBody.budgetName;
+    return verifyBudgetPermissions(currUser, friend, budgetName);
   }
   catch {
     return JSON.stringify(new ResponseData(true, "unknownError", {}));

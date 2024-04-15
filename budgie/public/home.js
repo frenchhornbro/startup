@@ -141,6 +141,7 @@ function viewBudget(buttonElement) {
     //Change the selected budget to be the one selected, and go to the page with that budget loaded in
     let budgetName = buttonElement.parentElement.parentElement.querySelector(".info-title").textContent;
     localStorage.setItem("currentBudget", budgetName);
+    localStorage.removeItem("guestBudget");
     window.location.href = "projected.html";
 }
 
@@ -168,10 +169,16 @@ async function saveUser(userDataToSave) {
         const response = await fetch('/api/user', {
             method: 'PUT',
             headers: {'content-type': 'application/json'},
-            body: JSON.stringify(userDataToSave)
+            body: JSON.stringify({
+                    'user': userDataToSave,
+                    'guestBudget': null
+                })
         });
         const resObj = await response.json();
-        if (resObj.isError) alert("An error occurred: " + resObj.responseMsg);
+        if (resObj.isError) {
+            if (resObj.responseMsg === "noUser") alert("User does not exist");
+            else alert("An error occurred: " + resObj.responseMsg);
+        }
         else if (userDataToSave.username === currUser.username) {
             localStorage.setItem("user", JSON.stringify(userDataToSave));
             currUser = JSON.parse(localStorage.getItem("user"));
@@ -187,6 +194,7 @@ async function newBudget() {
     //Then unload the budgets and call loadBudgets
 
     budgetName = prompt("Enter new budget name:");
+    if (!budgetName) return;
     try {
         const response = await fetch('/api/budget', {
             method: 'POST',
@@ -550,74 +558,56 @@ function requestAlreadySent(budgetName, friendName) {
     return false;
 }
 
-function viewFriendsBudget(viewButton) {
+async function viewFriendsBudget(viewButton) {
     // If you don't have a friend object for them, display an alert
     let friendName = viewButton.parentElement.parentElement.parentElement.querySelector(".friend-name").textContent;
-    let friend = getFriend(friendName);
-    if (friend === null) {
-        alert(`${friendName} is not listed as one of your friends :(`);
-        return;
-    }
-    
-    // If the budget is not listed in permittedBudgets, display an alert
     let budgetName = viewButton.parentElement.parentElement.querySelector(".budget-name").textContent;
-    if (!isPermitted(friend.username, budgetName)) {
-        alert(`You have not been granted access to ${budgetName}`)
-        return;
-    }
-    
-    // If friend no longer exists, display an alert
-    let friendUserData = null;
-    for (thisUser of users) {
-        if (thisUser.username === friendName) {
-            friendUserData = thisUser;
-            break;
-        }
-    }
-    if (friendUserData === null) {
-        alert(`${friendName} is not an existing user`);
-        return;
-    }
-    
-    // If budget no longer exists, display an alert and remove it from the friend's permittedBudgets
-    let budgetData = null;
-    for (thisBudget of friendUserData.budgets) {
-        if (thisBudget.budgetName === budgetName) {
-            budgetData = thisBudget.budgetName;
-            break;
-        }
-    }
-    if (budgetData === null) {
-        alert(`${budgetName} has been deleted`);
-        removePermissions(friendName, budgetName);
-        return;
-    }
 
-    // If a budget is set to private, display an alert and remove it from the friend's permittedBudgets
-    if (budgetData.privacy === "private") {
-        alert(`${budgetName} has been set as a private budget`);
-        removePermissions(friendName, budgetName);
-        return;
-    }
-
-    // Call that budget as the guestBudget (new localStorage variable)
-    localStorage.setItem("budgetOwner", friendName);
-    localStorage.setItem("currentBudget", budgetName);
-    window.location.href = "projected.html";
-}
-
-function removePermissions(friendName, budgetName) {
-    for (let i = 0; i < currUser.friends.length; i++) {
-        if (currUser.friends[i].username === friendName) {
-            let friend = currUser.friends[i];
-            for (let j = 0; j < friend.permittedBudgets.length; j++) {
-                if (friend.permittedBudgets[i] === budgetName) {
-                    currUser.friends[i].permittedBudgets.slice(j, 1);
+    try {
+        const response = await fetch('/api/view-friend', {
+            method: 'POST',
+            headers: {'content-type': 'application/json'},
+            body: JSON.stringify({
+                'currUsername': currUser.username,
+                'friendName': friendName,
+                'budgetName': budgetName
+            })
+        });
+        const resObj = await response.json();
+        if (resObj.isError) {
+            switch (resObj.responseMsg) {
+                case ("noUser"):
+                    alert("User does not exist");
                     break;
-                }
+                case ("noFriend"):
+                    alert(`${friendName} doesn't exist`);
+                    break;
+                case ("noBudget"):
+                    alert(`${budgetName} doesn't exist (perhaps it was deleted?)`);
+                    break;
+                case ("notPublic"):
+                    alert(`${budgetName} is not marked as public`);
+                    break;
+                case ("notPermitted"):
+                    alert(`You were not given access to ${budgetName}`);
+                    break;
+                case ("notFriend"):
+                    alert(`${friendName} is not your friend`);
+                    break;
+                default:
+                    alert("An error occurred: " + resObj.responseMsg);
             }
-            break;
         }
+        else {
+            let guestBudget = resObj.data;
+            localStorage.setItem("guestBudget", JSON.stringify(guestBudget));
+            localStorage.setItem("budgetOwner", friendName);
+            localStorage.setItem("currentBudget", budgetName);
+            window.location.href = "projected.html";
+        }
+    }
+    catch {
+        console.log("View Friend's Budget Error");
     }
 }
 
