@@ -10,7 +10,7 @@ const port = 4000;
 app.use(express.json());
 
 // Serve up the frontend static content hosting
-app.use(express.static('budgie/public'));
+app.use(express.static('public'));
 
 //Use a cookie parser
 app.use(cookieParser());
@@ -29,9 +29,7 @@ apiRouter.get('/duck', async (req, res) => {
 apiRouter.get('/validAuth', (req, res) => {
   (async() => {
     console.log("Validate Auth called");
-    const authToken = req.cookies['authToken'];
-    const authData = JSON.stringify(await database.getAuthDataFromToken(authToken));
-    const isValid = (authData !== "null" && authData !== null);
+    const isValid = await isValidAuth(req);
     res.send({isValid: isValid});
   })();
 });
@@ -43,7 +41,7 @@ apiRouter.put('/removeAuth', (req, res) => {
 });
 
 // Create User endpoint
-apiRouter.post('/new-user', (req, res) => {
+apiRouter.post('/new-user', async (req, res) => {
   console.log("new-user called");
   let authToken = uuid.v4();
   let newUserPromise = new Promise((resolve) => resolve(newUser(req.body, authToken)));
@@ -85,13 +83,21 @@ apiRouter.post('/login', (req, res) => {
 });
 
 //Get User endpoint
-apiRouter.get('/user/:username', (req, res) => {
+apiRouter.get('/user', (req, res) => {
   (async() => {
   try {
       console.log("Get user called");
-      let currUser = JSON.stringify(await database.getUserData(req.params.username));
-      if (!currUser) res.send();
-      else res.send(JSON.parse(currUser));
+      if (!await isValidAuth(req)) res.send(JSON.parse(JSON.stringify(new ResponseData(true, "badAuth", {}))));
+      else {
+        const authToken = req.cookies['authToken'];
+        const authData = await database.getAuthDataFromToken(authToken);
+        const username = authData.username;
+        const userData = await database.getUserData(username);
+        let currUser = JSON.stringify(new ResponseData(false, "", {userData}));
+        
+        if (!currUser) res.send();
+        else res.send(JSON.parse(currUser));
+      }
     }
     catch {
       res.send();
@@ -103,9 +109,12 @@ apiRouter.get('/user/:username', (req, res) => {
 apiRouter.put('/user', (req, res) => {
   (async() => {
     console.log("Update user called");
-    let response = await updateUser(req.body);
-    if (response === null) res.send();
-    else res.send(JSON.parse(response));
+    if (!await isValidAuth(req)) res.send(JSON.parse(JSON.stringify(new ResponseData(true, "badAuth", {}))));
+    else {
+      let response = await updateUser(req.body);
+      if (response === null) res.send();
+      else res.send(JSON.parse(response));
+    }
   })();
 });
 
@@ -113,9 +122,12 @@ apiRouter.put('/user', (req, res) => {
 apiRouter.post('/friend-request', (req, res) => {
   (async() => {
     console.log("friend-request called");
-    let response = await friendRequest(req.body);
-    if (response === null) res.send();
-    else res.send(JSON.parse(response));
+    if (!await isValidAuth(req)) res.send(JSON.parse(JSON.stringify(new ResponseData(true, "badAuth", {}))));
+    else {
+      let response = await friendRequest(req.body);
+      if (response === null) res.send();
+      else res.send(JSON.parse(response));
+    }
   })();
 });
 
@@ -123,9 +135,12 @@ apiRouter.post('/friend-request', (req, res) => {
 apiRouter.post('/friend-request-response', (req, res) => {
   (async() => {
     console.log("friend-request-response called");
-    let response = await respondToFriendRequest(req.body);
-    if (response === null) res.send();
-    res.send(JSON.parse(response));
+    if (!await isValidAuth(req)) res.send(JSON.parse(JSON.stringify(new ResponseData(true, "badAuth", {}))));
+    else {
+      let response = await respondToFriendRequest(req.body);
+      if (response === null) res.send();
+      res.send(JSON.parse(response));
+    }
   })();
 });
 
@@ -133,27 +148,25 @@ apiRouter.post('/friend-request-response', (req, res) => {
 apiRouter.post('/budget', (req, res) => {
   (async() => {
     console.log("New budget called");
-    let response = await newBudget(req.body);
-    if (response === null) res.send();
-    res.send(JSON.parse(response));
+    if (!await isValidAuth(req)) res.send(JSON.parse(JSON.stringify(new ResponseData(true, "badAuth", {}))));
+    else {
+      let response = await newBudget(req.body);
+      if (response === null) res.send();
+      res.send(JSON.parse(response));
+    }
   })();
-});
-
-//Edit Budget Data endpoint
-apiRouter.patch('/budget-data', (req, res) => {
-  console.log("Edit Budget Data called");
-  let response = editBudgetData(req.body);
-  if (response === null) res.send();
-  res.send(JSON.parse(response));
 });
 
 //Send Message endpoint
 apiRouter.post('/message', (req, res) => {
   (async() => {
     console.log("Message called");
-    let response = await sendMessage(req.body);
-    if (response === null) res.send();
-    res.send(JSON.parse(response));
+    if (!await isValidAuth(req)) res.send(JSON.parse(JSON.stringify(new ResponseData(true, "badAuth", {}))));
+    else {
+      let response = await sendMessage(req.body);
+      if (response === null) res.send();
+      res.send(JSON.parse(response));
+    }
   })();
 });
 
@@ -161,9 +174,12 @@ apiRouter.post('/message', (req, res) => {
 apiRouter.post('/budget-response', (req, res) => {
   (async() => {
     console.log("Budget Response called");
-    let response = await respondToBudgetRequest(req.body);
-    if (response === null) res.send();
-    res.send(JSON.parse(response));
+    if (!await isValidAuth(req)) res.send(JSON.parse(JSON.stringify(new ResponseData(true, "badAuth", {}))));
+    else {
+      let response = await respondToBudgetRequest(req.body);
+      if (response === null) res.send();
+      res.send(JSON.parse(response));
+    }
   })();
 });
 
@@ -171,15 +187,18 @@ apiRouter.post('/budget-response', (req, res) => {
 apiRouter.post('/view-friend', (req, res) => {
   (async() => {
     console.log("View Friend called");
-    let response = await viewFriendsBudget(req.body);
-    if (response === null) res.send();
-    res.send(JSON.parse(response));
+    if (!await isValidAuth(req)) res.send(JSON.parse(JSON.stringify(new ResponseData(true, "badAuth", {}))));
+    else {
+      let response = await viewFriendsBudget(req.body);
+      if (response === null) res.send();
+      res.send(JSON.parse(response));
+    }
   })();
 });
 
 // Return the application's default page if the path is unknown
 app.use((_req, res) => {
-  res.sendFile('index.html', { root: 'budgie/public' });
+  res.sendFile('index.html', { root: 'public' });
 });
 
 app.listen(port, () => {
@@ -187,6 +206,13 @@ app.listen(port, () => {
 });
 
 //---------------------------------------------------------------------------------
+
+async function isValidAuth(req) {
+  const authToken = req.cookies['authToken'];
+  const authData = JSON.stringify(await database.getAuthDataFromToken(authToken));
+  const isValid = (authData !== "null" && authData !== null);
+  return isValid;
+}
 
 async function newUser(requestBody, authToken) {
   let username = requestBody.username;
@@ -219,7 +245,7 @@ async function login(requestBody, authToken) {
 
 async function updatePublicBudgets(username) {
   let userData = await database.getUserData(username);
-  if (userData === null || userData === undefined) return;
+  if (!userData || userData === 'null') return;
   let publicBudgets = [];
   for (thisBudget of userData.budgets) {
     if (thisBudget.privacy === "public") publicBudgets.push(thisBudget.budgetName);
@@ -295,10 +321,10 @@ async function friendRequest(requestBody) {
   try {
     let requestorName = requestBody.currUsername;
     let requestor = await database.getUserData(requestorName);
-    if (requestor === null || requestor === undefined) return JSON.stringify(new ResponseData(true, "noUser", {}));
+    if (!requestor || requestor === 'null') return JSON.stringify(new ResponseData(true, "noUser", {}));
     let friendUsername = requestBody.friendName;
     let friendUser = await database.getUserData(friendUsername);
-    if (friendUser === null || friendUser === undefined) return JSON.stringify(new ResponseData(true, "noUser", {}));
+    if (!friendUser || friendUser === 'null') return JSON.stringify(new ResponseData(true, "noUser", {}));
     if (requestorName === friendUsername) return JSON.stringify(new ResponseData(true, "self", {}));
     for (friend of requestor.friends) {
       if (friend.username === friendUsername) return JSON.stringify(new ResponseData(true, "alreadyFriends", {}));
@@ -325,10 +351,10 @@ async function respondToFriendRequest(requestBody) {
     //Verify both users exist
     const currUsername = requestBody.currUser;
     let currUser = await database.getUserData(currUsername);
-    if (currUser === null || currUser === undefined) return JSON.stringify(new ResponseData(true, "noUser", {user: currUser}));
+    if (!currUser || currUser === 'null') return JSON.stringify(new ResponseData(true, "noUser", {user: currUser}));
     const requestorName = requestBody.requestor;
     let requestor = await database.getUserData(requestorName);
-    if (requestor === null || requestor === undefined) return JSON.stringify(new ResponseData(true, "noFriend", {user: currUser}));
+    if (!requestor || requestor === 'null') return JSON.stringify(new ResponseData(true, "noFriend", {user: currUser}));
 
     //Verify they aren't already friends
     for (friend of currUser.friends) {
@@ -406,7 +432,7 @@ async function newBudget(requestBody) {
   try {
     let username = requestBody.username;
     let user = await database.getUserData(username);
-    if (user === null || user === undefined) return JSON.stringify(new ResponseData(true, "noUser", {}));
+    if (!user || user === 'null') return JSON.stringify(new ResponseData(true, "noUser", {}));
     let budgetName = requestBody.newBudgetName;
     for (thisBudget of user.budgets) {
       if (thisBudget.budgetName === budgetName) {
@@ -432,7 +458,7 @@ async function budgetAlreadyRequested(budgetName, friendName, currUsername) {
       break;
     }
   }
-  if (friendObj === null || friendObj === undefined) return true;
+  if (!friendObj || friendObj === 'null') return true;
   for (message of friendObj.messages) {
     if (message !== null && message.params.length > 1 && message.params[1] === budgetName && message.tag === "request") return true;
   }
@@ -442,7 +468,7 @@ async function budgetAlreadyRequested(budgetName, friendName, currUsername) {
 async function sendMessage(requestBody) {
   try {
     let budgetRequest = requestBody.budgetRequest;
-    if (budgetRequest !== null && budgetRequest !== undefined) {
+    if (!budgetRequest || budgetRequest === 'null') {
       //Send a budget request
       let currUsername = budgetRequest.currUsername;
       let friendUsername = budgetRequest.friendUsername;
@@ -476,9 +502,9 @@ async function sendMessage(requestBody) {
       let friendUsername = messageData.friendName;
       let body = messageData.body;
       let currUser = await database.getUserData(currUsername);
-      if (currUser === null || currUser == undefined) return JSON.stringify(false, "noUser", {});
+      if (!currUser || currUser === 'null') return JSON.stringify(false, "noUser", {});
       let friend = await database.getUserData(friendUsername);
-      if (friend === null || friend == undefined) return JSON.stringify(false, "noFriend", {});
+      if (!friend || friend === 'null') return JSON.stringify(false, "noFriend", {});
       
       //Save the message in both inboxes
       let message = new Message(currUsername, body);
@@ -508,10 +534,10 @@ async function respondToBudgetRequest(requestBody) {
   try {
     let currUsername = requestBody.currUsername;
     let currUser = await database.getUserData(currUsername);
-    if (currUser === null || currUser === undefined) return JSON.stringify(new ResponseData(true, "noUser", {}));
+    if (!currUser || currUser === 'null') return JSON.stringify(new ResponseData(true, "noUser", {}));
     let friendUsername = requestBody.friendName;
     let friend = await database.getUserData(friendUsername);
-    if (friend === null || friend === undefined) return JSON.stringify(new ResponseData(true, "noFriend", {}));
+    if (!friend || friend === 'null') return JSON.stringify(new ResponseData(true, "noFriend", {}));
     let budgetName = requestBody.budgetName;
     let isPermitted = requestBody.isPermitted;
 
@@ -572,7 +598,7 @@ function verifyBudgetPermissions(currUser, friend, budgetName) {
         break;
       }
     }
-    if (budget === undefined || budget === null) return JSON.stringify(new ResponseData(true, "noBudget", {}));
+    if (!budget || budget === 'null') return JSON.stringify(new ResponseData(true, "noBudget", {}));
 
     //Verify budget is public
     if (budget.privacy !== "public") return JSON.stringify(new ResponseData(true, "notPublic", {}));
@@ -601,10 +627,10 @@ async function viewFriendsBudget(requestBody) {
     //Verify users exist
     let currUsername = requestBody.currUsername;
     let currUser = await database.getUserData(currUsername);
-    if (currUser === null || currUser === undefined) return JSON.stringify(new ResponseData(true, "noUser", {}));
+    if (!currUser || currUser === 'null') return JSON.stringify(new ResponseData(true, "noUser", {}));
     let friendUsername = requestBody.friendName;
     let friend = await database.getUserData(friendUsername);
-    if (friend === null || friend === undefined) return JSON.stringify(new ResponseData(true, "noFriend", {}));
+    if (!friend || friend === 'null') return JSON.stringify(new ResponseData(true, "noFriend", {}));
     let budgetName = requestBody.budgetName;
     return verifyBudgetPermissions(currUser, friend, budgetName);
   }

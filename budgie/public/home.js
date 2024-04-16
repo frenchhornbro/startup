@@ -17,10 +17,16 @@ async function load() {
 }
 
 async function updateCurrUser() {
-    let user = await fetch(`/api/user/${currUser.username}`);
+    let user = await fetch(`/api/user`);
     let userObj = await user.json();
-    localStorage.setItem("user", JSON.stringify(userObj));
-    currUser = JSON.parse(localStorage.getItem("user"));
+    if (userObj.isError) {
+        if (userObj.responseMsg === "badAuth") alert("Authentication token has expired");
+        else alert(`An error has occurred: ${resObj.responseMsg}`);
+    }
+    else {
+        localStorage.setItem("user", JSON.stringify(userObj.data.userData));
+        currUser = JSON.parse(localStorage.getItem("user"));
+    }
 }
 
 function unload() {
@@ -174,6 +180,7 @@ async function saveUser(userDataToSave) {
         const resObj = await response.json();
         if (resObj.isError) {
             if (resObj.responseMsg === "noUser") alert("User does not exist");
+            else if (resObj.responseMsg === "badAuth") alert("Authentication token has expired");
             else alert("An error occurred: " + resObj.responseMsg);
         }
         else if (userDataToSave.username === currUser.username) {
@@ -204,6 +211,7 @@ async function newBudget() {
         const resObj = await response.json();
         if (resObj.isError) {
             if (resObj.responseMsg === "dupeBudget") alert("That budget name is already in use");
+            else if (resObj.responseMsg === "badAuth") alert("Authentication token has expired");
             else alert("An error occurred: " + resObj.responseMsg);
         }
         else {
@@ -287,6 +295,9 @@ async function addFriend() {
                 case ("self"):
                     alert("You can't friend yourself");
                     break;
+                case ("badAuth"):
+                    alert("Authentication token has expired");
+                    break;
                 default:
                     alert("An error occurred: " + resObj.responseMsg);
             }
@@ -336,6 +347,9 @@ async function respondToFriendRequest(friendName, accepted) {
                     break;
                 case "notSent":
                     alert("Friend request was never sent");
+                    break;
+                case "badAuth":
+                    alert("Authentication token has expired");
                     break;
                 default:
                     alert("An error occurred: " + resObj.responseMsg);
@@ -519,6 +533,7 @@ async function requestFriendsBudget(requestButton) {
         const resObj = await response.json();
         if (resObj.isError) {
             if (resObj.responseMsg === "alreadyRequested") alert("Budget has already been requested");
+            else if (resObj.responseMsg === "badAuth") alert("Authentication token has expired");
             else alert("An error occurred: " + resObj.responseMsg);
         }
         else {
@@ -575,6 +590,9 @@ async function viewFriendsBudget(viewButton) {
                 case ("notFriend"):
                     alert(`${friendName} is not your friend`);
                     break;
+                case ("badAuth"):
+                    alert("Authentication token has expired");
+                    break;
                 default:
                     alert("An error occurred: " + resObj.responseMsg);
             }
@@ -612,6 +630,7 @@ async function sendMessage() {
         if (resObj.isError) {
             if (resObj.responseMsg === "noUser") alert("User does not exist");
             else if (resObj.responseMsg === "noFriend") alert(`${activeMessage} doesn't exist`);
+            else if (resObj.responseMsg === "badAuth") alert("Authentication token has expired");
             else alert("An error occurred: " + resObj.responseMsg);
         }
         else {
@@ -736,6 +755,7 @@ async function givePermission(friendName, budgetName, permitted) {
         if (resObj.isError) {
             if (resObj.responseMsg === "noUser") alert("User does not exist");
             else if (resObj.responseMsg === "noFriend") alert(`${activeMessage} doesn't exist`);
+            else if (resObj.responseMsg === "badAuth") alert("Authentication token has expired");
             else alert("An error occurred: " + resObj.responseMsg);
         }
         else {

@@ -239,6 +239,7 @@ async function updateUser() {
         if (resObj.isError) {
             if (resObj.responseMsg === "noFriend") alert(`${localStorage.getItem("budgetOwner")} doesn't exist`);
             else if (resObj.responseMsg === "noUser") alert("User doesn't exist");
+            else if (resObj.responseMsg === "badAuth") alert("Authentication token has expired");
             else {
                 alert("An error occurred: " + resObj.responseMsg);
                 setBudgetData();
