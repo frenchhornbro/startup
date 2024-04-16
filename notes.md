@@ -53,6 +53,8 @@ Collection: A large array of JavaScript objects, each with a unique ID
 `db.house.find({ $or: [(beds: { $lt: 3 }), (price: { $lt: 1000 })] });`
 // find houses with either less than three beds or less than $1000 a night
 
+Can also use `.findOne` to just get one each time
+
 To use MongoDB in an application, use `npm install mongodb`
 
 More ways to affect the output:
@@ -64,6 +66,8 @@ const option = {
 };
 collection.find(query, options);
 ```
+
+For inserting into the database, can use `.insertMany` or `.insertOne`
 
 Atlas will be our managed service. Allows us to not actually physically install MongoDB on our development server.
 
@@ -215,6 +219,43 @@ You cannot call await unless it is called at the top level of your JS, or in an 
 
 `await` will wrap a call to the async function, block execution until the promise has resolved, and then returns the result of the promise.
 Essentially it will take all the code after it and put it in a giant `then` box.
+
+## Cookies
+Cookies can be set and read fully from the backend without any frontend indication.
+
+Use `npm install cookie-parser`
+
+In your code, do the following:
+
+```
+const cookieParser = require('cookie-parser');
+const ap = express();
+
+app.use(cookieParser())'
+```
+
+To set a cookie:
+```
+const apiRouter = express.Router();
+app.use('/api', apiRouter);
+
+apiRouter.post('/setCookie', (req, res) => {
+  res.cookie('myField', 'myValue', {
+    secure: true,
+    httpOnly: true,
+    sameSite: 'strict',
+    expires: new Date(Date.now() + 900000)
+  })
+  res.send();
+});
+```
+
+To get a cookie:
+```
+apiRouter.post('/getCookie', (req, res) => {
+  const userCookie = req.cookies['myField'];
+});
+```
 
 ## Loops
 `for in` iterates over an object's property names (gives the index number for arrays, the key for maps)
