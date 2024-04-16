@@ -106,33 +106,3 @@ function storeData(newUser) {
     localStorage.setItem("currentUser", newUser.username);
     localStorage.setItem("currentBudget", newUser.budgets[0].budgetName);
 }
-
-// function genBotFriend() {
-//     //Generate a placeholder bot friend
-//     let users = JSON.parse(localStorage.getItem("users"));
-//     for (user of users) {
-//         if (user.username === "Bot Friend") return;
-//     }
-//     users.push(new Bot());
-//     localStorage.setItem("users", JSON.stringify(users));
-// }
-
-// class Bot {
-//     constructor() {
-//         this.username = "Bot Friend";
-//         this.password = "my very secret password";
-//         let botBudget = {
-//             budgetName: "Bot Friend's Budget",
-//             privacy: "public",
-//             initial: 123.45,
-//             pIncome: [["Work", 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250]],
-//             pExpenses: [["Groceries", 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100],["Taxes", 0, 0, 0, 200, 0, 0, 0, 0, 0, 0, 0, 0]],
-//             aIncome: [["Work", 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200]],
-//             aExpenses: [["Groceries", 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120],["Taxes", 0, 0, 0, -50.15, 0, 0, 0, 0, 0, 0, 0, 0,]]
-//         }
-//         this.budgets = [botBudget];
-//         this.friends = [];
-//         this.sentFriendRequests = [];
-//         this.receivedFriendRequests = [];
-//     }
-// }

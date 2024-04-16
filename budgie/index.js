@@ -57,14 +57,6 @@ apiRouter.put('/user', (req, res) => {
   else res.send(JSON.parse(response));
 });
 
-//User Exists endpoint
-apiRouter.post('/user-exists', (req, res) => {
-  console.log("user-exists called");
-  let response = userExists(req.body);
-  if (response === null) res.send();
-  res.send(JSON.parse(response));
-});
-
 //Send Friend Request endpoint
 apiRouter.post('/friend-request', (req, res) => {
   console.log("friend-request called");
@@ -132,7 +124,6 @@ app.listen(port, () => {
 
 //---------------------------------------------------------------------------------
 
-//NOTE: Brackets must be placed around the JSON.stringify of a response value if it is not an object (such as an array)
 let users = new Map();
 
 function newUser(requestBody) {
@@ -238,17 +229,6 @@ function updateUser(requestBody) {
   }
   catch {
     
-    return JSON.stringify(new ResponseData(true, "unknownError", {}));
-  }
-}
-
-function userExists(requestBody) {
-  try {
-    const username = requestBody.username;
-    if (users.get(username) === null || users.get(username) === undefined) return JSON.stringify(new ResponseData(false, "", {exists: false}));
-    else return JSON.stringify(new ResponseData(false, "", {exists: true}));
-  }
-  catch {
     return JSON.stringify(new ResponseData(true, "unknownError", {}));
   }
 }
