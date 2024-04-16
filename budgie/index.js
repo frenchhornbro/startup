@@ -149,10 +149,12 @@ apiRouter.patch('/budget-data', (req, res) => {
 
 //Send Message endpoint
 apiRouter.post('/message', (req, res) => {
-  console.log("Message called");
-  let response = sendMessage(req.body);
-  if (response === null) res.send();
-  res.send(JSON.parse(response));
+  (async() => {
+    console.log("Message called");
+    let response = await sendMessage(req.body);
+    if (response === null) res.send();
+    res.send(JSON.parse(response));
+  })();
 });
 
 //Budget Response endpoint
@@ -419,8 +421,8 @@ async function newBudget(requestBody) {
   }
 }
 
-function budgetAlreadyRequested(budgetName, friendName, currUsername) {
-  let currUser = users.get(currUsername);
+async function budgetAlreadyRequested(budgetName, friendName, currUsername) {
+  let currUser = await database.getUserData(currUsername);
   let friendObj = null;
   for (thisFriend of currUser.friends) {
     if (thisFriend.username === friendName) {
@@ -435,7 +437,7 @@ function budgetAlreadyRequested(budgetName, friendName, currUsername) {
   return false;
 }
 
-function sendMessage(requestBody) {
+async function sendMessage(requestBody) {
   try {
     let budgetRequest = requestBody.budgetRequest;
     if (budgetRequest !== null && budgetRequest !== undefined) {
@@ -443,23 +445,23 @@ function sendMessage(requestBody) {
       let currUsername = budgetRequest.currUsername;
       let friendUsername = budgetRequest.friendUsername;
       let budgetName = budgetRequest.budgetName;
-      if (budgetAlreadyRequested(budgetName, friendUsername, currUsername)) return JSON.stringify(new ResponseData(true, "alreadyRequested", {}));
+      if (await budgetAlreadyRequested(budgetName, friendUsername, currUsername)) return JSON.stringify(new ResponseData(true, "alreadyRequested", {}));
 
       //Create a message object and add it to messages in both friend objects
       let requestMessage = new Message(currUsername, "", "request", [friendUsername, budgetName]);
-      let currUser = users.get(currUsername);
+      let currUser = await database.getUserData(currUsername);
       for (let i = 0; i < currUser.friends.length; i++) {
         if (currUser.friends[i].username === friendUsername) {
           currUser.friends[i].messages.push(requestMessage);
-          users.set(currUsername, currUser);
+          await database.updateUserData(currUsername, currUser);
           break;
         }
       }
-      let friend = users.get(friendUsername);
+      let friend = await database.getUserData(friendUsername);
       for (let i = 0; i < friend.friends.length; i++) {
         if (friend.friends[i].username === currUsername) {
           friend.friends[i].messages.push(requestMessage);
-          users.set(friendUsername, friend);
+          await database.updateUserData(friendUsername, friend);
           break;
         }
       }
@@ -471,9 +473,9 @@ function sendMessage(requestBody) {
       let currUsername = messageData.currUsername;
       let friendUsername = messageData.friendName;
       let body = messageData.body;
-      let currUser = users.get(currUsername);
+      let currUser = await database.getUserData(currUsername);
       if (currUser === null || currUser == undefined) return JSON.stringify(false, "noUser", {});
-      let friend = users.get(friendUsername);
+      let friend = await database.getUserData(friendUsername);
       if (friend === null || friend == undefined) return JSON.stringify(false, "noFriend", {});
       
       //Save the message in both inboxes
@@ -481,14 +483,14 @@ function sendMessage(requestBody) {
       for (let i = 0; i < currUser.friends.length; i++) {
         if (currUser.friends[i].username === friendUsername) {
           currUser.friends[i].messages.push(message);
-          users.set(currUsername, currUser);
+          await database.updateUserData(currUsername, currUser);
           break;
         }
       }
       for (let i = 0; i < friend.friends.length; i++) {
         if (friend.friends[i].username === currUsername) {
           friend.friends[i].messages.push(message);
-          users.set(friendUsername, friend);
+          await database.updateUserData(friendUsername, friend);
           break;
         }
       }
