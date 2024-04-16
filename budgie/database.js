@@ -6,10 +6,17 @@ const client = new MongoClient(url);
 const db = client.db('budgie');
 const users = client.db('users');
 
-(async function testConnection() {
-    await client.connect();
-    await db.command({ping: 1});
-})().catch((exception) => {
-    console.log(`Connection failed: ${exception.message}`)
-    process.exit(1);
-});
+async function testConnection() {
+    try {
+        await client.connect();
+        await db.command({ping: 1});
+        const result = await db.collection("testCollection").insertOne({"test": "tacos"});
+        console.log("Success");
+    }
+    catch(exception) {
+        console.log(`Connection failed: ${exception.message}`)
+        process.exit(1);
+    }
+}
+
+testConnection();
