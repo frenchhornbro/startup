@@ -43,7 +43,6 @@ async function createNewUser() {
             if (pwdWarningShowing) hideWarning("pwdWarning");
             if (confWarningShowing) hideWarning("confWarning");
             storeData(resObj.data.user);
-            // genBotFriend();
             window.location.href = "home.html";
         }
     }

@@ -102,10 +102,12 @@ apiRouter.get('/user/:username', (req, res) => {
 
 //Update User endpoint (For editing current user)
 apiRouter.put('/user', (req, res) => {
-  console.log("Update user called");
-  let response = updateUser(req.body);
-  if (response === null) res.send();
-  else res.send(JSON.parse(response));
+  (async() => {
+    console.log("Update user called");
+    let response = await updateUser(req.body);
+    if (response === null) res.send();
+    else res.send(JSON.parse(response));
+  })();
 });
 
 //Send Friend Request endpoint
@@ -206,8 +208,8 @@ async function login(requestBody, authToken) {
   return JSON.stringify(new ResponseData(false, "", {user: user}));
 }
 
-function updatePublicBudgets(username) {
-  let userData = users.get(username);
+async function updatePublicBudgets(username) {
+  let userData = await database.getUserData(username);
   if (userData === null || userData === undefined) return;
   let publicBudgets = [];
   for (thisBudget of userData.budgets) {
@@ -215,7 +217,7 @@ function updatePublicBudgets(username) {
   }
   for (thisFriend of userData.friends) {
     let friendName = thisFriend.username;
-    let friendData = users.get(friendName);
+    let friendData = await database.getUserData(friendName);
     for (let i = 0; i < friendData.friends.length; i++) {
       if (friendData.friends[i].username === username) {
         let permittedBudgets = [];
@@ -230,23 +232,23 @@ function updatePublicBudgets(username) {
         let messages = friendData.friends[i].messages;
         friendData.friends.splice(i, 1);
         friendData.friends.push(new Friend(username, publicBudgets, permittedBudgets, messages));
-        users.set(friendName, friendData);
+        await database.updateUserData(friendName, friendData);
         break;
       }
     }
   }
 }
 
-function updateUser(requestBody) {
+async function updateUser(requestBody) {
   try {
     let isGuest = (requestBody.guestBudget) ? (requestBody.guestBudget.budgetOwner) : null;
     if (isGuest) {
       let currUsername = requestBody.guestBudget.currUsername;
-      let currUser = users.get(currUsername);
-      if (currUser === null || currUser === undefined) return JSON.stringify(new ResponseData(true, "noUser", {}));
+      let currUser = await database.getUserData(currUsername);
+      if (currUser === null || currUser === 'null') return JSON.stringify(new ResponseData(true, "noUser", {}));
       let ownerUsername = requestBody.guestBudget.budgetOwner;
-      let owner = users.get(ownerUsername);
-      if (owner === null || owner === undefined) return JSON.stringify(new ResponseData(true, "noFriend", {}));
+      let owner = await database.getUserData(ownerUsername);
+      if (owner === null || owner === 'null') return JSON.stringify(new ResponseData(true, "noFriend", {}));
       let guestBudget = requestBody.guestBudget.budget;
       let budgetName = guestBudget.budgetName;
 
@@ -256,26 +258,26 @@ function updateUser(requestBody) {
       for (let i = 0; i < owner.budgets.length; i++) {
         if (owner.budgets[i].budgetName === budgetName) {
           owner.budgets[i] = guestBudget;
-          users.set(ownerUsername, owner);
+          await database.updateUserData(ownerUsername, owner);
           return JSON.stringify(new ResponseData(false, "", {'budget': guestBudget}));
         }
       }
     }
     else {
       let currUsername = requestBody.user.username;
-      if (users.get(currUsername) === null || users.get(currUsername) === undefined) return JSON.stringify(new ResponseData(true, "noUser", {}));
-      const updatedUser = new User(currUsername, requestBody.user.password, null);
+      let currUser = await database.getUserData(currUsername);
+      if (currUser === null || currUser === "null") return JSON.stringify(new ResponseData(true, "noUser", {}));
+      const updatedUser = new User(currUsername, null);
       for (budget of requestBody.user.budgets) updatedUser.budgets.push(budget);
       for (friend of requestBody.user.friends) updatedUser.friends.push(friend);
       for (request of requestBody.user.sentFriendRequests) updatedUser.sentFriendRequests.push(request);
       for (request of requestBody.user.receivedFriendRequests) updatedUser.receivedFriendRequests.push(request);
-      users.set(currUsername, updatedUser);
-      updatePublicBudgets(currUsername);
+      await database.updateUserData(currUsername, updatedUser);
+      await updatePublicBudgets(currUsername);
       return JSON.stringify(new ResponseData(false, "", {user: updatedUser}));
     }
   }
   catch {
-    
     return JSON.stringify(new ResponseData(true, "unknownError", {}));
   }
 }
