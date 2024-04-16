@@ -159,10 +159,12 @@ apiRouter.post('/message', (req, res) => {
 
 //Budget Response endpoint
 apiRouter.post('/budget-response', (req, res) => {
-  console.log("Budget Response called");
-  let response = respondToBudgetRequest(req.body);
-  if (response === null) res.send();
-  res.send(JSON.parse(response));
+  (async() => {
+    console.log("Budget Response called");
+    let response = await respondToBudgetRequest(req.body);
+    if (response === null) res.send();
+    res.send(JSON.parse(response));
+  })();
 });
 
 //View Friend's Budget endpoint
@@ -502,13 +504,13 @@ async function sendMessage(requestBody) {
   }
 }
 
-function respondToBudgetRequest(requestBody) {
+async function respondToBudgetRequest(requestBody) {
   try {
     let currUsername = requestBody.currUsername;
-    let currUser = users.get(currUsername);
+    let currUser = await database.getUserData(currUsername);
     if (currUser === null || currUser === undefined) return JSON.stringify(new ResponseData(true, "noUser", {}));
     let friendUsername = requestBody.friendName;
-    let friend = users.get(friendUsername);
+    let friend = await database.getUserData(friendUsername);
     if (friend === null || friend === undefined) return JSON.stringify(new ResponseData(true, "noFriend", {}));
     let budgetName = requestBody.budgetName;
     let isPermitted = requestBody.isPermitted;
@@ -521,7 +523,7 @@ function respondToBudgetRequest(requestBody) {
           currUser.friends[i].messages[j].params[0] === currUsername && currUser.friends[i].messages[j].params[1] === budgetName) {
             currUser.friends[i].messages[j].origin = currUsername;
             currUser.friends[i].messages[j].tag = (isPermitted) ? "permission" : "rejection";
-            users.set(currUsername, currUser);
+            await database.updateUserData(currUsername, currUser);
             break;
           }
         }
@@ -533,14 +535,12 @@ function respondToBudgetRequest(requestBody) {
         for (let j = 0; j < friend.friends[i].messages.length; j++) {
           if (friend.friends[i].messages[j].origin === friendUsername && friend.friends[i].messages[j].tag === "request" &&
           friend.friends[i].messages[j].params[0] === currUsername && friend.friends[i].messages[j].params[1] === budgetName) {
-            currUser.friends[i].messages[j].origin = currUsername;
+            friend.friends[i].messages[j].origin = currUsername;
             friend.friends[i].messages[j].tag = (isPermitted) ? "permission" : "rejection";
+            //Add to the friend's permittedBudgets
+            if (isPermitted) friend.friends[i].permittedBudgets.push(budgetName);
+            await database.updateUserData(friendUsername, friend);
             break;
-          }
-          //Add to the friend's permittedBudgets
-          if (isPermitted) {
-            friend.friends[i].permittedBudgets.push(budgetName);
-            users.set(friendUsername, friend);
           }
         }
         break;
