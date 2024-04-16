@@ -21,7 +21,7 @@ async function testConnection() {
     }
 }
 
-async function getAuthData(authToken) {
+async function getAuthDataFromToken(authToken) {
     //Will return null if nothing matches the query
     return await authDataCol.findOne({authToken: authToken});
 }
@@ -30,13 +30,17 @@ async function getAuthDataFromUsername(username) {
     return await authDataCol.findOne({username: username});
 }
 
-async function createUserData(username, password, authToken, userData) {
+async function createAuthData(username, password, authToken) {
     await authDataCol.insertOne({
         username: username,
         password: password,
         authToken: authToken
     });
+}
+
+async function createUserData(username, userData) {
     await userDataCol.insertOne({
+        username: username,
         user: userData
     });
 }
@@ -45,14 +49,22 @@ async function updateUserData() {
 
 }
 
-async function getUserData() {
-
+async function getUserData(username) {
+    try {
+        let userData = await userDataCol.findOne({username: username});
+        return userData.user;
+    }
+    catch {
+        return null;
+    }
 }
 
 
 
 module.exports = {
-    getAuthData,
+    getAuthDataFromToken,
     getAuthDataFromUsername,
-    createUserData
+    createAuthData,
+    createUserData,
+    getUserData
 }

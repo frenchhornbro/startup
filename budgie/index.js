@@ -27,11 +27,13 @@ apiRouter.get('/duck', async (req, res) => {
 });
 
 apiRouter.get('/validAuth', (req, res) => {
-  console.log("Validate Auth called");
-  const authToken = req.cookies['authToken'];
-  const authData = database.getAuthData(authToken);
-  const isValid = (authData === null);
-  res.send({isValid: isValid});
+  (async() => {
+    console.log("Validate Auth called");
+    const authToken = req.cookies['authToken'];
+    const authData = JSON.stringify(await database.getAuthDataFromToken(authToken));
+    const isValid = (authData !== "null" && authData !== null);
+    res.send({isValid: isValid});
+  })();
 });
 
 apiRouter.put('/removeAuth', (req, res) => {
@@ -44,10 +46,9 @@ apiRouter.put('/removeAuth', (req, res) => {
 apiRouter.post('/new-user', (req, res) => {
   console.log("new-user called");
   let authToken = uuid.v4();
-  let newUserPromise = new Promise((resolve, reject) => resolve(newUser(req.body, authToken)));
+  let newUserPromise = new Promise((resolve) => resolve(newUser(req.body, authToken)));
   newUserPromise
     .then((response) => {
-      console.log("Response: " + response);
       if (response === null) res.send();
       else if (JSON.parse(response).isError) res.send(JSON.parse(response));
       else {
@@ -55,7 +56,7 @@ apiRouter.post('/new-user', (req, res) => {
           secure: true,
           httpOnly: true,
           sameSite: 'strict',
-          expires: new Date(Date.now() + 20000)//TODO: Set this to be longer
+          expires: new Date(Date.now() + 1200000)
         })
         res.send(JSON.parse(response));
       }
@@ -65,19 +66,18 @@ apiRouter.post('/new-user', (req, res) => {
 //Login endpoint
 apiRouter.post('/login', (req, res) => {
   console.log("login called");
-  let loginPromise = new Promise((resolve, reject) => resolve(login(req.body)));
+  let authToken = uuid.v4();
+  let loginPromise = new Promise((resolve) => resolve(login(req.body, authToken)));
   loginPromise
     .then((response) => {
       if (response === null) res.send();
       else if (JSON.parse(response).isError) res.send(JSON.parse(response));
       else {
-        //TODO: Store in DB
-        let authToken = uuid.v4();
         res.cookie('authToken', authToken, {
           secure: true,
           httpOnly: true,
           sameSite: 'strict',
-          expires: new Date(Date.now() + 20000)//TODO: Set this to be longer
+          expires: new Date(Date.now() + 1200000)
         })
         res.send(JSON.parse(response));
       }
@@ -89,11 +89,15 @@ apiRouter.get('/user/:username', (req, res) => {
   console.log("Get user called");
   let currUser;
   try {
-    currUser = JSON.stringify(users.get(req.params.username));
+    (async() => {
+      currUser = JSON.stringify(await database.getUserData(req.params.username));
+      if (!currUser) res.send();
+      else res.send(JSON.parse(currUser));
+    })();
   }
-  catch {res.send();}
-  if (!currUser) res.send();
-  res.send(JSON.parse(currUser));
+  catch {
+    res.send();
+  }
 });
 
 //Update User endpoint (For editing current user)
@@ -179,30 +183,27 @@ async function newUser(requestBody, authToken) {
   let password = requestBody.password;
   let confirm = requestBody.confirm;
   let dupeUser = await database.getAuthDataFromUsername(username);
-  console.log(dupeUser);
   if (dupeUser) return JSON.stringify(new ResponseData(true, "dupeUser", {}));
   if (password.length < 7) return JSON.stringify(new ResponseData(true, "shortPwd", {}));
   if (password != confirm) return JSON.stringify(new ResponseData(true, "badConf", {}));
 
   let budgetName = username + '\'s budget';
-  let user = new User(username, password, budgetName)
-  users.set(username, user); //TODO: Remove
-  database.createUserData(username, password, authToken, user);
+  let user = new User(username, budgetName)
+  await database.createAuthData(username, password, authToken);
+  await database.createUserData(username, user);
   return JSON.stringify(new ResponseData(false, "", {user: user}));
 }
 
-function login(requestBody) {
+async function login(requestBody, authToken) {
   let username = requestBody.username;
   let password = requestBody.password;
-  let user = users.get(username);
-  if (user === null || user === undefined) return JSON.stringify(new ResponseData(true, "noUser", {}));
-  if (user.password !== password) return JSON.stringify(new ResponseData(true, "badPwd", {}));
+  let credentials = await database.getAuthDataFromUsername(username);
+  if (!credentials) return JSON.stringify(new ResponseData(true, "noUser", {}));
+  if (credentials.password != password) return JSON.stringify(new ResponseData(true, "badPwd", {}));
+  await database.createAuthData(username, password, authToken);
+  let user = await database.getUserData(username);
 
-  let authToken = uuid.v4();
-  return JSON.stringify(new ResponseData(false, "", {
-    user: user,
-    authToken: authToken
-  }));
+  return JSON.stringify(new ResponseData(false, "", {user: user}));
 }
 
 function updatePublicBudgets(username) {
@@ -604,9 +605,8 @@ function viewFriendsBudget(requestBody) {
 }
 
 class User {
-  constructor(user, pwd, budgetName) {
+  constructor(user, budgetName) {
       this.username = user;
-      this.password = pwd;
       let budget = {
         budgetName: budgetName,
         privacy: "private",
