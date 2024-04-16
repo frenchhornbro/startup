@@ -14,6 +14,12 @@ app.use(express.static('budgie\\public'));
 const apiRouter = express.Router();
 app.use(`/api`, apiRouter);
 
+//Duck endpoint
+apiRouter.get('/duck', async (req, res) => {
+  let duck = await fetch("https://random-d.uk/api/quack");
+  let resObj = await duck.json();
+  res.send(JSON.parse(JSON.stringify({'duck': resObj.url})));
+});
 
 // Create User endpoint
 apiRouter.post('/new-user', (req, res) => {
