@@ -1,4 +1,5 @@
 const uuid = require('uuid');
+const bcrypt = require('bcrypt');
 const express = require('express');
 const app = express();
 const cookieParser = require('cookie-parser');
@@ -225,8 +226,9 @@ async function newUser(requestBody, authToken) {
   if (password != confirm) return JSON.stringify(new ResponseData(true, "badConf", {}));
 
   let budgetName = username + '\'s budget';
-  let user = new User(username, budgetName)
-  await database.createAuthData(username, password, authToken);
+  let user = new User(username, budgetName);
+  const passwordHash = await bcrypt.hash(password, 10);
+  await database.createAuthData(username, passwordHash, authToken);
   await database.createUserData(username, user);
   return JSON.stringify(new ResponseData(false, "", {user: user}));
 }
@@ -236,7 +238,7 @@ async function login(requestBody, authToken) {
   let password = requestBody.password;
   let credentials = await database.getAuthDataFromUsername(username);
   if (!credentials) return JSON.stringify(new ResponseData(true, "noUser", {}));
-  if (credentials.password != password) return JSON.stringify(new ResponseData(true, "badPwd", {}));
+  if (!await bcrypt.compare(password, credentials.password)) return JSON.stringify(new ResponseData(true, "badPwd", {}));
   await database.createAuthData(username, password, authToken);
   let user = await database.getUserData(username);
 
