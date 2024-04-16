@@ -18,15 +18,12 @@ function loadLogout() {
 async function loadImage() {
     try {
         const imgElement = document.querySelector(".bird-img");
-        if (Math.random()*10 > 1) {
-            console.log("3rd Party API:")
+        if (Math.random()*10 > 5) {
             const duck = await fetch('/api/duck');
             const duckImg = await duck.json();
-            console.log(duckImg);
             imgElement.setAttribute('src', duckImg.duck);
         }
         else {
-            console.log("Budgie")
             imgElement.setAttribute('src', "\\budgie-images\\about-budgie.jpg");
         }
     }

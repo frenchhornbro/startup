@@ -1,5 +1,3 @@
-// TODO: Randomize the player names, and delete them after some time
-
 const btnDescriptions = [
   { file: 'sound1.mp3', hue: 120 },
   { file: 'sound2.mp3', hue: 0 },

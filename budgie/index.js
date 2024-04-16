@@ -2,13 +2,13 @@ const uuid = require('uuid');
 const express = require('express');
 const app = express();
 
-const port = 3000;
+const port = 4000;
 
 // JSON body parsing using built-in middleware
 app.use(express.json());
 
 // Serve up the frontend static content hosting
-app.use(express.static('budgie\\public'));
+app.use(express.static('public'));
 
 // Router for service endpoints
 const apiRouter = express.Router();
@@ -115,7 +115,7 @@ apiRouter.post('/view-friend', (req, res) => {
 
 // Return the application's default page if the path is unknown
 app.use((_req, res) => {
-  res.sendFile('index.html', { root: 'budgie\\public' });
+  res.sendFile('index.html', { root: 'public' });
 });
 
 app.listen(port, () => {
