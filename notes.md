@@ -497,6 +497,10 @@ To hide the headers and footers when the screen is too short:
 > ```./deployFiles.sh -k "C:\Users\htdur\.ssh\cs-260-aws\Startup - BYU CS260.pem" -h myfinancialbudgie.click -s simon```
 >
 > ```./deployFiles.sh -k "C:\Users\htdur\.ssh\cs-260-aws\Startup - BYU CS260.pem" -h myfinancialbudgie.click -s startup```
+>
+> ```./deployService.sh -k "C:\Users\htdur\.ssh\cs-260-aws\Startup - BYU CS260.pem" -h myfinancialbudgie.click -s simon```
+>
+> ```./deployService.sh -k "C:\Users\htdur\.ssh\cs-260-aws\Startup - BYU CS260.pem" -h myfinancialbudgie.click -s startup```
 
 # HTML notes:
 ## HTML Structure:
