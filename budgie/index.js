@@ -27,9 +27,16 @@ apiRouter.get('/duck', async (req, res) => {
 
 apiRouter.get('/validAuth', (req, res) => {
   //TODO: Check in DB
+  console.log("Validate Auth called");
   const authToken = req.cookies['authToken'];
   const isValid = (authToken) ? true : false;
   res.send({isValid: isValid});
+});
+
+apiRouter.put('/removeAuth', (req, res) => {
+  console.log("Remove Auth called");
+  res.clearCookie('authToken');
+  res.send();
 });
 
 // Create User endpoint

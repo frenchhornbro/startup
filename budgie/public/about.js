@@ -33,6 +33,9 @@ async function loadImage() {
     }
 }
 
-function logout() {
+async function logout() {
+    await fetch('/api/removeAuth', {
+        method: 'PUT'
+    });
     window.location.href = "index.html";
 }

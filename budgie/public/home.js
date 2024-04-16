@@ -8,10 +8,7 @@ let activeMessage = null;
 localStorage.removeItem("budgetOwner");
 let currUser = JSON.parse(localStorage.getItem("user"));
 
-// callPlaceholdersMsgs();
-
 async function load() {
-    // genPlaceholderFriend();
     unload();
     await updateCurrUser();
     loadBudgets();
@@ -750,7 +747,10 @@ async function givePermission(friendName, budgetName, permitted) {
     }
 }
 
-function logout() {
+async function logout() {
+    await fetch('/api/removeAuth', {
+        method: 'PUT'
+    });
     window.location.href = "index.html";
 }
 
