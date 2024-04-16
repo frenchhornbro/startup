@@ -2,6 +2,7 @@ const uuid = require('uuid');
 const express = require('express');
 const app = express();
 const cookieParser = require('cookie-parser');
+const database = require('./database.js');
 
 const port = 4000;
 
@@ -26,10 +27,10 @@ apiRouter.get('/duck', async (req, res) => {
 });
 
 apiRouter.get('/validAuth', (req, res) => {
-  //TODO: Check in DB
   console.log("Validate Auth called");
   const authToken = req.cookies['authToken'];
-  const isValid = (authToken) ? true : false;
+  const authData = database.getAuthData(authToken);
+  const isValid = (authData === null);
   res.send({isValid: isValid});
 });
 

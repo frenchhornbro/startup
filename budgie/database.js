@@ -24,7 +24,7 @@ async function testConnection() {
 async function getAuthData(authToken) {
     //Will return null if nothing matches the query
     const result = await authData.findOne({authToken: authToken});
-    console.log(result);
+    return result;
 }
 
 async function createUserData(username, password, authToken, userData) {
