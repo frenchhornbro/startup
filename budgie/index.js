@@ -121,7 +121,7 @@ apiRouter.post('/friend-request', (req, res) => {
 
 //Respond to Friend Request endpoint
 apiRouter.post('/friend-request-response', (req, res) => {
-  (async () => {
+  (async() => {
     console.log("friend-request-response called");
     let response = await respondToFriendRequest(req.body);
     if (response === null) res.send();
@@ -131,10 +131,12 @@ apiRouter.post('/friend-request-response', (req, res) => {
 
 //New Budget endpoint
 apiRouter.post('/budget', (req, res) => {
-  console.log("New budget called");
-  let response = newBudget(req.body);
-  if (response === null) res.send();
-  res.send(JSON.parse(response));
+  (async() => {
+    console.log("New budget called");
+    let response = await newBudget(req.body);
+    if (response === null) res.send();
+    res.send(JSON.parse(response));
+  })();
 });
 
 //Edit Budget Data endpoint
@@ -396,10 +398,10 @@ async function respondToFriendRequest(requestBody) {
   }
 }
 
-function newBudget(requestBody) {
+async function newBudget(requestBody) {
   try {
     let username = requestBody.username;
-    let user = users.get(username);
+    let user = await database.getUserData(username);
     if (user === null || user === undefined) return JSON.stringify(new ResponseData(true, "noUser", {}));
     let budgetName = requestBody.newBudgetName;
     for (thisBudget of user.budgets) {
@@ -409,7 +411,7 @@ function newBudget(requestBody) {
     }
     let newBudget = {budgetName: budgetName, privacy: "private", initial: 0, pIncome: [], pExpenses: [], aIncome: [], aExpenses: []};
     user.budgets.push(newBudget);
-    users.set(username, user);
+    await database.updateUserData(username, user);
     return JSON.stringify(new ResponseData(false, "", user));
   }
   catch {
