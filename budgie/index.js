@@ -1,6 +1,7 @@
 const uuid = require('uuid');
 const express = require('express');
 const app = express();
+const cookieParser = require('cookie-parser');
 
 const port = 4000;
 
@@ -8,7 +9,10 @@ const port = 4000;
 app.use(express.json());
 
 // Serve up the frontend static content hosting
-app.use(express.static('public'));
+app.use(express.static('budgie/public'));
+
+//Use a cookie parser
+app.use(cookieParser());
 
 // Router for service endpoints
 const apiRouter = express.Router();
@@ -21,12 +25,30 @@ apiRouter.get('/duck', async (req, res) => {
   res.send(JSON.parse(JSON.stringify({'duck': resObj.url})));
 });
 
+apiRouter.get('/validAuth', (req, res) => {
+  //TODO: Check in DB
+  const authToken = req.cookies['authToken'];
+  const isValid = (authToken) ? true : false;
+  res.send({isValid: isValid});
+});
+
 // Create User endpoint
 apiRouter.post('/new-user', (req, res) => {
   console.log("new-user called");
   let response = newUser(req.body);
   if (response === null) res.send();
-  else res.send(JSON.parse(response));
+  else if (JSON.parse(response).isError) res.send(JSON.parse(response));
+  else {
+    //TODO: Store in DB
+    let authToken = uuid.v4();
+    res.cookie('authToken', authToken, {
+      secure: true,
+      httpOnly: true,
+      sameSite: 'strict',
+      expires: new Date(Date.now() + 20000)//TODO: Set this to be longer
+    })
+    res.send(JSON.parse(response));
+  }
 });
 
 //Login endpoint
@@ -34,7 +56,18 @@ apiRouter.post('/login', (req, res) => {
   console.log("login called");
   let response = login(req.body);
   if (response === null) res.send();
-  else res.send(JSON.parse(response));
+  else if (JSON.parse(response).isError) res.send(JSON.parse(response));
+  else {
+    //TODO: Store in DB
+    let authToken = uuid.v4();
+    res.cookie('authToken', authToken, {
+      secure: true,
+      httpOnly: true,
+      sameSite: 'strict',
+      expires: new Date(Date.now() + 20000)//TODO: Set this to be longer
+    })
+    res.send(JSON.parse(response));
+  }
 });
 
 //Get User endpoint
@@ -115,7 +148,7 @@ apiRouter.post('/view-friend', (req, res) => {
 
 // Return the application's default page if the path is unknown
 app.use((_req, res) => {
-  res.sendFile('index.html', { root: 'public' });
+  res.sendFile('index.html', { root: 'budgie/public' });
 });
 
 app.listen(port, () => {
@@ -137,12 +170,8 @@ function newUser(requestBody) {
 
   let budgetName = username + '\'s budget';
   let user = new User(username, password, budgetName)
-  let authToken = uuid.v4();
   users.set(username, user);
-  return JSON.stringify(new ResponseData(false, "", {
-    user: user,
-    authToken: authToken
-  }));
+  return JSON.stringify(new ResponseData(false, "", {user: user}));
 }
 
 function login(requestBody) {

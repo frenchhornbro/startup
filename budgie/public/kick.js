@@ -1,1 +1,13 @@
-if (localStorage.getItem("currentUser") === null) window.location.href = "index.html";
+async function validateAuth() {
+    try {
+        let response = await fetch("/api/validAuth");
+        let resObj = await response.json();
+        if (!resObj.isValid) window.location.href = "index.html";
+    }
+    catch (exception) {
+        console.log(exception);
+        window.location.href = "index.html";
+    }
+}
+
+validateAuth();
