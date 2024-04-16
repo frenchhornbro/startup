@@ -45,8 +45,11 @@ async function createUserData(username, userData) {
     });
 }
 
-async function updateUserData() {
-
+async function updateUserData(username, newUserData) {
+    await userDataCol.updateOne(
+        {username: username},
+        {$set: {user: newUserData}}
+    );
 }
 
 async function getUserData(username) {
@@ -66,5 +69,6 @@ module.exports = {
     getAuthDataFromUsername,
     createAuthData,
     createUserData,
+    updateUserData,
     getUserData
 }

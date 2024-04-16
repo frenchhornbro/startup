@@ -86,18 +86,17 @@ apiRouter.post('/login', (req, res) => {
 
 //Get User endpoint
 apiRouter.get('/user/:username', (req, res) => {
-  console.log("Get user called");
-  let currUser;
+  (async() => {
   try {
-    (async() => {
-      currUser = JSON.stringify(await database.getUserData(req.params.username));
+      console.log("Get user called");
+      let currUser = JSON.stringify(await database.getUserData(req.params.username));
       if (!currUser) res.send();
       else res.send(JSON.parse(currUser));
-    })();
-  }
-  catch {
-    res.send();
-  }
+    }
+    catch {
+      res.send();
+    }
+  })();
 });
 
 //Update User endpoint (For editing current user)
@@ -112,18 +111,22 @@ apiRouter.put('/user', (req, res) => {
 
 //Send Friend Request endpoint
 apiRouter.post('/friend-request', (req, res) => {
-  console.log("friend-request called");
-  let response = friendRequest(req.body);
-  if (response === null) res.send();
-  res.send(JSON.parse(response));
+  (async() => {
+    console.log("friend-request called");
+    let response = await friendRequest(req.body);
+    if (response === null) res.send();
+    else res.send(JSON.parse(response));
+  })();
 });
 
 //Respond to Friend Request endpoint
 apiRouter.post('/friend-request-response', (req, res) => {
-  console.log("friend-request-response called");
-  let response = respondToFriendRequest(req.body);
-  if (response === null) res.send();
-  res.send(JSON.parse(response));
+  (async () => {
+    console.log("friend-request-response called");
+    let response = await respondToFriendRequest(req.body);
+    if (response === null) res.send();
+    res.send(JSON.parse(response));
+  })();
 });
 
 //New Budget endpoint
@@ -282,13 +285,13 @@ async function updateUser(requestBody) {
   }
 }
 
-function friendRequest(requestBody) {
+async function friendRequest(requestBody) {
   try {
     let requestorName = requestBody.currUsername;
-    let requestor = users.get(requestorName);
+    let requestor = await database.getUserData(requestorName);
     if (requestor === null || requestor === undefined) return JSON.stringify(new ResponseData(true, "noUser", {}));
     let friendUsername = requestBody.friendName;
-    let friendUser = users.get(friendUsername);
+    let friendUser = await database.getUserData(friendUsername);
     if (friendUser === null || friendUser === undefined) return JSON.stringify(new ResponseData(true, "noUser", {}));
     if (requestorName === friendUsername) return JSON.stringify(new ResponseData(true, "self", {}));
     for (friend of requestor.friends) {
@@ -301,9 +304,9 @@ function friendRequest(requestBody) {
       if (friendReq.username === friendUsername) return JSON.stringify(new ResponseData(true, "alreadyRequested", {}));
     }
     requestor.sentFriendRequests.push(new FriendRequest(friendUsername));
-    users.set(requestorName, requestor);
+    await database.updateUserData(requestorName, requestor);
     friendUser.receivedFriendRequests.push(new FriendRequest(requestorName));
-    users.set(friendUsername, friendUser);
+    await database.updateUserData(friendUsername, friendUser);
     return JSON.stringify(new ResponseData(false, "", {}));
   }
   catch {
@@ -311,14 +314,14 @@ function friendRequest(requestBody) {
   }
 }
 
-function respondToFriendRequest(requestBody) {
+async function respondToFriendRequest(requestBody) {
   try {
     //Verify both users exist
-    const currUserName = requestBody.currUser;
-    const currUser = users.get(currUserName);
+    const currUsername = requestBody.currUser;
+    let currUser = await database.getUserData(currUsername);
     if (currUser === null || currUser === undefined) return JSON.stringify(new ResponseData(true, "noUser", {user: currUser}));
     const requestorName = requestBody.requestor;
-    const requestor = users.get(requestorName);
+    let requestor = await database.getUserData(requestorName);
     if (requestor === null || requestor === undefined) return JSON.stringify(new ResponseData(true, "noFriend", {user: currUser}));
 
     //Verify they aren't already friends
@@ -326,7 +329,7 @@ function respondToFriendRequest(requestBody) {
       if (friend.username == requestorName) return JSON.stringify(new ResponseData(true, "alreadyFriend", {user: currUser}));
     }
     for (friend of requestor.friends) {
-      if (friend.username == currUserName) return JSON.stringify(new ResponseData(true, "alreadyFriend", {user: currUser}));
+      if (friend.username == currUsername) return JSON.stringify(new ResponseData(true, "alreadyFriend", {user: currUser}));
     }
 
     //Verify the request happened
@@ -343,7 +346,7 @@ function respondToFriendRequest(requestBody) {
     }
     requestHappened = false;
     for (request of requestor.sentFriendRequests) {
-      if (request.username === currUserName) {
+      if (request.username === currUsername) {
         requestHappened = true;
         break;
       }
@@ -360,12 +363,12 @@ function respondToFriendRequest(requestBody) {
     if (requestBody.accept) {
       let currUserPublicBudgets = []
       for (budget of currUser.budgets) if (budget.privacy === "public") currUserPublicBudgets.push(budget.budgetName);
-      requestor.friends.push(new Friend(currUserName, currUserPublicBudgets, [], []));
-      users.set(requestorName, requestor);
+      requestor.friends.push(new Friend(currUsername, currUserPublicBudgets, [], []));
+      await database.updateUserData(requestorName, requestor);
       let requestorPublicBudgets = []
       for (budget of requestor.budgets) if (budget.privacy === "public") requestorPublicBudgets.push(budget.budgetName);
       currUser.friends.push(new Friend(requestorName, requestorPublicBudgets, [], []));
-      users.set(currUserName, currUser);
+      await database.updateUserData(currUsername, currUser);
     }
     return JSON.stringify(new ResponseData(false, "", {user: currUser}));
 
@@ -381,7 +384,7 @@ function respondToFriendRequest(requestBody) {
 
       //Remove any sent friend requests that were never received
       for (let i = 0; i < requestor.sentFriendRequests.length; i++) {
-        if (requestor.sentFriendRequests[i].username === currUserName) {
+        if (requestor.sentFriendRequests[i].username === currUsername) {
           requestor.sentFriendRequests.splice(i, 1);
           break;
         }
