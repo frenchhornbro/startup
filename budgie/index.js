@@ -43,39 +43,45 @@ apiRouter.put('/removeAuth', (req, res) => {
 // Create User endpoint
 apiRouter.post('/new-user', (req, res) => {
   console.log("new-user called");
-  let response = newUser(req.body);
-  if (response === null) res.send();
-  else if (JSON.parse(response).isError) res.send(JSON.parse(response));
-  else {
-    //TODO: Store in DB
-    let authToken = uuid.v4();
-    res.cookie('authToken', authToken, {
-      secure: true,
-      httpOnly: true,
-      sameSite: 'strict',
-      expires: new Date(Date.now() + 20000)//TODO: Set this to be longer
-    })
-    res.send(JSON.parse(response));
-  }
+  let authToken = uuid.v4();
+  let newUserPromise = new Promise((resolve, reject) => resolve(newUser(req.body, authToken)));
+  newUserPromise
+    .then((response) => {
+      console.log("Response: " + response);
+      if (response === null) res.send();
+      else if (JSON.parse(response).isError) res.send(JSON.parse(response));
+      else {
+        res.cookie('authToken', authToken, {
+          secure: true,
+          httpOnly: true,
+          sameSite: 'strict',
+          expires: new Date(Date.now() + 20000)//TODO: Set this to be longer
+        })
+        res.send(JSON.parse(response));
+      }
+    });
 });
 
 //Login endpoint
 apiRouter.post('/login', (req, res) => {
   console.log("login called");
-  let response = login(req.body);
-  if (response === null) res.send();
-  else if (JSON.parse(response).isError) res.send(JSON.parse(response));
-  else {
-    //TODO: Store in DB
-    let authToken = uuid.v4();
-    res.cookie('authToken', authToken, {
-      secure: true,
-      httpOnly: true,
-      sameSite: 'strict',
-      expires: new Date(Date.now() + 20000)//TODO: Set this to be longer
-    })
-    res.send(JSON.parse(response));
-  }
+  let loginPromise = new Promise((resolve, reject) => resolve(login(req.body)));
+  loginPromise
+    .then((response) => {
+      if (response === null) res.send();
+      else if (JSON.parse(response).isError) res.send(JSON.parse(response));
+      else {
+        //TODO: Store in DB
+        let authToken = uuid.v4();
+        res.cookie('authToken', authToken, {
+          secure: true,
+          httpOnly: true,
+          sameSite: 'strict',
+          expires: new Date(Date.now() + 20000)//TODO: Set this to be longer
+        })
+        res.send(JSON.parse(response));
+      }
+    });
 });
 
 //Get User endpoint
@@ -167,18 +173,21 @@ app.listen(port, () => {
 
 let users = new Map();
 
-function newUser(requestBody) {
+async function newUser(requestBody, authToken) {
   let username = requestBody.username;
   if (username === "" || username === null) return null;
   let password = requestBody.password;
   let confirm = requestBody.confirm;
-  if (users.get(username) !== null && users.get(username) !== undefined) return JSON.stringify(new ResponseData(true, "dupeUser", {}));
+  let dupeUser = await database.getAuthDataFromUsername(username);
+  console.log(dupeUser);
+  if (dupeUser) return JSON.stringify(new ResponseData(true, "dupeUser", {}));
   if (password.length < 7) return JSON.stringify(new ResponseData(true, "shortPwd", {}));
   if (password != confirm) return JSON.stringify(new ResponseData(true, "badConf", {}));
 
   let budgetName = username + '\'s budget';
   let user = new User(username, password, budgetName)
-  users.set(username, user);
+  users.set(username, user); //TODO: Remove
+  database.createUserData(username, password, authToken, user);
   return JSON.stringify(new ResponseData(false, "", {user: user}));
 }
 
