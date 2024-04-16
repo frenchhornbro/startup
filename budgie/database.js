@@ -1,5 +1,4 @@
 //Feature: Upon getting authData, delete any expired authData associated with that username
-//Feature: Hash passwords using bCrypt
 const {MongoClient} = require('mongodb');
 const config = require('./dbConfig.json');
 

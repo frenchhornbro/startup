@@ -69,6 +69,8 @@ collection.find(query, options);
 
 For inserting into the database, can use `.insertMany` or `.insertOne`
 
+For updating an already-created resource, can use `updateMany` or `updateOne`
+
 Atlas will be our managed service. Allows us to not actually physically install MongoDB on our development server.
 
 Setting up Atlas: https://www.youtube.com/watch?v=daIH4o75KE8&ab_channel=LeeJensen
@@ -256,6 +258,12 @@ apiRouter.post('/getCookie', (req, res) => {
   const userCookie = req.cookies['myField'];
 });
 ```
+
+To remove a cookie:
+
+`res.clearCookie('myField');`
+
+When an authToken expires, it will be read as `undefined`.
 
 ## Loops
 `for in` iterates over an object's property names (gives the index number for arrays, the key for maps)

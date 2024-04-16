@@ -74,3 +74,10 @@ Here's how the technology will be used:
 - **3rd party service endpoints** - Frontend calls backend (calling this API straight from the frontend yields a CORS error), which calls https://random-d.uk/api/quack and passes back a random duck image
 - **Backend provides service endpoints** - In index.js, the following endpoints are implemented: Duck, New User, Login, Get User, Update User Send Friend Request, Respond to Friend Request, New Budget, Edit Budget Data, Send Message, Budget Response, and View Friend's Budget. All data submitted to the user is stored in a Map called `users` as a placeholder for MongoDB.
 - **Frontend calls backend's service endpoints** - Login page calls the Login endpoint. New User page calls the New User endpoint. Home page calls the Get User, Update User, Edit Budget Data, Send Friend Request, Respond to Friend Friend Request, Send Message, View Friend's Budget, and Budget Response endpoints. Projected and Actual pages call the Update User endpoint. About page calls the Duck endpoint. All frontend calls to endpoints are done using `fetch`.
+
+## Login Deliverable
+- **New User Registration** - Can register a new user with username and password. Upon registration an auth token is set as a cookie in the user's browser. Cannot register with a username that has already been taken.
+- **Existing User Authentication** - Can login with existing username and password. Also receives an auth token.
+- **Application Data Stored in MongoDB** - UserData (budgets, friends, friend requests, budget requests, messages) stored and updated in MongoDB.
+- **Credentials Stored and Retrieved in MongoDB** - AuthData (username, password, authToken) stored in MongoDB and queried to verify inputted credentials / auth tokens. Passwords are hashed before storage using Bcrypt.
+- **Application Functionality Restricted Based on Authentication** - Kick script prevents you from accessing Home, Projected, or Actual pages without a valid auth token. All data-accessing endpoints that do not create an auth token return an error for an invalid auth token. Logging out removes the auth token in the browser.
