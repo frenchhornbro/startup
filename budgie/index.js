@@ -169,10 +169,12 @@ apiRouter.post('/budget-response', (req, res) => {
 
 //View Friend's Budget endpoint
 apiRouter.post('/view-friend', (req, res) => {
-  console.log("View Friend called");
-  let response = viewFriendsBudget(req.body);
-  if (response === null) res.send();
-  res.send(JSON.parse(response));
+  (async() => {
+    console.log("View Friend called");
+    let response = await viewFriendsBudget(req.body);
+    if (response === null) res.send();
+    res.send(JSON.parse(response));
+  })();
 });
 
 // Return the application's default page if the path is unknown
@@ -185,8 +187,6 @@ app.listen(port, () => {
 });
 
 //---------------------------------------------------------------------------------
-
-let users = new Map();
 
 async function newUser(requestBody, authToken) {
   let username = requestBody.username;
@@ -596,14 +596,14 @@ function verifyBudgetPermissions(currUser, friend, budgetName) {
     return JSON.stringify(new ResponseData(false, "", budget));
 }
 
-function viewFriendsBudget(requestBody) {
+async function viewFriendsBudget(requestBody) {
   try {
     //Verify users exist
     let currUsername = requestBody.currUsername;
-    let currUser = users.get(currUsername);
+    let currUser = await database.getUserData(currUsername);
     if (currUser === null || currUser === undefined) return JSON.stringify(new ResponseData(true, "noUser", {}));
     let friendUsername = requestBody.friendName;
-    let friend = users.get(friendUsername);
+    let friend = await database.getUserData(friendUsername);
     if (friend === null || friend === undefined) return JSON.stringify(new ResponseData(true, "noFriend", {}));
     let budgetName = requestBody.budgetName;
     return verifyBudgetPermissions(currUser, friend, budgetName);
