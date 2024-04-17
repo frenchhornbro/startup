@@ -11,7 +11,7 @@ let currUser = JSON.parse(localStorage.getItem("user"));
 let unreadMsgs = new Map();
 
 //Set up WebSocket to communicate with WebSocketServer
-let ws = new WebSocket(`ws://${window.location.host}`);
+let ws = new WebSocket(`wss://${window.location.host}`);
 ws.onmessage = (event) => {
     try {
         const msg = JSON.parse(event.data);

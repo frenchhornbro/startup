@@ -81,3 +81,9 @@ Here's how the technology will be used:
 - **Application Data Stored in MongoDB** - UserData (budgets, friends, friend requests, budget requests, messages) stored and updated in MongoDB.
 - **Credentials Stored and Retrieved in MongoDB** - AuthData (username, password, authToken) stored in MongoDB and queried to verify inputted credentials / auth tokens. Passwords are hashed before storage using Bcrypt.
 - **Application Functionality Restricted Based on Authentication** - Kick script prevents you from accessing Home, Projected, or Actual pages without a valid auth token. All data-accessing endpoints that do not create an auth token return an error for an invalid auth token. Logging out removes the auth token in the browser.
+
+## WebSocket Deliverable
+- **Backend listens for WebSocket connection** - Yep (in websocket.js)
+- **Frontend makes WebSocket connection** - Yep (all in home.js)
+- **Data sent over WebSocket connection** - Yep
+- **WebSocket data displayed in the application interface** - Sending and accepting friend requests, sending and accepting / rejecting budget requests, and sending messages are all displayed in realtime.
