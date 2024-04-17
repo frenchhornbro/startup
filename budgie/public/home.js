@@ -32,7 +32,7 @@ ws.onmessage = (event) => {
                         loadMessages();
                         //TODO: Set user as bold (maybe a parameter that can be set as true or false while loading?)
                     }
-                    else if (tag === "friendRequest") {
+                    else if (tag === "request") {
                         await updateCurrUser();
                         unloadFriends();
                         loadFriends();
@@ -350,7 +350,7 @@ async function addFriend() {
         else {
             alert("Friend request sent");
             load();
-            ws.send(JSON.stringify(new WSMessage("friendRequest", currUser.username, friendUsername)));
+            ws.send(JSON.stringify(new WSMessage("request", currUser.username, friendUsername)));
         }
     }
     catch {
@@ -403,7 +403,7 @@ async function respondToFriendRequest(friendName, accepted) {
         }
         else if (accepted) alert(`Friend added: ${friendName}`);
         load();
-        if (accepted) ws.send(JSON.stringify(new WSMessage("friendRequest", currUser.username, friendName)));
+        if (accepted) ws.send(JSON.stringify(new WSMessage("request", currUser.username, friendName)));
     }
     catch {
         console.log("Accept Friend Error");
