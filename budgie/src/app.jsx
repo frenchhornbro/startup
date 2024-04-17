@@ -3,6 +3,7 @@ import {BrowserRouter, NavLink, Route, Routes} from 'react-router-dom';
 import {Header} from './header';
 import {Login} from './login/login';
 import {NewUser} from './new-user/new-user';
+import {Budget} from './budget/budget';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './app.css';
 
@@ -20,7 +21,7 @@ function App() {
     return (
       <div>
         <Header />
-        <NewUser />
+        <Budget />
         <Footer />
       </div>
     );

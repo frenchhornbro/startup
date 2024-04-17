@@ -19,6 +19,7 @@ if (budget === null) window.location.href = "home.html";
 
 let budgetData = null;
 setBudgetData();
+load();
 
 function setBudgetData() {
     if (localStorage.getItem("guestBudget") !== null) budgetData = JSON.parse(localStorage.getItem("guestBudget"));
