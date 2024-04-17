@@ -402,12 +402,15 @@ async function respondToFriendRequest(requestBody) {
       let currUserPublicBudgets = []
       for (budget of currUser.budgets) if (budget.privacy === "public") currUserPublicBudgets.push(budget.budgetName);
       requestor.friends.push(new Friend(currUsername, currUserPublicBudgets, [], []));
-      await database.updateUserData(requestorName, requestor);
       let requestorPublicBudgets = []
       for (budget of requestor.budgets) if (budget.privacy === "public") requestorPublicBudgets.push(budget.budgetName);
       currUser.friends.push(new Friend(requestorName, requestorPublicBudgets, [], []));
-      await database.updateUserData(currUsername, currUser);
     }
+    
+    //Update User Data
+    await database.updateUserData(requestorName, requestor);
+    await database.updateUserData(currUsername, currUser);
+    
     return JSON.stringify(new ResponseData(false, "", {user: currUser}));
 
 
