@@ -4,6 +4,7 @@ const express = require('express');
 const app = express();
 const cookieParser = require('cookie-parser');
 const database = require('./database.js');
+const wss = require('./websocket.js');
 
 const port = 4000;
 
@@ -202,9 +203,12 @@ app.use((_req, res) => {
   res.sendFile('index.html', { root: 'public' });
 });
 
-app.listen(port, () => {
+const httpServer = app.listen(port, () => {
   console.log(`Listening on port ${port}`);
 });
+
+// Setup WebSocket server
+wss.setupWS(httpServer);
 
 //---------------------------------------------------------------------------------
 
