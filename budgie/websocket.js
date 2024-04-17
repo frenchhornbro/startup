@@ -49,15 +49,19 @@ function setupWS(httpServer) {
     }
 
     setInterval(() => {
-        for (thisSession of sessions) {
-            if (!thisSession.active) {
-                thisSession.ws.terminate();
-                sessions.delete(thisSession.sessionID);
-            }
-            else thisSession.ws.ping();
-
+        for (const thisSession of sessions) {
+            (async() => {
+                if (!thisSession[1].active) {
+                    await thisSession[1].ws.terminate();
+                    sessions.delete(thisSession.sessionID);
+                }
+                else {
+                    thisSession[1].active = false;
+                    thisSession[1].ws.ping();
+                }
+            })();
         }
-    }, 30000);
+    }, 15000);
 }
 
 module.exports = {setupWS};
