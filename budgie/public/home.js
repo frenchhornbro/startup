@@ -584,8 +584,8 @@ async function requestFriendsBudget(requestButton) {
             else alert("An error occurred: " + resObj.responseMsg);
         }
         else {
-            //TODO: Send WS Message
             load();
+            ws.send(JSON.stringify(new WSMessage("message", currUser.username, friendName)));
         }
     }
     catch {
@@ -693,7 +693,7 @@ async function sendMessage() {
 }
 
 function openMessage(msgButton) {
-    //TODO: Clear bold
+    //TODO: Clear bold (but never set it if activeMessage is that user)
     activeMessage = msgButton.parentElement.parentElement.querySelector(".info-title").textContent;
     load();
 }
@@ -810,6 +810,7 @@ async function givePermission(friendName, budgetName, permitted) {
         }
         else {
             load();
+            ws.send(JSON.stringify(new WSMessage("request", currUser.username, friendName)));
         }
     }
     catch {
