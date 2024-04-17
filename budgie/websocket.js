@@ -20,7 +20,7 @@ function setupWS(httpServer) {
             active: true,
             ws: ws
         }
-        sessions.set(sessionId, newSession);
+        sessions.set(sessionID, newSession);
         ws.on('message', (data) => {
             const msg = String.fromCharCode(...data);
             console.log(`Server received message: ${msg}`);
@@ -30,13 +30,20 @@ function setupWS(httpServer) {
     });
     
     function broadcast(msg, sessions, origin) {
-        for (session of sessions) {
-            if (session.id === origin.id) {
-                session.ws.send(`You sent the message: ${msg}`);
+        try {
+            for (thisSession of sessions) {
+                const aSession = thisSession;
+                console.log(aSession[1]);
+                if (thisSession[1].id === origin.id) {
+                    thisSession[1].ws.send(msg);
+                }
+                else {
+                    thisSession[1].ws.send(msg);
+                }
             }
-            else {
-                session.ws.send(`Here's the message received: ${msg}.`);
-            }
+        }
+        catch (exception) {
+            console.log(exception);
         }
     }
 

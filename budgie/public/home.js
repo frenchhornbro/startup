@@ -8,6 +8,39 @@ let activeMessage = null;
 localStorage.removeItem("budgetOwner");
 let currUser = JSON.parse(localStorage.getItem("user"));
 
+//Set up WebSocket to communicate with WebSocketServer
+let ws = new WebSocket(`ws://${window.location.host}`);
+ws.onopen = (event) => {
+    console.log("OPENED");
+};
+ws.onclose = (event) => {
+    console.log("CLOSED");
+};
+ws.onmessage = (event) => {
+    try {
+        console.log(event.data);
+        const msg = JSON.parse(event.data);
+        const tag = msg.tag;
+        const origin = msg.origin;
+        const destination = msg.destination;
+        if (destination === currUser.username) {
+            (async () => {
+                try {
+                    //TODO: Set this for just messages (not friend requests)
+                    await updateCurrUser();
+                    unloadMessages();
+                    loadMessages();
+                    //TODO: Set user as bold (maybe a parameter that can be set as true or false while loading?)
+                }
+                catch {
+                    load();
+                }
+            })();
+        }
+    }
+    catch {}
+};
+
 async function load() {
     unload();
     await updateCurrUser();
@@ -42,6 +75,10 @@ function unload() {
         document.querySelector(".friend-info-container").remove();
     }
 
+    unloadMessages();
+}
+
+function unloadMessages() {
     while (document.querySelector(".message-line-container") !== null) {
         document.querySelector(".message-line-container").remove();
     }
@@ -266,6 +303,7 @@ function deleteBudget(deleteButton) {
 }
 
 async function addFriend() {
+    //TODO: Send a WS message
     try {
         let friendUsername = document.getElementById("new-request").value; //This is the user to friend
         if (friendUsername === "") return;
@@ -537,6 +575,7 @@ async function requestFriendsBudget(requestButton) {
             else alert("An error occurred: " + resObj.responseMsg);
         }
         else {
+            //TODO: Send WS Message
             load();
         }
     }
@@ -634,6 +673,7 @@ async function sendMessage() {
             else alert("An error occurred: " + resObj.responseMsg);
         }
         else {
+            ws.send(JSON.stringify(new WSMessage("message", currUsername, activeMessage)));
             document.querySelector("#response").value = "";
             load();
         }
@@ -644,6 +684,7 @@ async function sendMessage() {
 }
 
 function openMessage(msgButton) {
+    //TODO: Clear bold
     activeMessage = msgButton.parentElement.parentElement.querySelector(".info-title").textContent;
     load();
 }
@@ -780,5 +821,13 @@ class Message {
         this.body = body;
         this.tag = tag;
         this.params = params;
+    }
+}
+
+class WSMessage {
+    constructor(tag, username, friendName) {
+        this.tag = tag;
+        this.origin = username;
+        this.destination = friendName;
     }
 }

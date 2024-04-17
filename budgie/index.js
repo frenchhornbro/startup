@@ -474,7 +474,7 @@ async function budgetAlreadyRequested(budgetName, friendName, currUsername) {
 async function sendMessage(requestBody) {
   try {
     let budgetRequest = requestBody.budgetRequest;
-    if (!budgetRequest || budgetRequest === 'null') {
+    if (budgetRequest !== null && budgetRequest !== undefined) {
       //Send a budget request
       let currUsername = budgetRequest.currUsername;
       let friendUsername = budgetRequest.friendUsername;
