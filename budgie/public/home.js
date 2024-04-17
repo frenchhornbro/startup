@@ -11,7 +11,8 @@ let currUser = JSON.parse(localStorage.getItem("user"));
 let unreadMsgs = new Map();
 
 //Set up WebSocket to communicate with WebSocketServer
-let ws = new WebSocket(`wss://${window.location.host}`);
+let protocol = (window.location.protocol === 'http:') ? 'ws' : 'wss';
+let ws = new WebSocket(`${protocol}://${window.location.host}`);
 ws.onmessage = (event) => {
     try {
         const msg = JSON.parse(event.data);
@@ -37,6 +38,8 @@ ws.onmessage = (event) => {
                         await updateCurrUser();
                         unloadFriends();
                         loadFriends();
+                        unloadMessages();
+                        loadMessages();
                     }
                 }
                 catch {
