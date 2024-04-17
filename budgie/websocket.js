@@ -38,10 +38,7 @@ function setupWS(httpServer) {
     
     function broadcast(msg, sessions, origin) {
         try {
-            for (thisSession of sessions) {
-                if (thisSession[1].id === origin.id) thisSession[1].ws.send(msg);
-                else thisSession[1].ws.send(msg);
-            }
+            for (thisSession of sessions) thisSession[1].ws.send(msg);
         }
         catch (exception) {
             console.log(exception);
