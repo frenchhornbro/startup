@@ -26,6 +26,14 @@ function setupWS(httpServer) {
             console.log("Server received message");
             broadcast(msg, sessions, newSession);
         });
+
+        ws.on('close', () => {
+            sessions.delete(sessionID);
+        });
+
+        ws.on('pong', () => {
+            newSession.active = true;
+        });
     });
     
     function broadcast(msg, sessions, origin) {
@@ -40,7 +48,16 @@ function setupWS(httpServer) {
         }
     }
 
-    //TODO: Make function to kill dead sessions
+    setInterval(() => {
+        for (thisSession of sessions) {
+            if (!thisSession.active) {
+                thisSession.ws.terminate();
+                sessions.delete(thisSession.sessionID);
+            }
+            else thisSession.ws.ping();
+
+        }
+    }, 30000);
 }
 
 module.exports = {setupWS};
