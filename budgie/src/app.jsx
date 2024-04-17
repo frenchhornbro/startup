@@ -2,6 +2,7 @@ import React from 'react';
 import {BrowserRouter, NavLink, Route, Routes} from 'react-router-dom';
 import {Header} from './header';
 import {Login} from './login/login';
+import {NewUser} from './new-user/new-user';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './app.css';
 
@@ -19,7 +20,7 @@ function App() {
     return (
       <div>
         <Header />
-        <Login />
+        <NewUser />
         <Footer />
       </div>
     );
