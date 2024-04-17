@@ -26,11 +26,17 @@ ws.onmessage = (event) => {
         if (destination === currUser.username) {
             (async () => {
                 try {
-                    //TODO: Set this for just messages (not friend requests)
-                    await updateCurrUser();
-                    unloadMessages();
-                    loadMessages();
-                    //TODO: Set user as bold (maybe a parameter that can be set as true or false while loading?)
+                    if (tag === "message") {
+                        await updateCurrUser();
+                        unloadMessages();
+                        loadMessages();
+                        //TODO: Set user as bold (maybe a parameter that can be set as true or false while loading?)
+                    }
+                    else if (tag === "friendRequest") {
+                        await updateCurrUser();
+                        unloadFriends();
+                        loadFriends();
+                    }
                 }
                 catch {
                     load();
@@ -66,7 +72,10 @@ function unload() {
     while (document.querySelector(".budget-info-container") !== null) {
         document.querySelector(".budget-info-container").remove();
     }
-
+    unloadFriends();
+    unloadMessages();
+}
+function unloadFriends() {
     while (document.querySelector(".friend") !== null) {
         document.querySelector(".friend").remove();
     }
@@ -74,8 +83,7 @@ function unload() {
     while (document.querySelector(".friend-info-container") !== null) {
         document.querySelector(".friend-info-container").remove();
     }
-
-    unloadMessages();
+    
 }
 
 function unloadMessages() {
@@ -303,7 +311,6 @@ function deleteBudget(deleteButton) {
 }
 
 async function addFriend() {
-    //TODO: Send a WS message
     try {
         let friendUsername = document.getElementById("new-request").value; //This is the user to friend
         if (friendUsername === "") return;
@@ -343,6 +350,7 @@ async function addFriend() {
         else {
             alert("Friend request sent");
             load();
+            ws.send(JSON.stringify(new WSMessage("friendRequest", currUser.username, friendUsername)));
         }
     }
     catch {
@@ -395,6 +403,7 @@ async function respondToFriendRequest(friendName, accepted) {
         }
         else if (accepted) alert(`Friend added: ${friendName}`);
         load();
+        if (accepted) ws.send(JSON.stringify(new WSMessage("friendRequest", currUser.username, friendName)));
     }
     catch {
         console.log("Accept Friend Error");
