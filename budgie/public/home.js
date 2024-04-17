@@ -8,17 +8,12 @@ let activeMessage = null;
 localStorage.removeItem("budgetOwner");
 let currUser = JSON.parse(localStorage.getItem("user"));
 
+let unreadMsgs = new Map();
+
 //Set up WebSocket to communicate with WebSocketServer
 let ws = new WebSocket(`ws://${window.location.host}`);
-ws.onopen = (event) => {
-    console.log("OPENED");
-};
-ws.onclose = (event) => {
-    console.log("CLOSED");
-};
 ws.onmessage = (event) => {
     try {
-        console.log(event.data);
         const msg = JSON.parse(event.data);
         const tag = msg.tag;
         const origin = msg.origin;
@@ -28,9 +23,15 @@ ws.onmessage = (event) => {
                 try {
                     if (tag === "message") {
                         await updateCurrUser();
-                        unloadMessages();
-                        loadMessages();
-                        //TODO: Set user as bold (maybe a parameter that can be set as true or false while loading?)
+                        if (activeMessage !== origin) {
+                            unreadMsgs.set(origin, true);
+                            unloadFriends();
+                            loadFriends();
+                        }
+                        else {
+                            unloadMessages();
+                            loadMessages();
+                        }
                     }
                     else if (tag === "request") {
                         await updateCurrUser();
@@ -79,11 +80,9 @@ function unloadFriends() {
     while (document.querySelector(".friend") !== null) {
         document.querySelector(".friend").remove();
     }
-
     while (document.querySelector(".friend-info-container") !== null) {
         document.querySelector(".friend-info-container").remove();
     }
-    
 }
 
 function unloadMessages() {
@@ -478,12 +477,15 @@ function loadFriends() {
     }
 
     function displayFriendName(friendContainer, friendName) {
+        let unread = unreadMsgs.get(friendName);
+
         let friendNameContainer = document.createElement("div");
         friendNameContainer.className = "friend-info-container";
-        
+
         let friendTitle = document.createElement("div");
         friendTitle.className = "info-title friend-name";
         friendTitle.textContent = friendName;
+        friendTitle.style.fontWeight = (unread) ? "bolder" : "normal";
         friendNameContainer.appendChild(friendTitle);
         
         let space = document.createElement("div");
@@ -495,6 +497,7 @@ function loadFriends() {
         let msgButton = document.createElement("button");
         msgButton.type = "button";
         msgButton.className = "btn btn-light";
+        if (unread) msgButton.style.backgroundColor = "#ff46af";
         msgButton.textContent = "Message";
         msgButton.onclick = () => openMessage(msgButton);
         buttonContainer.appendChild(msgButton);
@@ -693,8 +696,8 @@ async function sendMessage() {
 }
 
 function openMessage(msgButton) {
-    //TODO: Clear bold (but never set it if activeMessage is that user)
     activeMessage = msgButton.parentElement.parentElement.querySelector(".info-title").textContent;
+    unreadMsgs.delete(activeMessage);
     load();
 }
 

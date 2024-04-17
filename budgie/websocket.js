@@ -23,8 +23,7 @@ function setupWS(httpServer) {
         sessions.set(sessionID, newSession);
         ws.on('message', (data) => {
             const msg = String.fromCharCode(...data);
-            console.log(`Server received message: ${msg}`);
-            //TODO: Upon receiving the message, add them to a users map
+            console.log("Server received message");
             broadcast(msg, sessions, newSession);
         });
     });
@@ -32,14 +31,8 @@ function setupWS(httpServer) {
     function broadcast(msg, sessions, origin) {
         try {
             for (thisSession of sessions) {
-                const aSession = thisSession;
-                console.log(aSession[1]);
-                if (thisSession[1].id === origin.id) {
-                    thisSession[1].ws.send(msg);
-                }
-                else {
-                    thisSession[1].ws.send(msg);
-                }
+                if (thisSession[1].id === origin.id) thisSession[1].ws.send(msg);
+                else thisSession[1].ws.send(msg);
             }
         }
         catch (exception) {
