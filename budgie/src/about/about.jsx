@@ -4,7 +4,27 @@ import '../app.css';
 import './about.css';
 
 export function About() {
-    //TODO: Onload function
+    const [imageURL, setImageUrl] = React.useState('');
+
+    React.useEffect(() => {
+        (async () => {
+            try {
+                if (Math.random()*10 > 1) {
+                    const duck = await fetch('/api/duck');
+                    const duckImg = await duck.json();
+                    setImageUrl(duckImg.duck)
+                }
+                else {
+                    setImageUrl("\\budgie-images\\about-budgie.jpg");
+                }
+            }
+            catch {
+                console.log("Load Image Error");
+                setImageUrl("\\budgie-images\\about-budgie.jpg");
+            }
+        })();
+    }, []);
+
     return (
         <main>
             <div className="about-main-container">
@@ -36,7 +56,7 @@ export function About() {
                 </div>
                 <div className="img-frame-container">
                     <div className="about-img-frame">
-                        <img alt="Two Budgies" src="" className="bird-img" />
+                        <img alt="Two Budgies" src={imageURL} className="bird-img" />
                     </div>
                 </div>
             </div>
