@@ -1,6 +1,19 @@
 > [!NOTE]
 > *_myfinancialbudgie.click_*
 # React
+React example:
+
+```
+const i = 3;
+const list = (
+  <ol class='big'>
+  <li> Item {i}</li>
+  <li> Item {3 + i}</li>
+  </ol>
+);
+
+```
+
 ## Vite
 Create a new React-based web application using Vite:
 ```
