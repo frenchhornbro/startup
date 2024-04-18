@@ -92,9 +92,9 @@ export function Login() {
                   <div id="password-container">{warningText}</div>
                 </div>
                 <div className="form-buttons">
-                  <button type="button" className="btn btn-light login" onClick={(() => login())}>Login</button>
+                  <button type="button" className="btn btn-light login" onClick={() => login()}>Login</button>
                   <div></div>
-                  <div className="new-user"><a href="new-user.html">New user?</a></div>
+                  <div className="new-user" onClick={() => navigate("/new-user")} style={{textDecoration: "underline"}}>New user?</div>
                 </div>
               </form>
             </div>
