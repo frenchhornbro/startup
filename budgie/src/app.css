@@ -2,7 +2,7 @@
 /* Get the view height to look better on a phone */
 /* Change ico file to not have the background */
 
-body {
+body, .body {
     height: 100vh;
     display: flex;
     flex-direction: column;

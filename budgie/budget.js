@@ -15,7 +15,18 @@ let VIEWNUM = 12;
 
 let currUser = JSON.parse(localStorage.getItem("user"));
 let budget = localStorage.getItem("currentBudget");
-if (budget === null) window.location.href = "home.html";
+if (budget === null) {
+    try {
+        if (currUser.budgets.length > 0) {
+            localStorage.setItem("currentBudget", currUser.budgets[0].budgetName);
+            budget = localStorage.getItem("currentBudget");
+        }
+        else window.location.href = "home.html";
+    }
+    catch {
+        window.location.href = "home.html";
+    }
+}
 
 let budgetData = null;
 setBudgetData();

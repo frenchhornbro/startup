@@ -53,41 +53,43 @@ function App() {
 
     return (
       <BrowserRouter>
-        <header>
-          <nav className="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
-            <div className="container-fluid">
-              <img alt="Budgie logo" src="budgie-images/budgie-logo.png" className="logo" />
-              <NavLink to="/" className="navbar-brand brand-name">Budgie</NavLink>
-              <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span className="navbar-toggler-icon"></span>
-              </button>
-              <div className="collapse navbar-collapse" id="navbarNav">
-                <ul className="navbar-nav">
-                  <li className="nav-item">
-                    <NavLink to="/login" className={loginNav} onClick={() => updateLoginNav()} aria-current="page">Login</NavLink>
-                  </li>
-                  <li className="nav-item">
-                    <a className={homeNav} onClick={() => updateHomeNav()}>Home</a>
-                  </li>
-                  <li className="nav-item">
-                    <a className={budgetNav} onClick={() => updateBudgetNav()}>Budget</a>
-                  </li>
-                  <li className="nav-item">
-                    <NavLink to="/about" className={aboutNav} onClick={() => updateAboutNav()}>About</NavLink>
-                  </li>
-                </ul>
+        <div className="body">
+          <header>
+            <nav className="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
+              <div className="container-fluid">
+                <img alt="Budgie logo" src="budgie-images/budgie-logo.png" className="logo" />
+                <NavLink to="/" className="navbar-brand brand-name">Budgie</NavLink>
+                <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                  <span className="navbar-toggler-icon"></span>
+                </button>
+                <div className="collapse navbar-collapse" id="navbarNav">
+                  <ul className="navbar-nav">
+                    <li className="nav-item">
+                      <NavLink to="/login" className={loginNav} onClick={() => updateLoginNav()} aria-current="page">Login</NavLink>
+                    </li>
+                    <li className="nav-item">
+                      <a className={homeNav} onClick={() => updateHomeNav()}>Home</a>
+                    </li>
+                    <li className="nav-item">
+                      <a className={budgetNav} onClick={() => updateBudgetNav()}>Budget</a>
+                    </li>
+                    <li className="nav-item">
+                      <NavLink to="/about" className={aboutNav} onClick={() => updateAboutNav()}>About</NavLink>
+                    </li>
+                  </ul>
+                </div>
               </div>
-            </div>
-          </nav>
-        </header>
-        <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/new-user" element={<NewUser />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/*" element={<Login />} />
-        </Routes>
-        <Footer />
+            </nav>
+          </header>
+          <Routes>
+            <Route path="/" element={<Login />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/new-user" element={<NewUser />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/*" element={<Login />} />
+          </Routes>
+          <Footer />
+        </div>
       </BrowserRouter>
     );
 }
