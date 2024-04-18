@@ -45,7 +45,7 @@ export function Login() {
             localStorage.setItem("currentBudget", resObj.data.user.budgets[0].budgetName);
             localStorage.setItem("user", JSON.stringify(resObj.data.user));
             console.log("logged in");
-            navigate("/");
+            window.location.href = "home.html";
         }
     }
     catch {

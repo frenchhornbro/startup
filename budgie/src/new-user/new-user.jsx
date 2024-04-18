@@ -46,7 +46,7 @@ export function NewUser() {
             }
             else {
                 storeData(resObj.data.user);
-                navigate("/");
+                window.location.href = "home.html";
             }
         }
         catch {

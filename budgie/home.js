@@ -828,7 +828,7 @@ async function logout() {
     await fetch('/api/removeAuth', {
         method: 'PUT'
     });
-    window.location.href = "index.html";
+    window.location.href = "/";
 }
 
 class Message {

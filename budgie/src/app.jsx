@@ -2,8 +2,6 @@ import React from 'react';
 import {BrowserRouter, NavLink, Route, Routes} from 'react-router-dom';
 import {Login} from './login/login.jsx';
 import {NewUser} from './new-user/new-user.jsx';
-import {Home} from './home/home.jsx';
-import {Budget} from './budget/budget.jsx';
 import {About} from './about/about.jsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './app.css';
@@ -34,10 +32,10 @@ function App() {
                     <NavLink to="/login" className="nav-link active" aria-current="page">Login</NavLink>
                   </li>
                   <li className="nav-item">
-                    <NavLink to="/" className="nav-link">Home</NavLink>
+                    <a className="nav-link" onClick={() => window.location.href="home.html"}>Home</a>
                   </li>
                   <li className="nav-item">
-                    <NavLink to="/budget" className="nav-link">Budget</NavLink>
+                    <a className="nav-link" onClick={() => window.location.href="projected.html"}>Budget</a>
                   </li>
                   <li className="nav-item">
                     <NavLink to="/about" className="nav-link">About</NavLink>
@@ -48,40 +46,15 @@ function App() {
           </nav>
         </header>
         <Routes>
-          <Route path="/" element={<Home />} exact />
+          <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
           <Route path="/new-user" element={<NewUser />} />
-          <Route path="/budget" element={<Budget />} />
           <Route path="/about" element={<About />} />
-          <Route path="*" element={<Login to="/" replace />} />
+          <Route path="/*" element={<Login />} />
         </Routes>
         <Footer />
       </BrowserRouter>
     );
 }
-        // <BrowserRouter>
-        // <div className="app">
-        //   <nav>
-        //     <NavLink to="/login">Login</NavLink>
-        //     <NavLink to="/home">Home</NavLink>
-        //     <NavLink to="/budget">Budget</NavLink>
-        //     <NavLink to="/about">About</NavLink>
-        //   </nav>
-  
-        //   <main>
-        //     <Routes>
-        //         //TODO: Create these elements
-        //       <Route path="/" element={<Home />} exact />
-        //       <Route path="/login" element={<Login />} />
-        //       <Route path="/new-user" element={<NewUser />} />
-        //       <Route path="/budget" element={<Budget />} />
-        //       <Route path="/about" element={<About />} />
-        //       <Route path="*" element={<Navigate to="/" replace />} />
-        //     </Routes>
-        //   </main>
-  
-        //   <footer>Footer</footer>
-        // </div>
-        // </BrowserRouter>
 
 export default App;
