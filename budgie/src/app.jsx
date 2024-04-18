@@ -16,6 +16,41 @@ function Footer() {
 }
 
 function App() {
+  const [loginNav, setLoginNav] = React.useState('nav-link active');
+  const [homeNav, setHomeNav] = React.useState('nav-link');
+  const [budgetNav, setBudgetNav] = React.useState('nav-link');
+  const [aboutNav, setAboutNav] = React.useState('nav-link');
+
+  function updateLoginNav() {
+    setLoginNav('nav-link active');
+    setHomeNav('nav-link');
+    setBudgetNav('nav-link');
+    setAboutNav('nav-link');
+  }
+
+  function updateHomeNav() {
+    setHomeNav('nav-link active');
+    setLoginNav('nav-link');
+    setBudgetNav('nav-link');
+    setAboutNav('nav-link');
+    window.location.href="home.html";
+  }
+
+  function updateBudgetNav() {
+    setBudgetNav('nav-link active');
+    setHomeNav('nav-link');
+    setLoginNav('nav-link');
+    setAboutNav('nav-link');
+    window.location.href="projected.html";
+  }
+
+  function updateAboutNav() {
+    setAboutNav('nav-link active');
+    setBudgetNav('nav-link');
+    setHomeNav('nav-link');
+    setLoginNav('nav-link');
+  }
+
     return (
       <BrowserRouter>
         <header>
@@ -29,16 +64,16 @@ function App() {
               <div className="collapse navbar-collapse" id="navbarNav">
                 <ul className="navbar-nav">
                   <li className="nav-item">
-                    <NavLink to="/login" className="nav-link active" aria-current="page">Login</NavLink>
+                    <NavLink to="/login" className={loginNav} onClick={() => updateLoginNav()} aria-current="page">Login</NavLink>
                   </li>
                   <li className="nav-item">
-                    <a className="nav-link" onClick={() => window.location.href="home.html"}>Home</a>
+                    <a className={homeNav} onClick={() => updateHomeNav()}>Home</a>
                   </li>
                   <li className="nav-item">
-                    <a className="nav-link" onClick={() => window.location.href="projected.html"}>Budget</a>
+                    <a className={budgetNav} onClick={() => updateBudgetNav()}>Budget</a>
                   </li>
                   <li className="nav-item">
-                    <NavLink to="/about" className="nav-link">About</NavLink>
+                    <NavLink to="/about" className={aboutNav} onClick={() => updateAboutNav()}>About</NavLink>
                   </li>
                 </ul>
               </div>
