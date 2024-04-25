@@ -1,5 +1,99 @@
 > [!NOTE]
 > *_myfinancialbudgie.click_*
+
+# Final Exam Notes
+
+22 = ssh port
+80 = HTTP port
+443 = HTTPS port
+
+`npm install <moduleName>`
+- Adds a dependency to your package.json file
+- Adds the source code of the module to the `node_modules` directory
+- Locks the version of the package for your application
+
+Linux daemon:
+- Something that just runs in the background
+- Usually starts when the computer is rebooted
+- Executes independent of a user
+- PM2 is an example of a daemon (this stands for Process Manager 2)
+  - `npm install pm2@latest -g`
+- It's able to fork other processes
+
+Common HTTP Headers:
+- Authorization
+- Accept
+- Content-Type
+- Cookie
+- Host
+- Origin
+- Access-Control-Allow-Origin
+- Content-Length
+- Cache-Control
+- User-Agent
+
+HTTP Status Codes:
+- 100s - Service is working on the request
+- 200s - Success
+- 300s - Redirect
+- 400s - Client-side error
+- 500s - Server-side error
+
+JSX is used for
+- Rendering HTML from JavaScript
+- Componentizing your HTML
+- Allowing for composability of your HTML
+
+Example of a MongoDB query (they are case-sensitive):
+
+`{$or: [{name:/J.*/}, {score: {$lt:3}}]}`
+
+The following would call a delete app/fav/* endpoint:
+```
+const r = await fetch('/fav/ringo', {
+  method: DELETE
+});
+```
+
+To store passwords in Bcrypt:
+```
+const bcrypt = require('bcrypt');
+const uuid = require('uuid');
+
+async function createUser(email, password) {
+  const passwordHash = await bcrypt.hash(password, 10);
+
+  const user = {
+    email: email,
+    password: passwordHash,
+    token: uuid.v4()
+  };
+  await collection.insertOne(user); //This is inserting it into the DB
+
+  return user
+}
+```
+To compare passwords in Bcrypt:
+```
+if (await bcrypt.compare(inputtedPassword, storedPassword)) {
+  /* They're authorized */
+}
+```
+
+The middleware handler `app.use()` will always get called
+
+In the following, `next()` will go to the next block and see if it matches. Wherever it matches, it will execute and just keep going so long as there is `next()` in the block
+```
+app.put('/whatever/:params', (req, res, next) => {
+  next();
+});
+```
+
+You can use fetch in both front-end and back-end code
+
+WebSocket is peer to peer instead of client to server
+WebSocket provides support for keeping a connection open, but it still has to be open (it just calls ping and pong)
+
 # React
 React example:
 
@@ -14,7 +108,24 @@ const list = (
 
 ```
 
+React variables (such as className) must be specified as you would in in JavaScript, not in HTML
+
+You can call a function when rendering something in React.:
+```
+function GetReactComponent() {
+  return (
+    <ol>
+      <li onClick={() => console.log("TACO")}>Item</li>
+    </ol>
+  );
+}
+
+ReactDOM.render(<GetReactComponent />, document.getElementByID('root'));
+```
+
 ## Vite
+Vite bundles code quickly, has good debugging support, and allows you to easily support JSX, TypeScript, and different types of CSS.
+
 Create a new React-based web application using Vite:
 ```
 npm create vite@latest demoVite -- --template react
@@ -51,6 +162,80 @@ root.render(
   </BrowserRouter>
 )
 ```
+
+How to make something match exactly in a Router:
+`<Route path='/' element={<A />} exact />`
+
+## Props, State, Render
+- Render: Will make the component appear / reappear: `ReactDOM.render(<Survey />, document.getElementByID('root'));`
+- Props: properties that can be given to a functional component (`color` in the following example):
+```
+const Survey = () => {
+  const [color, updateColor] = React.useState('#848BC1');
+  return <Question answer={color}/>;
+};
+
+const Question = ({answer}) => {
+  return (
+    <div>Your answer: {answer}</div>
+  );
+};
+```
+- State: This is the `count` in the expression `const [count, updateCount] = React.useState(0)`. This is performed asynchronously, so you can't count on it being completed by the next line of code after it is called.
+
+```
+const Survey = () => {
+  const [color, updateColor] = React.useState('#737AB0');
+
+  // When the color changes update the state
+  const onChange = (e) => {
+    updateColor(e.target.value);
+  };
+
+  return (
+    <div>
+      <h1>Survey</h1>
+
+      {/* Pass the Survey color  as a parameter to the Question.
+          When the color changes the Question parameter will also be updated and rendered. */}
+      <Question answer={color} />
+
+      <p>
+        <span>Pick a color: </span>
+        {/* Set the Survey color state as a the value of the color picker.
+            When the color changes, the value will also be updated and rendered. */}
+        <input type='color' onChange={(e) => onChange(e)} value={color} />
+      </p>
+    </div>
+  );
+};
+
+// The Question component
+const Question = ({ answer }) => {
+  return (
+    <div>
+      {/* Answer rerendered whenever the parameter changes */}
+      <p>Your answer: {answer}</p>
+    </div>
+  );
+};
+
+ReactDOM.render(<Survey />, document.getElementById('root'));
+```
+
+## React Hooks
+The `useState` hook will declare and update state in a function component.
+
+```
+function Clicker({initialCount}) {
+  const [count, updateCount] = React.useState(initialCount);
+  return <div onClick={() => updateCount(count + 1)}>Click count: {count}</div>;
+}
+
+ReactDOM.render(<Clicker initialCount={3} />, document.getElementById('root'));
+```
+
+The `useEffect` hook allows you to run a function every time a component complete rendering. Place it in the function component being rendered. You can pass in a second parameter to make it only be triggered by specified dependencies. If no dependencies are given (an empty array), it is only called when the component is first rendered.
 
 
 # Databases
@@ -278,6 +463,8 @@ To remove a cookie:
 
 When an authToken expires, it will be read as `undefined`.
 
+Cookies are handled in the Header, but this format allows Express to handle cookies for you in a simpler way
+
 ## Loops
 `for in` iterates over an object's property names (gives the index number for arrays, the key for maps)
 `for of` iterates over an iterable's property values (gives the value for arrays and maps)
@@ -322,6 +509,33 @@ Events:
 - keyboard
 - mouse
 - text selection
+
+## WebSocket
+Example of creating a WebSocket server:
+```
+const {WebSocketServer} = require('ws');
+const wss = new WebSocketServer({port: 9900});
+
+wss.on('connection', (ws) => {
+  ws.on('message', (data) => {
+    const msg = String.fromCharCode(...data);
+    ws.send(`Server received this message: ${msg}`);
+  });
+});
+```
+
+Example of creating a WebSocket client:
+```
+const socket = new WebSocket('ws://localhost:9900'); //Need to do wss instead of ws for HTTPS
+
+socket.onmessage = (event) => {
+  console.log(`Client received this message: ${event.data}`);
+};
+```
+
+To send a message, call .send():
+`const socket = new WebSocket('ws://localhost:9900');`
+`socket.send('Hi server!');`
 
 ## Local Storage
 Local storage provides a way to store key value pairs in a web browser. Don't store sensitive information here.
