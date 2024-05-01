@@ -1,6 +1,16 @@
 > [!NOTE]
 > *_myfinancialbudgie.click_*
 
+# Terminating a Website:
+* https://learn.cs260.click/page/webFrameworks/wrapUp/wrapUp_md
+
+- Terminate EC2 instance
+- Disassociate elastic IP address
+- Release elastic IP address
+- Ensure auto renew is not set for your domain name
+- Delete Route 53 hosted zone for domain name
+- Clean up security group and key pair
+
 # Final Exam Notes
 
 22 = ssh port
