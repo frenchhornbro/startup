@@ -15,12 +15,12 @@ export function About() {
                     setImageUrl(duckImg.duck)
                 }
                 else {
-                    setImageUrl("\\budgie-images\\about-budgie.jpg");
+                    setImageUrl("..\\..\\budgie-images\\about-budgie.jpg");
                 }
             }
             catch {
                 console.log("Load Image Error");
-                setImageUrl("\\budgie-images\\about-budgie.jpg");
+                setImageUrl("..\\..\\budgie-images\\about-budgie.jpg");
             }
         })();
     }, []);

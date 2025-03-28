@@ -12,7 +12,7 @@ const port = 4000;
 app.use(express.json());
 
 // Serve up the frontend static content hosting
-app.use(express.static('budgie/public'));
+app.use(express.static('public'));
 
 //Use a cookie parser
 app.use(cookieParser());
@@ -200,7 +200,7 @@ apiRouter.post('/view-friend', (req, res) => {
 
 // Return the application's default page if the path is unknown
 app.use((_req, res) => {
-  res.sendFile('index.html', { root: 'budgie/public' });
+  res.sendFile('index.html', { root: 'public' });
 });
 
 const httpServer = app.listen(port, () => {

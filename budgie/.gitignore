@@ -2,3 +2,4 @@ node_modules
 TODO
 test.js
 dbConfig.json
+dist

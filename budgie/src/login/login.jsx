@@ -100,7 +100,7 @@ export function Login() {
             </div>
             <div className="space"></div>
             <div className="img-frame">
-              <img alt="Blue Budgie" src="budgie-images/login-budgie.jpg" className="bird-img" />
+              <img alt="Blue Budgie" src="../../budgie-images/login-budgie.jpg" className="bird-img" />
             </div>
             <div className="space"></div>
           </div>

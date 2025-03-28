@@ -57,7 +57,7 @@ function App() {
           <header>
             <nav className="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
               <div className="container-fluid">
-                <img alt="Budgie logo" src="budgie-images/budgie-logo.png" className="logo" />
+                <img alt="Budgie logo" src="../budgie-images/budgie-logo.png" className="logo" />
                 <NavLink to="/" className="navbar-brand brand-name">Budgie</NavLink>
                 <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                   <span className="navbar-toggler-icon"></span>
