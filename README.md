@@ -1,4 +1,17 @@
 # Budgie
+## Instructions:
+To run the backend:
+- Create a dbConfig.json file with userName, password, and hostname attributes and run
+- `cd budgie/service && npm run start`
+
+In run vite in a separate terminal:
+- `cd budgie && npm run dev`
+
+## Experience
+This was my first time creating a website. This was part of CS 260 at BYU. This includes HTML, CSS, JS, React, HTTP requests to a backend service and to a third-party API, user authentication, salting and hashing passwords, database storage, and WebSocket.
+
+Being my first time, I recognize there's plenty of room for improvement on this website. The user interface could use some more love to be intuitive and modern, the code needs more structuring according to software design principles, and at the moment it is only partially implemented in React. However, it was a fun project, and as I had been starting from zero, this experience has been a useful introduction and overall has taught me a lot about web development.
+
 ## Specification Deliverable:
 ### Elevator pitch:
 When you're finally out of the house on your own, it's important to make sure your finances are straight to avoid getting yourself into trouble. Budgie, the budgeting application, is a simple tool for helping you keep track of your income and expenses in an organized manner. Budgie allows you to set a plan of your projected income and expenses as well as functionality to track how you're doing at keeping up to your plan. Have kids that want to learn to manage their money? You can see their plan and how well they're keeping up at it. No more manually making spreadsheets -- get that peace of mind of a budget that is simple to create and accessible from anywhere.
@@ -87,3 +100,10 @@ Here's how the technology will be used:
 - **Frontend makes WebSocket connection** - Yep (all in home.js)
 - **Data sent over WebSocket connection** - Yep
 - **WebSocket data displayed in the application interface** - Sending and accepting friend requests, sending and accepting / rejecting budget requests, and sending messages are all displayed in realtime.
+
+## React Deliverable
+I completed the requirements with the Login, New User, and About pages being fully converted to React. Home and Budget are still HTML pages, but the links between the pages still function properly.
+- **Bundled using Vite** - Yes
+- **Multiple functional react components** - Login, New User and About page are all React components.
+- **React router** - Routing between login, new user, and about in React, properly sends to Home and Budget outside of React.
+- **React hooks** - Nav bar, login, new user, about
